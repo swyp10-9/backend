@@ -1,0 +1,29 @@
+package com.swyp10.exception;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public enum ErrorCode {
+    
+    // OAuth 관련 에러
+    KAKAO_TOKEN_EXCEPTION(4001, "카카오 토큰 발급에 실패했습니다."),
+    KAKAO_USER_INFO_EXCEPTION(4002, "카카오 사용자 정보 조회에 실패했습니다."),
+    OAUTH_PROVIDER_NOT_SUPPORTED(4003, "지원하지 않는 OAuth 제공자입니다."),
+    
+    // 사용자 관련 에러
+    USER_NOT_FOUND(4004, "사용자를 찾을 수 없습니다."),
+    USER_ALREADY_EXISTS(4005, "이미 존재하는 사용자입니다."),
+    
+    // JWT 관련 에러
+    INVALID_TOKEN(4006, "유효하지 않은 토큰입니다."),
+    EXPIRED_TOKEN(4007, "만료된 토큰입니다."),
+    
+    // 일반적인 에러
+    INTERNAL_SERVER_ERROR(5000, "서버 내부 오류가 발생했습니다."),
+    BAD_REQUEST(4000, "잘못된 요청입니다.");
+    
+    private final int code;
+    private final String message;
+}
