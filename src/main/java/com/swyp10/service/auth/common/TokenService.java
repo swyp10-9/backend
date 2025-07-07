@@ -56,8 +56,7 @@ public class TokenService {
             return token;
             
         } catch (Exception e) {
-            log.error("User 토큰 생성 실패: userId={}, error={}", user.getUserId(), e.getMessage());
-            throw new ApplicationException(ErrorCode.TOKEN_GENERATION_FAILED);
+            throw new ApplicationException(ErrorCode.TOKEN_GENERATION_FAILED, user.getUserId().toString(), e);
         }
     }
     
@@ -87,9 +86,7 @@ public class TokenService {
             return token;
             
         } catch (Exception e) {
-            log.error("OAuth 토큰 생성 실패: oauthAccountId={}, error={}", 
-                    oauthAccount.getOauthId(), e.getMessage());
-            throw new ApplicationException(ErrorCode.TOKEN_GENERATION_FAILED);
+            throw new ApplicationException(ErrorCode.TOKEN_GENERATION_FAILED, oauthAccount.getOauthId().toString(), e);
         }
     }
     
@@ -107,7 +104,7 @@ public class TokenService {
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             log.warn("유효하지 않은 JWT 토큰: {}", e.getMessage());
-            return false;
+            throw new ApplicationException(ErrorCode.INVALID_TOKEN, e.getMessage(), e);
         }
     }
     
@@ -116,11 +113,12 @@ public class TokenService {
      */
     public String extractAndValidateToken(String authHeader) {
         if (authHeader == null || !authHeader.startsWith(AuthConstants.BEARER_PREFIX)) {
-            return null;
+            throw new ApplicationException(ErrorCode.MISSING_REQUEST_HEADER, "인증 헤더가 올바르지 않습니다");
         }
         
         String token = authHeader.replace(AuthConstants.BEARER_PREFIX, "");
-        return validateToken(token) ? token : null;
+        validateToken(token); // 이미 예외를 던지므로 return
+        return token;
     }
     
     // === 토큰 정보 추출 ===
@@ -135,9 +133,10 @@ public class TokenService {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+        } catch (JwtException e) {
+            throw new ApplicationException(ErrorCode.TOKEN_PARSING_FAILED, e.getMessage(), e);
         } catch (Exception e) {
-            log.error("토큰에서 클레임 추출 실패: {}", e.getMessage());
-            throw new ApplicationException(ErrorCode.TOKEN_PARSING_FAILED);
+            throw new ApplicationException(ErrorCode.TOKEN_PARSING_FAILED, "토큰 처리 중 오류 발생", e);
         }
     }
     

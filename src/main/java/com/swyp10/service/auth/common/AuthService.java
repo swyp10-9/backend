@@ -35,49 +35,39 @@ public class AuthService {
      */
     @Transactional
     public TokenResponse processOAuthLogin(String provider, String code) {
-        try {
-            OAuthProvider oauthProvider = OAuthProvider.fromString(provider);
+        OAuthProvider oauthProvider = OAuthProvider.fromString(provider);
+        
+        log.info("{} OAuth 로그인 요청: code={}", provider, code.substring(0, Math.min(code.length(), 10)) + "...");
+        
+        // 1단계: 인가 코드로 액세스 토큰 발급
+        String accessToken = kakaoOAuthClient.getAccessToken(code).getAccessToken();
+        
+        // 2단계: 액세스 토큰으로 사용자 정보 조회
+        OAuthUserInfo oauthUserInfo = kakaoOAuthClient.getUserInfo(accessToken);
+        
+        // 3단계: OAuth 계정 찾기 또는 생성
+        OAuthAccount oauthAccount = accountService.findOrCreate(oauthUserInfo);
+        
+        // 4단계: 회원가입 완료 여부 확인
+        boolean isSignupCompleted = accountService.isSignupCompleted(oauthAccount.getOauthId());
+        
+        if (isSignupCompleted) {
+            // 회원가입이 완료된 경우: USER 토큰 생성
+            User user = accountService.findUserByOAuthAccount(oauthAccount.getOauthId());
+            String completedAccessToken = tokenService.generateAccessToken(user);
             
-            log.info("{} OAuth 로그인 요청: code={}", provider, code.substring(0, Math.min(code.length(), 10)) + "...");
+            log.info("OAuth 로그인 성공 (회원가입 완료): provider={}, userId={}", 
+                    provider, user.getUserId());
             
-            // 1단계: 인가 코드로 액세스 토큰 발급
-            String accessToken = kakaoOAuthClient.getAccessToken(code).getAccessToken();
+            return TokenResponse.of(completedAccessToken, user.getUserId(), user.getNickname());
+        } else {
+            // 회원가입이 미완료된 경우: OAUTH 토큰 생성
+            String oauthToken = tokenService.generateOAuthToken(oauthAccount);
             
-            // 2단계: 액세스 토큰으로 사용자 정보 조회
-            OAuthUserInfo oauthUserInfo = kakaoOAuthClient.getUserInfo(accessToken);
+            log.info("OAuth 로그인 성공 (추가 회원가입 필요): provider={}, oauthAccountId={}", 
+                    provider, oauthAccount.getOauthId());
             
-            // 3단계: OAuth 계정 찾기 또는 생성
-            OAuthAccount oauthAccount = accountService.findOrCreate(oauthUserInfo);
-            
-            // 4단계: 회원가입 완료 여부 확인
-            boolean isSignupCompleted = accountService.isSignupCompleted(oauthAccount.getOauthId());
-            
-            if (isSignupCompleted) {
-                // 회원가입이 완료된 경우: USER 토큰 생성
-                User user = accountService.findUserByOAuthAccount(oauthAccount.getOauthId());
-                String completedAccessToken = tokenService.generateAccessToken(user);
-                
-                log.info("OAuth 로그인 성공 (회원가입 완료): provider={}, userId={}", 
-                        provider, user.getUserId());
-                
-                return TokenResponse.of(completedAccessToken, user.getUserId(), user.getNickname());
-            } else {
-                // 회원가입이 미완료된 경우: OAUTH 토큰 생성
-                String oauthToken = tokenService.generateOAuthToken(oauthAccount);
-                
-                log.info("OAuth 로그인 성공 (추가 회원가입 필요): provider={}, oauthAccountId={}", 
-                        provider, oauthAccount.getOauthId());
-                
-                return TokenResponse.ofOAuth(oauthToken, oauthAccount.getProviderNickname());
-            }
-            
-        } catch (IllegalArgumentException e) {
-            log.warn("지원하지 않는 OAuth 제공자: {}", provider);
-            throw new ApplicationException(ErrorCode.INVALID_OAUTH_PROVIDER);
-            
-        } catch (Exception e) {
-            log.error("{} OAuth 로그인 실패: {}", provider, e.getMessage(), e);
-            throw new ApplicationException(ErrorCode.OAUTH_LOGIN_FAILED);
+            return TokenResponse.ofOAuth(oauthToken, oauthAccount.getProviderNickname());
         }
     }
     
@@ -86,45 +76,33 @@ public class AuthService {
      */
     @Transactional
     public TokenResponse completeAdditionalSignup(String authHeader, SignupRequest request) {
-        try {
-            // OAuth 토큰 검증 및 추출
-            String token = tokenService.extractAndValidateToken(authHeader);
-            if (token == null) {
-                throw new ApplicationException(ErrorCode.INVALID_TOKEN);
-            }
-            
-            // 토큰이 OAuth 타입인지 확인
-            String tokenType = tokenService.getTokenType(token);
-            if (!TokenType.OAUTH.getValue().equals(tokenType)) {
-                throw new ApplicationException(ErrorCode.OAUTH_TOKEN_REQUIRED);
-            }
-            
-            // 토큰에서 OAuth 계정 ID 추출
-            Long oauthAccountId = tokenService.getOAuthAccountIdFromToken(token);
-            
-            log.info("추가 회원가입 요청: oauthAccountId={}, email={}", oauthAccountId, request.getEmail());
-            
-            // 추가 회원가입 완료
-            User user = userService.completeOAuthSignup(oauthAccountId, request);
-            
-            // 완전한 USER 토큰 생성
-            String accessToken = tokenService.generateAccessToken(user);
-            TokenResponse tokenResponse = TokenResponse.of(accessToken, user.getUserId(), user.getNickname());
-            
-            log.info("추가 회원가입 완료: userId={}, email={}", user.getUserId(), request.getEmail());
-            
-            return tokenResponse;
-            
-        } catch (ApplicationException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            log.warn("추가 회원가입 실패: error={}", e.getMessage());
-            throw new ApplicationException(ErrorCode.SIGNUP_FAILED);
-            
-        } catch (Exception e) {
-            log.error("추가 회원가입 처리 중 오류: error={}", e.getMessage(), e);
-            throw new ApplicationException(ErrorCode.INTERNAL_SERVER_ERROR);
+        // OAuth 토큰 검증 및 추출
+        String token = tokenService.extractAndValidateToken(authHeader);
+        if (token == null) {
+            throw new ApplicationException(ErrorCode.INVALID_TOKEN);
         }
+        
+        // 토큰이 OAuth 타입인지 확인
+        String tokenType = tokenService.getTokenType(token);
+        if (!TokenType.OAUTH.getValue().equals(tokenType)) {
+            throw new ApplicationException(ErrorCode.OAUTH_TOKEN_REQUIRED);
+        }
+        
+        // 토큰에서 OAuth 계정 ID 추출
+        Long oauthAccountId = tokenService.getOAuthAccountIdFromToken(token);
+        
+        log.info("추가 회원가입 요청: oauthAccountId={}, email={}", oauthAccountId, request.getEmail());
+        
+        // 추가 회원가입 완료
+        User user = userService.completeOAuthSignup(oauthAccountId, request);
+        
+        // 완전한 USER 토큰 생성
+        String accessToken = tokenService.generateAccessToken(user);
+        TokenResponse tokenResponse = TokenResponse.of(accessToken, user.getUserId(), user.getNickname());
+        
+        log.info("추가 회원가입 완료: userId={}, email={}", user.getUserId(), request.getEmail());
+        
+        return tokenResponse;
     }
     
     /**
@@ -132,35 +110,27 @@ public class AuthService {
      */
     @Transactional(readOnly = true)
     public UserInfo getCurrentUser(String authHeader) {
-        try {
-            String token = tokenService.extractAndValidateToken(authHeader);
-            if (token == null) {
-                throw new ApplicationException(ErrorCode.INVALID_TOKEN);
-            }
+        String token = tokenService.extractAndValidateToken(authHeader);
+        if (token == null) {
+            throw new ApplicationException(ErrorCode.INVALID_TOKEN);
+        }
 
-            // 토큰 타입 확인
-            String tokenType = tokenService.getTokenType(token);
+        // 토큰 타입 확인
+        String tokenType = tokenService.getTokenType(token);
 
-            if (TokenType.OAUTH.getValue().equals(tokenType)) {
-                // OAuth 토큰인 경우 - 추가 회원가입 필요
-                throw new ApplicationException(ErrorCode.ADDITIONAL_SIGNUP_REQUIRED);
-            } else if (TokenType.USER.getValue().equals(tokenType)) {
-                // 완전한 사용자 토큰인 경우
-                Long userId = tokenService.getUserIdFromToken(token);
-                User user = userService.findById(userId);
+        if (TokenType.OAUTH.getValue().equals(tokenType)) {
+            // OAuth 토큰인 경우 - 추가 회원가입 필요
+            throw new ApplicationException(ErrorCode.ADDITIONAL_SIGNUP_REQUIRED);
+        } else if (TokenType.USER.getValue().equals(tokenType)) {
+            // 완전한 사용자 토큰인 경우
+            Long userId = tokenService.getUserIdFromToken(token);
+            User user = userService.findById(userId);
 
-                log.info("사용자 정보 조회: userId={}", userId);
+            log.info("사용자 정보 조회: userId={}", userId);
 
-                return UserInfo.from(user);
-            } else {
-                throw new ApplicationException(ErrorCode.UNKNOWN_TOKEN_TYPE);
-            }
-
-        } catch (ApplicationException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("사용자 정보 조회 실패: {}", e.getMessage());
-            throw new ApplicationException(ErrorCode.INTERNAL_SERVER_ERROR);
+            return UserInfo.from(user);
+        } else {
+            throw new ApplicationException(ErrorCode.UNKNOWN_TOKEN_TYPE);
         }
     }
     

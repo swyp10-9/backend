@@ -37,7 +37,13 @@ public enum ErrorCode {
     // 토큰 관련 에러
     TOKEN_GENERATION_FAILED(4018, "토큰 생성에 실패했습니다."),
     TOKEN_PARSING_FAILED(4019, "토큰 파싱에 실패했습니다."),
-    
+
+    // 요청 관련 에러
+    MISSING_REQUEST_PARAM(4020, "요청 파라미터가 누락되었습니다."),
+    MISSING_REQUEST_HEADER(4021, "요청 헤더가 누락되었습니다."),
+    INVALID_REQUEST_PARAM(4022, "요청 파라미터가 올바르지 않습니다."),
+    INVALID_REQUEST_HEADER(4023, "요청 헤더가 올바르지 않습니다."),
+
     // 일반적인 에러
     INTERNAL_SERVER_ERROR(5000, "서버 내부 오류가 발생했습니다."),
     BAD_REQUEST(4000, "잘못된 요청입니다.");

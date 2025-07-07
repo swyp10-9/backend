@@ -45,64 +45,48 @@ public class KakaoOAuthClient {
      * 인가 코드로 Kakao Access Token 발급
      */
     public KakaoTokenResponse getAccessToken(String code) {
-        try {
-            HttpEntity<MultiValueMap<String, String>> request = createTokenRequest(code);
-            
-            log.info("카카오 토큰 발급 요청: clientId={}, redirectUri={}", 
-                    KAKAO_CLIENT_ID, KAKAO_REDIRECT_URI);
-            
-            ResponseEntity<String> response = restTemplate.exchange(
-                KAKAO_TOKEN_URL,
-                HttpMethod.POST,
-                request,
-                String.class
-            );
-            
-            validateResponse(response);
-            
-            return parseTokenResponse(response.getBody());
-                
-        } catch (ApplicationException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("카카오 액세스 토큰 발급 실패", e);
-            throw new ApplicationException(ErrorCode.KAKAO_TOKEN_EXCEPTION);
-        }
+        HttpEntity<MultiValueMap<String, String>> request = createTokenRequest(code);
+        
+        log.info("카카오 토큰 발급 요청: clientId={}, redirectUri={}", 
+                KAKAO_CLIENT_ID, KAKAO_REDIRECT_URI);
+        
+        ResponseEntity<String> response = restTemplate.exchange(
+            KAKAO_TOKEN_URL,
+            HttpMethod.POST,
+            request,
+            String.class
+        );
+        
+        validateResponse(response);
+        
+        return parseTokenResponse(response.getBody());
     }
 
     /**
      * Kakao Access Token으로 사용자 정보 조회
      */
     public OAuthUserInfo getUserInfo(String accessToken) {
-        try {
-            HttpEntity<String> entity = createUserInfoRequest(accessToken);
+        HttpEntity<String> entity = createUserInfoRequest(accessToken);
 
-            log.info("카카오 사용자 정보 API 호출 시작");
+        log.info("카카오 사용자 정보 API 호출 시작");
 
-            ResponseEntity<KakaoUserResponse> response = restTemplate.exchange(
-                KAKAO_USER_INFO_URL,
-                HttpMethod.GET,
-                entity,
-                KakaoUserResponse.class
-            );
+        ResponseEntity<KakaoUserResponse> response = restTemplate.exchange(
+            KAKAO_USER_INFO_URL,
+            HttpMethod.GET,
+            entity,
+            KakaoUserResponse.class
+        );
 
-            KakaoUserResponse kakaoUser = validateUserResponse(response);
-            
-            validateUserData(kakaoUser);
+        KakaoUserResponse kakaoUser = validateUserResponse(response);
+        
+        validateUserData(kakaoUser);
 
-            log.info("카카오 사용자 정보 조회 성공: id={}, email={}, nickname={}",
-                    kakaoUser.getId(),
-                    kakaoUser.getKakaoAccount().getEmail(),
-                    kakaoUser.getKakaoAccount().getProfile().getNickname());
+        log.info("카카오 사용자 정보 조회 성공: id={}, email={}, nickname={}",
+                kakaoUser.getId(),
+                kakaoUser.getKakaoAccount().getEmail(),
+                kakaoUser.getKakaoAccount().getProfile().getNickname());
 
-            return OAuthUserInfo.fromKakao(kakaoUser);
-
-        } catch (ApplicationException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("카카오 사용자 정보 조회 실패", e);
-            throw new ApplicationException(ErrorCode.KAKAO_USER_INFO_EXCEPTION);
-        }
+        return OAuthUserInfo.fromKakao(kakaoUser);
     }
     
     // === Private 메서드들 ===
@@ -148,26 +132,26 @@ public class KakaoOAuthClient {
         try {
             JSONParser parser = new JSONParser();
             JSONObject json = (JSONObject) parser.parse(responseBody);
-            
+
             String accessToken = (String) json.get("access_token");
             String refreshToken = (String) json.get("refresh_token");
             Object expires = json.get("expires_in");
             Long expiresIn = expires != null ? ((Number) expires).longValue() : null;
-            
+
             log.info("카카오 액세스 토큰 발급 성공");
-            
+
             return KakaoTokenResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .expiresIn(expiresIn)
-                .build();
-                
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .expiresIn(expiresIn)
+                    .build();
+
         } catch (Exception e) {
-            log.error("토큰 응답 파싱 실패", e);
-            throw new ApplicationException(ErrorCode.KAKAO_TOKEN_EXCEPTION);
+            log.error("카카오 토큰 응답 파싱 실패", e);
+            throw new ApplicationException(ErrorCode.TOKEN_PARSING_FAILED);
         }
     }
-    
+
     /**
      * 사용자 응답 유효성 검증
      */
