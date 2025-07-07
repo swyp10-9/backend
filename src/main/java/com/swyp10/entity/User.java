@@ -1,5 +1,6 @@
 package com.swyp10.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.swyp10.entity.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -44,6 +45,7 @@ public class User extends BaseTimeEntity {
     
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonIgnore
     private List<OAuthAccount> oauthAccounts = new ArrayList<>();
 
     // 비즈니스 메서드들

@@ -6,7 +6,6 @@ import com.swyp10.dto.auth.common.TokenResponse;
 import com.swyp10.entity.User;
 import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
-import com.swyp10.service.auth.token.JwtTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;

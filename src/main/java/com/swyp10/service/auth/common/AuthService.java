@@ -1,5 +1,6 @@
 package com.swyp10.service.auth.common;
 
+import com.swyp10.constants.TokenType;
 import com.swyp10.dto.auth.OAuthProvider;
 import com.swyp10.dto.auth.common.LoginRequest;
 import com.swyp10.dto.auth.common.SignupRequest;
@@ -94,7 +95,7 @@ public class AuthService {
             
             // 토큰이 OAuth 타입인지 확인
             String tokenType = tokenService.getTokenType(token);
-            if (!"OAUTH".equals(tokenType)) {
+            if (!TokenType.OAUTH.getValue().equals(tokenType)) {
                 throw new ApplicationException(ErrorCode.OAUTH_TOKEN_REQUIRED);
             }
             
@@ -140,10 +141,10 @@ public class AuthService {
             // 토큰 타입 확인
             String tokenType = tokenService.getTokenType(token);
 
-            if ("OAUTH".equals(tokenType)) {
+            if (TokenType.OAUTH.getValue().equals(tokenType)) {
                 // OAuth 토큰인 경우 - 추가 회원가입 필요
                 throw new ApplicationException(ErrorCode.ADDITIONAL_SIGNUP_REQUIRED);
-            } else if ("USER".equals(tokenType)) {
+            } else if (TokenType.USER.getValue().equals(tokenType)) {
                 // 완전한 사용자 토큰인 경우
                 Long userId = tokenService.getUserIdFromToken(token);
                 User user = userService.findById(userId);
