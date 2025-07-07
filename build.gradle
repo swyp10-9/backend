@@ -1,13 +1,7 @@
-import org.codehaus.groovy.runtime.GStringImpl
-
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.3'
     id 'io.spring.dependency-management' version '1.1.7'
-
-    // QueryDSL
-    id "com.ewer.gradle.plugins.querydsl" version "1.0.10"
-
     // REST Docs
     id "org.asciidoctor.jvm.convert" version "4.0.2"
 }
@@ -27,7 +21,7 @@ repositories {
 
 ext {
     snippetsDir = file('build/generated-snippets')
-    querydslDir = layout.buildDirectory.dir('generated/querydsl').get().asFile.absolutePath
+    querydslDir = layout.buildDirectory.dir('generated/querydsl').get().asFile
 }
 
 dependencies {
@@ -54,6 +48,10 @@ dependencies {
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    //lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 }
 
 tasks.named('test') {
@@ -78,13 +76,17 @@ bootJar {
 
 // QueryDSL 설정
 sourceSets {
-    main.java.srcDirs += querydslDir
+    main {
+        java {
+            srcDirs = ['src/main/java', querydslDir]
+        }
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
+    options.generatedSourceOutputDirectory = querydslDir
 }
 
 clean {
-    delete file(querydslDir)
+    delete querydslDir
 }
