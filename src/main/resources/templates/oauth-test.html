@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카카오 OAuth 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background-color: #FEE500;
+            color: #000;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px 0;
+        }
+        .button:hover {
+            background-color: #FDD835;
+        }
+        .info-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .step {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🥕 카카오 OAuth 테스트</h1>
+        
+        <div class="step">
+            <h2>📋 설정 정보</h2>
+            <p><strong>Client ID:</strong> <span th:text="${clientId}">로딩중...</span></p>
+            <p><strong>Redirect URI:</strong> <span th:text="${redirectUri}">로딩중...</span></p>
+        </div>
+        
+        <div class="step">
+            <h2>1️⃣ 단계: 카카오 인증 시작</h2>
+            <p>아래 버튼을 클릭하여 카카오 로그인을 진행하세요.</p>
+            <a th:href="@{/test/kakao/auth}" class="button">
+                🔗 카카오 로그인 시작
+            </a>
+        </div>
+        
+        <div class="step">
+            <h2>2️⃣ 단계: 수동 URL 접속 (대안)</h2>
+            <p>위 버튼이 작동하지 않으면 아래 URL을 직접 브라우저에 입력하세요:</p>
+            <div class="info-box" th:text="'https://kauth.kakao.com/oauth/authorize?client_id=' + ${clientId} + '&redirect_uri=' + ${redirectUri} + '&response_type=code'">
+                URL 생성 중...
+            </div>
+        </div>
+        
+        <div class="step">
+            <h2>3️⃣ 단계: API 테스트 방법</h2>
+            <p>로그인 후 인가 코드를 받으면 다음 방법으로 API를 테스트할 수 있습니다:</p>
+            
+            <h3>📡 Postman 테스트:</h3>
+            <div class="info-box">
+POST http://localhost:8080/api/auth/oauth/kakao/callback?code={받은_인가_코드}
+Content-Type: application/json
+            </div>
+            
+            <h3>💻 curl 테스트:</h3>
+            <div class="info-box">
+curl -X POST "http://localhost:8080/api/auth/oauth/kakao/callback?code={받은_인가_코드}"
+            </div>
+        </div>
+        
+        <div class="step">
+            <h2>🔍 디버깅 엔드포인트</h2>
+            <p>OAuth 설정 정보 확인:</p>
+            <a href="/test/oauth/info" class="button" target="_blank">
+                📊 OAuth 설정 정보 보기
+            </a>
+        </div>
+        
+        <div class="step">
+            <h2>📚 참고사항</h2>
+            <ul>
+                <li>카카오 개발자 콘솔에서 Redirect URI를 정확히 설정해주세요</li>
+                <li>Client ID는 카카오 앱의 REST API 키입니다</li>
+                <li>로그인 후 콜백 페이지에서 인가 코드를 확인할 수 있습니다</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

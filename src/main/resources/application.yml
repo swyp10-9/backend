@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME}?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:swyp10}?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:password}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -10,6 +10,7 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
         format_sql: true
     open-in-view: false
 
@@ -20,3 +21,17 @@ logging:
 
 server:
   port: ${SERVER_PORT:8080}
+
+# JWT 설정
+jwt:
+  secret: ${JWT_SECRET:your-secret-key-here-must-be-at-least-256-bits-long}
+  expiration: ${JWT_EXPIRATION:86400} # 24시간 (초 단위)
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800} # 7일 (초 단위)
+
+# OAuth 설정
+oauth:
+  kakao:
+    client-id: ${KAKAO_CLIENT_ID:your-kakao-client-id}
+    redirect-uri: ${KAKAO_REDIRECT_URI:http://localhost:8080/test/kakao/callback}
+    token-url: ${KAKAO_TOKEN_URL:https://kauth.kakao.com/oauth/token}
+    user-info-url: ${KAKAO_USER_INFO_URL:https://kapi.kakao.com/v2/user/me}
