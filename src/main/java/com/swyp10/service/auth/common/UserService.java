@@ -1,7 +1,6 @@
 package com.swyp10.service.auth.common;
 
 import com.swyp10.dto.auth.common.SignupRequest;
-import com.swyp10.entity.LoginType;
 import com.swyp10.entity.OAuthAccount;
 import com.swyp10.entity.User;
 import com.swyp10.exception.ApplicationException;
@@ -78,7 +77,6 @@ public class UserService {
             .email(request.getEmail())
             .password(passwordEncoder.encode(request.getPassword()))
             .nickname(request.getNickname())
-            .loginType(LoginType.EMAIL)
             .signupCompleted(true)
             .build();
         
@@ -107,7 +105,6 @@ public class UserService {
             .password(passwordEncoder.encode(request.getPassword()))
             .nickname(request.getNickname())
             .profileImage(oauthAccount.getProviderProfileImage())
-            .loginType(oauthAccount.getProvider())
             .signupCompleted(true)
             .build();
         

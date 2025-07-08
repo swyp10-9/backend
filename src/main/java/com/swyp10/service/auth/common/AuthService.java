@@ -5,7 +5,7 @@ import com.swyp10.dto.auth.OAuthProvider;
 import com.swyp10.dto.auth.common.LoginRequest;
 import com.swyp10.dto.auth.common.SignupRequest;
 import com.swyp10.dto.auth.common.TokenResponse;
-import com.swyp10.service.auth.kakao.KakaoOAuthClient;
+
 import com.swyp10.dto.auth.common.OAuthUserInfo;
 import com.swyp10.entity.OAuthAccount;
 import com.swyp10.entity.User;
@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class AuthService {
     
-    private final KakaoOAuthClient kakaoOAuthClient;
+    private final OAuthClientFactory oauthClientFactory;
     private final EmailService emailService;
     private final UserService userService;
     private final AccountService accountService;
@@ -39,11 +39,14 @@ public class AuthService {
         
         log.info("{} OAuth 로그인 요청: code={}", provider, code.substring(0, Math.min(code.length(), 10)) + "...");
         
+        // OAuth 클라이언트 선택
+        OAuthClient oauthClient = oauthClientFactory.getClient(oauthProvider);
+        
         // 1단계: 인가 코드로 액세스 토큰 발급
-        String accessToken = kakaoOAuthClient.getAccessToken(code).getAccessToken();
+        String accessToken = oauthClient.getAccessToken(code);
         
         // 2단계: 액세스 토큰으로 사용자 정보 조회
-        OAuthUserInfo oauthUserInfo = kakaoOAuthClient.getUserInfo(accessToken);
+        OAuthUserInfo oauthUserInfo = oauthClient.getUserInfo(accessToken);
         
         // 3단계: OAuth 계정 찾기 또는 생성
         OAuthAccount oauthAccount = accountService.findOrCreate(oauthUserInfo);

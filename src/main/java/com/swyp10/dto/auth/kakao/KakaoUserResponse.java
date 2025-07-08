@@ -1,11 +1,15 @@
 package com.swyp10.dto.auth.kakao;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class KakaoUserResponse {
     
     private Long id;

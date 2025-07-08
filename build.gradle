@@ -34,6 +34,9 @@ dependencies {
 
     // MySQL JDBC Driver
     runtimeOnly 'com.mysql:mysql-connector-j'
+    
+    // H2 Database for testing
+    testImplementation 'com.h2database:h2'
 
     // QueryDSL
     implementation "com.querydsl:querydsl-jpa:5.0.0:jakarta"

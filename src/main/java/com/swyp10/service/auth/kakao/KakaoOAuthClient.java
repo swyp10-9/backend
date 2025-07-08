@@ -6,6 +6,7 @@ import com.swyp10.dto.auth.kakao.KakaoUserResponse;
 import com.swyp10.dto.auth.common.OAuthUserInfo;
 import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
+import com.swyp10.service.auth.common.OAuthClient;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -17,11 +18,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-@Component
+@Component("kakaoOAuthClient")
 @Slf4j
-public class KakaoOAuthClient {
+public class KakaoOAuthClient implements OAuthClient {
 
     private final RestTemplate restTemplate;
     
@@ -44,49 +46,70 @@ public class KakaoOAuthClient {
     /**
      * 인가 코드로 Kakao Access Token 발급
      */
-    public KakaoTokenResponse getAccessToken(String code) {
-        HttpEntity<MultiValueMap<String, String>> request = createTokenRequest(code);
-        
-        log.info("카카오 토큰 발급 요청: clientId={}, redirectUri={}", 
-                KAKAO_CLIENT_ID, KAKAO_REDIRECT_URI);
-        
-        ResponseEntity<String> response = restTemplate.exchange(
-            KAKAO_TOKEN_URL,
-            HttpMethod.POST,
-            request,
-            String.class
-        );
-        
-        validateResponse(response);
-        
-        return parseTokenResponse(response.getBody());
+    @Override
+    public String getAccessToken(String code) {
+        try {
+            HttpEntity<MultiValueMap<String, String>> request = createTokenRequest(code);
+            
+            log.info("카카오 토큰 발급 요청: clientId={}, redirectUri={}", 
+                    KAKAO_CLIENT_ID, KAKAO_REDIRECT_URI);
+            
+            ResponseEntity<String> response = restTemplate.exchange(
+                KAKAO_TOKEN_URL,
+                HttpMethod.POST,
+                request,
+                String.class
+            );
+            
+            validateResponse(response);
+            
+            KakaoTokenResponse tokenResponse = parseTokenResponse(response.getBody());
+            return tokenResponse.getAccessToken();
+            
+        } catch (RestClientException e) {
+            log.error("카카오 토큰 발급 네트워크 오류: {}", e.getMessage());
+            throw new ApplicationException(ErrorCode.KAKAO_TOKEN_EXCEPTION);
+        } catch (Exception e) {
+            log.error("카카오 토큰 발급 예상치 못한 오류: {}", e.getMessage(), e);
+            throw new ApplicationException(ErrorCode.KAKAO_TOKEN_EXCEPTION);
+        }
     }
 
     /**
      * Kakao Access Token으로 사용자 정보 조회
      */
+    @Override
     public OAuthUserInfo getUserInfo(String accessToken) {
-        HttpEntity<String> entity = createUserInfoRequest(accessToken);
+        try {
+            HttpEntity<String> entity = createUserInfoRequest(accessToken);
 
-        log.info("카카오 사용자 정보 API 호출 시작");
+            log.info("카카오 사용자 정보 API 호출 시작");
 
-        ResponseEntity<KakaoUserResponse> response = restTemplate.exchange(
-            KAKAO_USER_INFO_URL,
-            HttpMethod.GET,
-            entity,
-            KakaoUserResponse.class
-        );
+            ResponseEntity<KakaoUserResponse> response = restTemplate.exchange(
+                KAKAO_USER_INFO_URL,
+                HttpMethod.GET,
+                entity,
+                KakaoUserResponse.class
+            );
 
-        KakaoUserResponse kakaoUser = validateUserResponse(response);
-        
-        validateUserData(kakaoUser);
+            KakaoUserResponse kakaoUser = validateUserResponse(response);
+            
+            validateUserData(kakaoUser);
 
-        log.info("카카오 사용자 정보 조회 성공: id={}, email={}, nickname={}",
-                kakaoUser.getId(),
-                kakaoUser.getKakaoAccount().getEmail(),
-                kakaoUser.getKakaoAccount().getProfile().getNickname());
+            log.info("카카오 사용자 정보 조회 성공: id={}, email={}, nickname={}",
+                    kakaoUser.getId(),
+                    kakaoUser.getKakaoAccount().getEmail(),
+                    kakaoUser.getKakaoAccount().getProfile().getNickname());
 
-        return OAuthUserInfo.fromKakao(kakaoUser);
+            return OAuthUserInfo.fromKakao(kakaoUser);
+            
+        } catch (RestClientException e) {
+            log.error("카카오 사용자 정보 조회 네트워크 오류: {}", e.getMessage());
+            throw new ApplicationException(ErrorCode.NETWORK_ERROR);
+        } catch (Exception e) {
+            log.error("카카오 사용자 정보 조회 예상치 못한 오류: {}", e.getMessage(), e);
+            throw new ApplicationException(ErrorCode.KAKAO_USER_INFO_EXCEPTION);
+        }
     }
     
     // === Private 메서드들 ===

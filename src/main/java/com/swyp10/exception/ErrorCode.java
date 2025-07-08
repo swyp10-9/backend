@@ -11,6 +11,7 @@ public enum ErrorCode {
     KAKAO_TOKEN_EXCEPTION(4001, "카카오 토큰 발급에 실패했습니다."),
     KAKAO_USER_INFO_EXCEPTION(4002, "카카오 사용자 정보 조회에 실패했습니다."),
     OAUTH_PROVIDER_NOT_SUPPORTED(4003, "지원하지 않는 OAuth 제공자입니다."),
+    UNSUPPORTED_OAUTH_PROVIDER(4024, "지원하지 않는 OAuth 제공자입니다."),
     
     // 사용자 관련 에러
     USER_NOT_FOUND(4004, "사용자를 찾을 수 없습니다."),
@@ -43,6 +44,10 @@ public enum ErrorCode {
     MISSING_REQUEST_HEADER(4021, "요청 헤더가 누락되었습니다."),
     INVALID_REQUEST_PARAM(4022, "요청 파라미터가 올바르지 않습니다."),
     INVALID_REQUEST_HEADER(4023, "요청 헤더가 올바르지 않습니다."),
+
+    // 네트워크 및 외부 API 에러
+    NETWORK_ERROR(5001, "네트워크 연결에 실패했습니다."),
+    EXTERNAL_API_ERROR(5002, "외부 API 호출에 실패했습니다."),
 
     // 일반적인 에러
     INTERNAL_SERVER_ERROR(5000, "서버 내부 오류가 발생했습니다."),
