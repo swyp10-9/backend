@@ -45,6 +45,29 @@ public class AccountService {
     }
     
     /**
+     * OAuth 계정과 기존 사용자 연동
+     */
+    @Transactional
+    public void linkOAuthAccountToUser(Long oauthAccountId, Long userId) {
+        OAuthAccount oauthAccount = findById(oauthAccountId);
+        
+        if (oauthAccount.getUser() != null) {
+            throw new ApplicationException(ErrorCode.SIGNUP_ALREADY_COMPLETED);
+        }
+        
+        // User 를 직접 설정하거나 UserService를 통해 설정
+        // 여기서는 User 엔티티를 직접 생성하지 않고 ID만 설정
+        User user = new User();
+        user.setUserId(userId);
+        oauthAccount.setUser(user);
+        
+        oauthAccountRepository.save(oauthAccount);
+        
+        log.info("OAuth 계정과 기존 사용자 연동 완료: oauthAccountId={}, userId={}", 
+                oauthAccountId, userId);
+    }
+    
+    /**
      * OAuth 계정과 사용자 연결
      */
     @Transactional
@@ -69,6 +92,19 @@ public class AccountService {
     public boolean isSignupCompleted(Long oauthAccountId) {
         OAuthAccount oauthAccount = findById(oauthAccountId);
         return oauthAccount.getUser() != null && oauthAccount.getUser().getSignupCompleted();
+    }
+    
+    /**
+     * OAuth 계정이 이미 다른 사용자와 연동되어 있는지 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean isOAuthAccountLinked(OAuthUserInfo oauthUserInfo) {
+        LoginType provider = LoginType.valueOf(oauthUserInfo.getProvider().name());
+        String providerUserId = oauthUserInfo.getOauthId();
+        
+        return oauthAccountRepository.findByProviderAndProviderUserId(provider, providerUserId)
+            .map(account -> account.getUser() != null)
+            .orElse(false);
     }
     
     /**

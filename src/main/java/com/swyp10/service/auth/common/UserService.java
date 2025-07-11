@@ -47,6 +47,21 @@ public class UserService {
     // === 이메일 관련 ===
     
     /**
+     * 이메일 존재 여부 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+    
+    /**
+     * 비밀번호 검증
+     */
+    public boolean validatePassword(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+    
+    /**
      * 이메일 중복 확인
      */
     @Transactional(readOnly = true)

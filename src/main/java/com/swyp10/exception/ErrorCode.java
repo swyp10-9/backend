@@ -35,6 +35,10 @@ public enum ErrorCode {
     SIGNUP_ALREADY_COMPLETED(4016, "이미 회원가입이 완료된 계정입니다."),
     INVALID_PASSWORD(4017, "비밀번호가 일치하지 않습니다."),
     
+    // OAuth 연동 관련 에러
+    OAUTH_ACCOUNT_ALREADY_LINKED(4025, "이미 다른 계정과 연동된 OAuth 계정입니다."),
+    USER_TOKEN_REQUIRED(4026, "사용자 토큰이 필요합니다."),
+    
     // 토큰 관련 에러
     TOKEN_GENERATION_FAILED(4018, "토큰 생성에 실패했습니다."),
     TOKEN_PARSING_FAILED(4019, "토큰 파싱에 실패했습니다."),

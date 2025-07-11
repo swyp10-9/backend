@@ -96,4 +96,22 @@ public class AuthController {
         boolean available = authService.checkEmailAvailable(email);
         return ResponseEntity.ok(available);
     }
+    
+    /**
+     * 이메일 사용자 OAuth 연동
+     */
+    @PostMapping("/link-oauth/{provider}")
+    @Operation(
+        summary = "OAuth 계정 연동", 
+        description = "이메일 사용자가 OAuth 계정을 연동",
+        security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    public ResponseEntity<String> linkOAuthAccount(
+        @Parameter(description = "OAuth 제공자", example = "kakao") @PathVariable String provider,
+        @Parameter(description = "OAuth 인가 코드") @RequestParam String code,
+        @Parameter(hidden = true) @RequestHeader(value = "Authorization", required = false) String authHeader
+    ) {
+        authService.linkOAuthToEmailUser(provider, code, authHeader);
+        return ResponseEntity.ok("계정 연동이 성공적으로 완료되었습니다.");
+    }
 }
