@@ -42,7 +42,6 @@ public class TokenService {
                 .setSubject(String.valueOf(user.getUserId()))
                 .claim(AuthConstants.EMAIL_CLAIM, user.getEmail())
                 .claim(AuthConstants.NICKNAME_CLAIM, user.getNickname())
-                .claim(AuthConstants.LOGIN_TYPE_CLAIM, user.getLoginType().name())
                 .claim(AuthConstants.SIGNUP_COMPLETED_CLAIM, user.getSignupCompleted())
                 .claim(AuthConstants.TOKEN_TYPE_CLAIM, TokenType.USER.getValue())
                 .setIssuedAt(dates[0])

@@ -147,7 +147,7 @@
             try {
                 resultDiv.innerHTML = '<p>⏳ API 호출 중...</p>';
                 
-                const response = await fetch(`/api/auth/oauth/kakao/callback?code=${code}`, {
+                const response = await fetch(`/api/v1/auth/oauth/kakao/callback?code=${code}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

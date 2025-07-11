@@ -83,13 +83,13 @@
             
             <h3>📡 Postman 테스트:</h3>
             <div class="info-box">
-POST http://localhost:8080/api/auth/oauth/kakao/callback?code={받은_인가_코드}
+POST http://localhost:8080/api/v1/auth/oauth/kakao/callback?code={받은_인가_코드}
 Content-Type: application/json
             </div>
             
             <h3>💻 curl 테스트:</h3>
             <div class="info-box">
-curl -X POST "http://localhost:8080/api/auth/oauth/kakao/callback?code={받은_인가_코드}"
+curl -X POST "http://localhost:8080/api/v1/auth/oauth/kakao/callback?code={받은_인가_코드}"
             </div>
         </div>
         
