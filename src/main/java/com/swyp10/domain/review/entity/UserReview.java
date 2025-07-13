@@ -6,6 +6,9 @@ import com.swyp10.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "user_reviews")
 @Getter
@@ -25,12 +28,13 @@ public class UserReview extends BaseTimeEntity {
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Builder.Default
     @JoinColumn(name = "festival_id", nullable = false)
     private Festival festival;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Builder.Default
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "userReview", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewLike> reviewLikes = new ArrayList<>();
 }

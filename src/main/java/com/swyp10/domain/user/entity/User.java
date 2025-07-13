@@ -1,6 +1,7 @@
 package com.swyp10.domain.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.swyp10.domain.activitylog.entity.UserActivityLog;
 import com.swyp10.domain.review.entity.UserReview;
 import com.swyp10.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -50,8 +51,14 @@ public class User extends BaseTimeEntity {
     private List<OAuthAccount> oauthAccounts = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     @JsonIgnore
     private List<UserReview> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    @JsonIgnore
+    private List<UserActivityLog> activityLogs = new ArrayList<>();
 
     // 비즈니스 메서드들
     public boolean isOAuthUser() {
