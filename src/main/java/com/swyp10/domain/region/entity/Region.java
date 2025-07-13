@@ -19,7 +19,7 @@ public class Region extends BaseTimeEntity {
 
     @Id
     @Column(name = "region_code")
-    private Integer regionCode;
+    private int regionCode;
 
     @Column(name = "region_name", nullable = false, length = 50)
     private String regionName;
