@@ -4,9 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.RestClientException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +40,40 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * RestClientException 처리
+     */
+    @ExceptionHandler(RestClientException.class)
+    public ResponseEntity<Map<String, Object>> handleRestClientException(
+            RestClientException e) {
+        log.warn("RestClientException: 네트워크 오류 '{}'", e.getMessage());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "ERROR");
+        response.put("code", 5001);
+        response.put("message", e.getMessage());
+
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    /**
+     * MissingServletRequestParameterException 처리
+     */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<Map<String, Object>> handleMissingServletRequestParameterException(
+            MissingServletRequestParameterException e) {
+        log.warn("MissingServletRequestParameterException: 필수 파라미터 '{}' 누락", e.getParameterName());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "ERROR");
+        response.put("code", 4020);
+        response.put("message", e.getMessage());
+
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    /**
      * Validation 예외 처리
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -50,7 +87,7 @@ public class GlobalExceptionHandler {
         
         Map<String, Object> response = new HashMap<>();
         response.put("status", "ERROR");
-        response.put("code", 4000);
+        response.put("code", 4022);
         response.put("message", "입력값이 올바르지 않습니다.");
         response.put("fieldErrors", fieldErrors);
         

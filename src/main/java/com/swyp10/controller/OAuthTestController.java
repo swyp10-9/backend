@@ -61,7 +61,7 @@ public class OAuthTestController {
             
             // curl 명령어 생성
             String curlCommand = String.format(
-                "curl -X POST \"http://localhost:8080/api/auth/oauth/kakao/callback?code=%s\"", 
+                "curl -X POST \"http://localhost:8080/api/v1/auth/oauth/kakao/callback?code=%s\"", 
                 code
             );
             model.addAttribute("curlCommand", curlCommand);
