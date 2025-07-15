@@ -27,10 +27,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("KakaoOAuthClient 테스트")
 class KakaoOAuthClientTest {
-    @Value("${oauth.kakao.token-url}")
-    private String KAKAO_TOKEN_URL;
-    @Value("${oauth.kakao.user-info-url}")
-    private String KAKAO_USER_INFO_URL;
+    private String KAKAO_TOKEN_URL = "https://kauth.kakao.com/oauth/token";
+    private String KAKAO_USER_INFO_URL = "https://kapi.kakao.com/v2/user/me";
 
     @Mock
     private RestTemplate restTemplate;

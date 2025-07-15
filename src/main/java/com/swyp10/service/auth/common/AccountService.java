@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccountService {
     
     private final OAuthAccountRepository oauthAccountRepository;
-    
+    private final UserService userService;
     /**
      * OAuth 계정 찾기 또는 생성
      */
@@ -54,11 +54,8 @@ public class AccountService {
         if (oauthAccount.getUser() != null) {
             throw new ApplicationException(ErrorCode.SIGNUP_ALREADY_COMPLETED);
         }
-        
-        // User 를 직접 설정하거나 UserService를 통해 설정
-        // 여기서는 User 엔티티를 직접 생성하지 않고 ID만 설정
-        User user = new User();
-        user.setUserId(userId);
+
+        User user = userService.findById(userId);
         oauthAccount.setUser(user);
         
         oauthAccountRepository.save(oauthAccount);

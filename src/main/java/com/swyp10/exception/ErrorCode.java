@@ -10,7 +10,6 @@ public enum ErrorCode {
     // OAuth 관련 에러
     KAKAO_TOKEN_EXCEPTION(4001, "카카오 토큰 발급에 실패했습니다."),
     KAKAO_USER_INFO_EXCEPTION(4002, "카카오 사용자 정보 조회에 실패했습니다."),
-    OAUTH_PROVIDER_NOT_SUPPORTED(4003, "지원하지 않는 OAuth 제공자입니다."),
     UNSUPPORTED_OAUTH_PROVIDER(4024, "지원하지 않는 OAuth 제공자입니다."),
     
     // 사용자 관련 에러

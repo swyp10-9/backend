@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
      * RestClientException 처리
      */
     @ExceptionHandler(RestClientException.class)
-    public ResponseEntity<Map<String, Object>> RestClientException(
+    public ResponseEntity<Map<String, Object>> handleRestClientException(
             RestClientException e) {
         log.warn("RestClientException: 네트워크 오류 '{}'", e.getMessage());
 
@@ -60,7 +60,7 @@ public class GlobalExceptionHandler {
      * MissingServletRequestParameterException 처리
      */
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<Map<String, Object>> MissingServletRequestParameterException(
+    public ResponseEntity<Map<String, Object>> handleMissingServletRequestParameterException(
             MissingServletRequestParameterException e) {
         log.warn("MissingServletRequestParameterException: 필수 파라미터 '{}' 누락", e.getParameterName());
 

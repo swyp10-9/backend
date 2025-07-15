@@ -88,27 +88,9 @@ class AuthControllerTest {
     @DisplayName("OAuth 로그인 - 필수 파라미터 누락")
     void oauthLogin_MissingCode() throws Exception {
         // when & then
-        MvcResult result = mockMvc.perform(post("/api/v1/auth/oauth/login/kakao")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-
-        // 예외 정보 출력
-        System.out.println("=== 예외 정보 ===");
-        System.out.println("Status Code: " + result.getResponse().getStatus());
-        System.out.println("Content: " + result.getResponse().getContentAsString());
-        System.out.println("Error Message: " + result.getResponse().getErrorMessage());
-
-        Exception exception = result.getResolvedException();
-        if (exception != null) {
-            System.out.println("Exception Type: " + exception.getClass().getSimpleName());
-            System.out.println("Exception Message: " + exception.getMessage());
-            exception.printStackTrace();
-        } else {
-            System.out.println("No resolved exception (Security filter may have blocked it)");
-        }
-
-        // 원래 기대값 확인
-        // .andExpect(status().isBadRequest());
+     mockMvc.perform(post("/api/v1/auth/oauth/login/kakao")
+             .contentType(MediaType.APPLICATION_JSON))
+             .andExpect(status().isBadRequest());
     }
 
     @Test
