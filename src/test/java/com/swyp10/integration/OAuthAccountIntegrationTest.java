@@ -140,10 +140,7 @@ class OAuthAccountIntegrationTest {
         OAuthAccount updatedAccount = oauthAccountRepository.save(savedAccount);
         oauthAccountRepository.flush(); // 강제 플러시
 
-        // then
-        System.out.println("Created: " + createdTime);
-        System.out.println("Updated: " + updatedAccount.getUpdatedAt());
-
+        //then
         assertThat(updatedAccount.getUpdatedAt()).isAfter(createdTime);
     }
     @Test
