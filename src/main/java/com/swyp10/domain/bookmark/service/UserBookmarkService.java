@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class UserBookmarkService {
 
-    private UserBookmarkRepository userBookmarkRepository;
+    private final UserBookmarkRepository userBookmarkRepository;
 
     public UserBookmark getUserBookmark(Long bookmarkId) {
         return userBookmarkRepository.findById(bookmarkId)

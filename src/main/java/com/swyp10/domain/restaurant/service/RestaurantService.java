@@ -20,10 +20,12 @@ public class RestaurantService {
             .orElseThrow(() -> new ApplicationException(ErrorCode.BAD_REQUEST, "Restaurant not found: " + restaurantId));
     }
 
+    @Transactional
     public Restaurant createRestaurant(Restaurant restaurant) {
         return restaurantRepository.save(restaurant);
     }
 
+    @Transactional
     public void deleteRestaurant(Long restaurantId) {
         restaurantRepository.deleteById(restaurantId);
     }

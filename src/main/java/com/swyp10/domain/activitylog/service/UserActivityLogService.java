@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class UserActivityLogService {
 
-    private UserActivityLogRepository activityLogRepository;
+    private final UserActivityLogRepository activityLogRepository;
 
     public UserActivityLog getUserActivityLog(Long logId) {
         return activityLogRepository.findById(logId)

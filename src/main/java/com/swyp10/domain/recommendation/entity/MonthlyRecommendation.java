@@ -11,11 +11,12 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
+@Builder(buildMethodName = "of")
 public class MonthlyRecommendation {
 
     @Id
     @Column(name = "festival_id")
+    @Setter(AccessLevel.NONE)
     private Long festivalId;
 
     @OneToOne(fetch = FetchType.LAZY)

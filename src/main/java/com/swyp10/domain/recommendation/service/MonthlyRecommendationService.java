@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class MonthlyRecommendationService {
 
-    private MonthlyRecommendationRepository recommendationRepository;
+    private final MonthlyRecommendationRepository recommendationRepository;
 
     public MonthlyRecommendation getMonthlyRecommendation(Long festivalId) {
         return recommendationRepository.findById(festivalId)

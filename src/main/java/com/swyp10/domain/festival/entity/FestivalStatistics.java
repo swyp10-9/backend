@@ -17,7 +17,7 @@ public class FestivalStatistics {
     private Long festivalId;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @MapsId("festivalId")
+    @MapsId
     @JoinColumn(name = "festival_id")
     private Festival festival;
 
@@ -51,7 +51,7 @@ public class FestivalStatistics {
     }
 
     @Builder
-    public FestivalStatistics(Festival festival, int regionCode, int viewCount, int bookmarkCount, BigDecimal ratingAvg, int ratingCount, LocalDateTime updatedAt) {
+    public FestivalStatistics(Festival festival, int regionCode, int viewCount, int bookmarkCount, BigDecimal ratingAvg, int ratingCount) {
         this.festival = festival;
         this.regionCode = regionCode;
         this.viewCount = viewCount;
