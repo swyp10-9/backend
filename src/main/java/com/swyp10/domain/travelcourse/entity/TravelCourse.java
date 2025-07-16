@@ -14,7 +14,7 @@ public class TravelCourse extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "course_id")
-    private Long courseId;
+    private Long id;
 
     private String title;
 

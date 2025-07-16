@@ -7,6 +7,7 @@ import com.swyp10.dto.auth.kakao.KakaoUserResponse;
 import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
 import com.swyp10.service.auth.common.OAuthClient;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -42,7 +43,7 @@ public class KakaoOAuthClient implements OAuthClient {
     public KakaoOAuthClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
-    
+
     /**
      * 인가 코드로 Kakao Access Token 발급
      */

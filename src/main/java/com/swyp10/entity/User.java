@@ -55,13 +55,4 @@ public class User extends BaseTimeEntity {
     @Builder.Default
     @JsonIgnore
     private List<UserActivityLog> activityLogs = new ArrayList<>();
-
-    // 비즈니스 메서드들
-    public boolean isOAuthUser() {
-        return loginType != LoginType.EMAIL;
-    }
-    
-    public boolean isEmailUser() {
-        return loginType == LoginType.EMAIL;
-    }
 }
