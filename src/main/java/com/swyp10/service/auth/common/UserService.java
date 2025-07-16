@@ -1,7 +1,6 @@
 package com.swyp10.service.auth.common;
 
 import com.swyp10.dto.auth.common.SignupRequest;
-import com.swyp10.entity.LoginType;
 import com.swyp10.entity.OAuthAccount;
 import com.swyp10.entity.User;
 import com.swyp10.exception.ApplicationException;
@@ -48,6 +47,21 @@ public class UserService {
     // === 이메일 관련 ===
     
     /**
+     * 이메일 존재 여부 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+    
+    /**
+     * 비밀번호 검증
+     */
+    public boolean validatePassword(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+    
+    /**
      * 이메일 중복 확인
      */
     @Transactional(readOnly = true)
@@ -78,7 +92,6 @@ public class UserService {
             .email(request.getEmail())
             .password(passwordEncoder.encode(request.getPassword()))
             .nickname(request.getNickname())
-            .loginType(LoginType.EMAIL)
             .signupCompleted(true)
             .build();
         
@@ -107,7 +120,6 @@ public class UserService {
             .password(passwordEncoder.encode(request.getPassword()))
             .nickname(request.getNickname())
             .profileImage(oauthAccount.getProviderProfileImage())
-            .loginType(oauthAccount.getProvider())
             .signupCompleted(true)
             .build();
         

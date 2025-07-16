@@ -24,8 +24,8 @@ public class User extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long userId;
-    
-    @Column(name = "email", length = 255, nullable = false)
+
+    @Column(name = "email", length = 255, nullable = false, unique = true)
     private String email;
     
     @Column(name = "password", length = 255, nullable = false)
@@ -36,10 +36,6 @@ public class User extends BaseTimeEntity {
     
     @Column(name = "profile_image", columnDefinition = "TEXT")
     private String profileImage;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(name = "login_type", length = 50, nullable = false)
-    private LoginType loginType;
     
     @Column(name = "signup_completed", nullable = false)
     @Builder.Default

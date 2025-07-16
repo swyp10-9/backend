@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccountService {
     
     private final OAuthAccountRepository oauthAccountRepository;
-    
+    private final UserService userService;
     /**
      * OAuth 계정 찾기 또는 생성
      */
@@ -42,6 +42,26 @@ public class AccountService {
     public OAuthAccount findById(Long oauthAccountId) {
         return oauthAccountRepository.findById(oauthAccountId)
             .orElseThrow(() -> new ApplicationException(ErrorCode.OAUTH_ACCOUNT_NOT_FOUND));
+    }
+    
+    /**
+     * OAuth 계정과 기존 사용자 연동
+     */
+    @Transactional
+    public void linkOAuthAccountToUser(Long oauthAccountId, Long userId) {
+        OAuthAccount oauthAccount = findById(oauthAccountId);
+        
+        if (oauthAccount.getUser() != null) {
+            throw new ApplicationException(ErrorCode.SIGNUP_ALREADY_COMPLETED);
+        }
+
+        User user = userService.findById(userId);
+        oauthAccount.setUser(user);
+        
+        oauthAccountRepository.save(oauthAccount);
+        
+        log.info("OAuth 계정과 기존 사용자 연동 완료: oauthAccountId={}, userId={}", 
+                oauthAccountId, userId);
     }
     
     /**
@@ -69,6 +89,19 @@ public class AccountService {
     public boolean isSignupCompleted(Long oauthAccountId) {
         OAuthAccount oauthAccount = findById(oauthAccountId);
         return oauthAccount.getUser() != null && oauthAccount.getUser().getSignupCompleted();
+    }
+    
+    /**
+     * OAuth 계정이 이미 다른 사용자와 연동되어 있는지 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean isOAuthAccountLinked(OAuthUserInfo oauthUserInfo) {
+        LoginType provider = LoginType.valueOf(oauthUserInfo.getProvider().name());
+        String providerUserId = oauthUserInfo.getOauthId();
+        
+        return oauthAccountRepository.findByProviderAndProviderUserId(provider, providerUserId)
+            .map(account -> account.getUser() != null)
+            .orElse(false);
     }
     
     /**

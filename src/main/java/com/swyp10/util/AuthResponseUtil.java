@@ -103,7 +103,6 @@ public class AuthResponseUtil {
             "email", user.getEmail(),
             "nickname", user.getNickname(),
             "profileImage", user.getProfileImage() != null ? user.getProfileImage() : "",
-            "loginType", user.getLoginType().name(),
             "signupCompleted", user.getSignupCompleted(),
             "createdAt", user.getCreatedAt(),
             "updatedAt", user.getUpdatedAt()
