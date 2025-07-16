@@ -1,6 +1,6 @@
 package com.swyp10.entity;
 
-import com.swyp10.entity.common.BaseTimeEntity;
+import com.swyp10.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

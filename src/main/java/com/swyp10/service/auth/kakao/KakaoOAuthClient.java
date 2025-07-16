@@ -1,9 +1,9 @@
 package com.swyp10.service.auth.kakao;
 
 import com.swyp10.constants.AuthConstants;
+import com.swyp10.dto.auth.common.OAuthUserInfo;
 import com.swyp10.dto.auth.kakao.KakaoTokenResponse;
 import com.swyp10.dto.auth.kakao.KakaoUserResponse;
-import com.swyp10.dto.auth.common.OAuthUserInfo;
 import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
 import com.swyp10.service.auth.common.OAuthClient;

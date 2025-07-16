@@ -1,4 +1,4 @@
-package com.swyp10.entity.common;
+package com.swyp10.common;
 
 import jakarta.persistence.*;
 import lombok.Getter;

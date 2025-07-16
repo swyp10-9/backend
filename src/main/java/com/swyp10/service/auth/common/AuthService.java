@@ -2,13 +2,13 @@ package com.swyp10.service.auth.common;
 
 import com.swyp10.constants.TokenType;
 import com.swyp10.dto.auth.OAuthProvider;
-import com.swyp10.dto.auth.common.LoginRequest;
 import com.swyp10.dto.auth.common.SignupRequest;
+import com.swyp10.entity.OAuthAccount;
+import com.swyp10.entity.User;
+import com.swyp10.dto.auth.common.LoginRequest;
 import com.swyp10.dto.auth.common.TokenResponse;
 
 import com.swyp10.dto.auth.common.OAuthUserInfo;
-import com.swyp10.entity.OAuthAccount;
-import com.swyp10.entity.User;
 import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;

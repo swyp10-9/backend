@@ -1,9 +1,9 @@
 package com.swyp10.controller;
 
-import com.swyp10.dto.auth.common.LoginRequest;
 import com.swyp10.dto.auth.common.SignupRequest;
-import com.swyp10.dto.auth.common.TokenResponse;
 import com.swyp10.service.auth.common.AuthService;
+import com.swyp10.dto.auth.common.LoginRequest;
+import com.swyp10.dto.auth.common.TokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

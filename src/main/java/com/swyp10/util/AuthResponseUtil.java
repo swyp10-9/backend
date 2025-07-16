@@ -1,7 +1,7 @@
 package com.swyp10.util;
 
-import com.swyp10.dto.auth.common.TokenResponse;
 import com.swyp10.entity.User;
+import com.swyp10.dto.auth.common.TokenResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Map;
