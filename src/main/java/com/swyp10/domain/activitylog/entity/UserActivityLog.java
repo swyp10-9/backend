@@ -1,6 +1,6 @@
 package com.swyp10.domain.activitylog.entity;
 
-import com.swyp10.domain.user.entity.User;
+import com.swyp10.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 

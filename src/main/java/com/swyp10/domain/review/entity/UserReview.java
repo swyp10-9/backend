@@ -1,8 +1,8 @@
 package com.swyp10.domain.review.entity;
 
 import com.swyp10.domain.festival.entity.Festival;
-import com.swyp10.domain.user.entity.User;
-import com.swyp10.global.entity.BaseTimeEntity;
+import com.swyp10.entity.User;
+import com.swyp10.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

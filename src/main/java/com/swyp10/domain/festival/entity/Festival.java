@@ -3,7 +3,7 @@ package com.swyp10.domain.festival.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.swyp10.domain.region.entity.Region;
 import com.swyp10.domain.review.entity.UserReview;
-import com.swyp10.global.entity.BaseTimeEntity;
+import com.swyp10.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,6 +1,6 @@
 package com.swyp10.domain.travelcourse.entity;
 
-import com.swyp10.global.entity.BaseTimeEntity;
+import com.swyp10.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
