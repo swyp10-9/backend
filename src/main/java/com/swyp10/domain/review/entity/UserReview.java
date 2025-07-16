@@ -36,5 +36,6 @@ public class UserReview extends BaseTimeEntity {
     private User user;
 
     @OneToMany(mappedBy = "userReview", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<ReviewLike> reviewLikes = new ArrayList<>();
 }

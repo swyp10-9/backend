@@ -27,7 +27,7 @@ public class Festival extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = IDENTITY)
     @Column(name = "festival_id")
-    private Long festivalId;
+    private Long id;
 
     @Column(length = 255, nullable = false)
     private String name;

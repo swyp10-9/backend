@@ -36,6 +36,14 @@ class KakaoOAuthClientTest {
     @InjectMocks
     private KakaoOAuthClient kakaoOAuthClient;
 
+    @BeforeEach
+    void setup() {
+        ReflectionTestUtils.setField(kakaoOAuthClient, "KAKAO_CLIENT_ID", "test-kakao-client-id");
+        ReflectionTestUtils.setField(kakaoOAuthClient, "KAKAO_REDIRECT_URI", "http://localhost/test/callback");
+        ReflectionTestUtils.setField(kakaoOAuthClient, "KAKAO_TOKEN_URL", KAKAO_TOKEN_URL);
+        ReflectionTestUtils.setField(kakaoOAuthClient, "KAKAO_USER_INFO_URL", KAKAO_USER_INFO_URL);
+    }
+
     @Test
     @DisplayName("카카오 액세스 토큰 발급 - 성공")
     void getAccessToken_Success() {
