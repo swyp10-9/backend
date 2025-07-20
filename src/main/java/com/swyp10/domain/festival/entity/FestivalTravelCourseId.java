@@ -21,4 +21,12 @@ public class FestivalTravelCourseId implements Serializable {
 
     @Column(name = "course_id")
     private Long courseId;
+
+    public void setFestivalId(Long id) {
+        this.festivalId = id;
+    }
+
+    public void setCourseId(Long id) {
+        this.courseId = id;
+    }
 }

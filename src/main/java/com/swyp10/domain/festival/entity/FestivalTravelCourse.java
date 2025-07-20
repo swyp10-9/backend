@@ -34,4 +34,15 @@ public class FestivalTravelCourse {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
+
+    public void setFestival(Festival festival) {
+        this.festival = festival;
+        this.id.setFestivalId(festival.getId());
+    }
+
+    public void setTravelCourse(TravelCourse travelCourse) {
+        this.travelCourse = travelCourse;
+        this.id.setCourseId(travelCourse.getId());
+    }
+
 }

@@ -19,7 +19,7 @@ public class UserReview extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "review_id")
-    private Long userReviewId;
+    private Long id;
 
     @Column(nullable = false)
     private int rating;
@@ -36,5 +36,28 @@ public class UserReview extends BaseTimeEntity {
     private User user;
 
     @OneToMany(mappedBy = "userReview", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<ReviewLike> reviewLikes = new ArrayList<>();
+
+
+    // 연관 관계 메서드
+    public void setFestival(Festival festival) {
+        this.festival = festival;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void addReviewLike(ReviewLike like) {
+        this.reviewLikes.add(like);
+        like.setUserReview(this);
+    }
+
+    // 수정 메서드
+    public void updateContent(String content, int rating) {
+        this.content = content;
+        this.rating = rating;
+    }
+
 }

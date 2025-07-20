@@ -46,4 +46,12 @@ public class ReviewLike {
     public void markDeleted(){
         this.deletedAt = LocalDateTime.now();
     }
+
+    public void setUserReview(UserReview userReview) {
+        this.userReview = userReview;
+    }
+
+    public boolean isDeleted() {
+        return deletedAt != null;
+    }
 }

@@ -39,4 +39,8 @@ public class UserActivityLog {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

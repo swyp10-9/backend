@@ -60,4 +60,30 @@ public class FestivalStatistics {
         this.ratingCount = ratingCount;
         this.updatedAt = LocalDateTime.now();
     }
+
+    // 수정/업데이트 메서드
+    public void increaseViewCount() {
+        this.viewCount++;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void increaseBookmarkCount() {
+        this.bookmarkCount++;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void decreaseBookmarkCount() {
+        if (this.bookmarkCount > 0) {
+            this.bookmarkCount--;
+            this.updatedAt = LocalDateTime.now();
+        }
+    }
+
+    public void updateRating(BigDecimal newRating) {
+        BigDecimal total = this.ratingAvg.multiply(BigDecimal.valueOf(this.ratingCount));
+        this.ratingCount++;
+        this.ratingAvg = total.add(newRating).divide(BigDecimal.valueOf(this.ratingCount), 2, BigDecimal.ROUND_HALF_UP);
+        this.updatedAt = LocalDateTime.now();
+    }
+
 }
