@@ -38,6 +38,10 @@ public class Festival extends BaseTimeEntity {
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
+    @Enumerated(EnumType.STRING)
+    private FestivalStatus status;
+
+    @Enumerated(EnumType.STRING)
     private FestivalTheme theme;
 
     @Column(columnDefinition = "TEXT")
@@ -67,5 +71,38 @@ public class Festival extends BaseTimeEntity {
     public void initializeStatistics() {
         FestivalStatistics stats = FestivalStatistics.createEmpty(this);
         this.statistics = stats;
+    }
+
+    public void addTravelCourse(FestivalTravelCourse course) {
+        this.travelCourses.add(course);
+        course.setFestival(this);
+    }
+
+    public void addReview(UserReview review) {
+        this.reviews.add(review);
+        review.setFestival(this);
+    }
+
+    public void setRegion(Region region) {
+        this.region = region;
+        region.getFestivals().add(this);
+    }
+
+    // 상태 반환 메서드
+    public FestivalStatus getCurrentStatus() {
+        LocalDate today = LocalDate.now();
+        if(today.isBefore(startDate)) return FestivalStatus.INACTIVE;
+        if(today.isAfter(endDate)) return FestivalStatus.ENDED;
+        return FestivalStatus.ACTIVE;
+    }
+
+    // 수정 메서드
+    public void updateFestival(String name, LocalDate startDate, LocalDate endDate, FestivalTheme theme, String description, String thumbnail) {
+        this.name = name;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.theme = theme;
+        this.description = description;
+        this.thumbnail = thumbnail;
     }
 }

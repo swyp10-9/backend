@@ -55,4 +55,31 @@ public class User extends BaseTimeEntity {
     @Builder.Default
     @JsonIgnore
     private List<UserActivityLog> activityLogs = new ArrayList<>();
+
+    // 연관 관계 편의 메서드
+    public void addOAuthAccount(OAuthAccount account) {
+        this.oauthAccounts.add(account);
+        account.setUser(this);
+    }
+
+    public void addReview(UserReview review) {
+        this.reviews.add(review);
+        review.setUser(this);
+    }
+
+    public void addActivityLog(UserActivityLog log) {
+        this.activityLogs.add(log);
+        log.setUser(this);
+    }
+
+    // 수정/업데이트 메서드
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
+    public void updateProfile(String nickname, String profileImage) {
+        this.nickname = nickname;
+        this.profileImage = profileImage;
+    }
+
 }

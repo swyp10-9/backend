@@ -25,4 +25,9 @@ public class TravelCourse extends BaseTimeEntity {
     @Column(name = "difficulty_level")
     private TravelDifficulty difficultyLevel;
 
+    public void updateCourse(String title, int durationHours, TravelDifficulty difficultyLevel) {
+        this.title = title;
+        this.durationHours = durationHours;
+        this.difficultyLevel = difficultyLevel;
+    }
 }

@@ -37,4 +37,15 @@ public class Restaurant extends BaseTimeEntity {
 
     @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
+
+    // 수정 메서드
+    public void updateInfo(String name, String category, Location location, String phone, String priceRange, String imageUrl) {
+        this.name = name;
+        this.category = category;
+        this.location = location;
+        this.phone = phone;
+        this.priceRange = priceRange;
+        this.imageUrl = imageUrl;
+    }
+
 }

@@ -42,4 +42,9 @@ public class UserBookmark {
     public void markDeleted() {
         this.deletedAt = LocalDateTime.now();
     }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
+    }
+
 }

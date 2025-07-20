@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder(buildMethodName = "of")
+@Builder
 public class MonthlyRecommendation {
 
     @Id
