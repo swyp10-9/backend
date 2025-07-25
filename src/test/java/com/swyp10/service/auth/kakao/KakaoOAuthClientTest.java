@@ -4,6 +4,7 @@ import com.swyp10.domain.auth.service.kakao.KakaoOAuthClient;
 import com.swyp10.domain.auth.dto.kakao.KakaoUserResponse;
 import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +34,15 @@ class KakaoOAuthClientTest {
 
     @InjectMocks
     private KakaoOAuthClient kakaoOAuthClient;
+    
+    @BeforeEach
+    void setUp() {
+        // @Value 필드에 값 설정
+        ReflectionTestUtils.setField(kakaoOAuthClient, "KAKAO_TOKEN_URL", KAKAO_TOKEN_URL);
+        ReflectionTestUtils.setField(kakaoOAuthClient, "KAKAO_USER_INFO_URL", KAKAO_USER_INFO_URL);
+        ReflectionTestUtils.setField(kakaoOAuthClient, "KAKAO_CLIENT_ID", "test-client-id");
+        ReflectionTestUtils.setField(kakaoOAuthClient, "KAKAO_REDIRECT_URI", "http://localhost:8080/test/callback");
+    }
 
     @Test
     @DisplayName("카카오 액세스 토큰 발급 - 성공")
