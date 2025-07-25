@@ -23,7 +23,7 @@ import java.util.Date;
 @Slf4j
 public class TokenService {
     
-    @Value("${jwt.secret:your-secret-key-here-must-be-at-least-256-bits-long}")
+    @Value("${jwt.secret:abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789}")
     private String secretKey;
     
     @Value("${jwt.expiration:86400}")

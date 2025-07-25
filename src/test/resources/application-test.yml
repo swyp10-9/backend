@@ -37,7 +37,7 @@ server:
 
 # JWT 설정 (테스트용)
 jwt:
-  secret: this-is-a-very-long-test-secret-key-for-jwt-token-that-must-be-at-least-256-bits-long-for-security-purposes-and-testing
+  secret: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
   expiration: 3600 # 1시간
   refresh-expiration: 7200 # 2시간
 
@@ -54,5 +54,5 @@ KAKAO_CLIENT_ID: test-kakao-client-id
 DB_USERNAME: sa
 DB_PASSWORD: 
 DB_NAME: testdb
-JWT_SECRET: this-is-a-very-long-test-secret-key-for-jwt-token-that-must-be-at-least-256-bits-long-for-security-purposes-and-testing
+JWT_SECRET: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 KAKAO_REDIRECT_URI: http://localhost:8080/test/kakao/callback
