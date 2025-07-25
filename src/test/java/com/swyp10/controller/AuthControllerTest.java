@@ -1,10 +1,11 @@
 package com.swyp10.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.swyp10.dto.auth.common.SignupRequest;
-import com.swyp10.dto.auth.common.TokenResponse;
+import com.swyp10.domain.auth.controller.AuthController;
+import com.swyp10.domain.auth.dto.common.SignupRequest;
+import com.swyp10.domain.auth.dto.common.TokenResponse;
 import com.swyp10.exception.GlobalExceptionHandler;
-import com.swyp10.service.auth.common.AuthService;
+import com.swyp10.domain.auth.service.common.AuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.ArgumentMatchers.*;

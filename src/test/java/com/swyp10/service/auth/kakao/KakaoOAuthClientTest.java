@@ -1,17 +1,15 @@
 package com.swyp10.service.auth.kakao;
 
-import com.swyp10.dto.auth.kakao.KakaoTokenResponse;
-import com.swyp10.dto.auth.kakao.KakaoUserResponse;
+import com.swyp10.domain.auth.service.kakao.KakaoOAuthClient;
+import com.swyp10.domain.auth.dto.kakao.KakaoUserResponse;
 import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;

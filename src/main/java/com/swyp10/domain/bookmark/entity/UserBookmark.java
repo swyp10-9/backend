@@ -1,7 +1,7 @@
 package com.swyp10.domain.bookmark.entity;
 
 import com.swyp10.domain.festival.entity.Festival;
-import com.swyp10.entity.User;
+import com.swyp10.domain.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -1,7 +1,7 @@
 package com.swyp10.integration;
 
-import com.swyp10.entity.User;
-import com.swyp10.repository.UserRepository;
+import com.swyp10.domain.auth.entity.User;
+import com.swyp10.domain.auth.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

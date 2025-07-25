@@ -1,5 +1,8 @@
 package com.swyp10.entity;
 
+import com.swyp10.domain.auth.entity.LoginType;
+import com.swyp10.domain.auth.entity.OAuthAccount;
+import com.swyp10.domain.auth.entity.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

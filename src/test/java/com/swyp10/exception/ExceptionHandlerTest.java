@@ -1,7 +1,7 @@
 package com.swyp10.exception;
 
-import com.swyp10.controller.AuthController;
-import com.swyp10.service.auth.common.AuthService;
+import com.swyp10.domain.auth.controller.AuthController;
+import com.swyp10.domain.auth.service.common.AuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,9 +1,10 @@
 package com.swyp10.service.auth.common;
 
 import com.swyp10.constants.TokenType;
-import com.swyp10.entity.LoginType;
-import com.swyp10.entity.OAuthAccount;
-import com.swyp10.entity.User;
+import com.swyp10.domain.auth.service.common.TokenService;
+import com.swyp10.domain.auth.entity.LoginType;
+import com.swyp10.domain.auth.entity.OAuthAccount;
+import com.swyp10.domain.auth.entity.User;
 import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
 import io.jsonwebtoken.Claims;

@@ -1,11 +1,11 @@
 package com.swyp10.integration;
 
-import com.swyp10.dto.auth.common.LoginRequest;
-import com.swyp10.dto.auth.common.SignupRequest;
-import com.swyp10.dto.auth.common.TokenResponse;
-import com.swyp10.entity.User;
-import com.swyp10.repository.UserRepository;
-import com.swyp10.service.auth.common.EmailService;
+import com.swyp10.domain.auth.dto.common.LoginRequest;
+import com.swyp10.domain.auth.dto.common.SignupRequest;
+import com.swyp10.domain.auth.dto.common.TokenResponse;
+import com.swyp10.domain.auth.entity.User;
+import com.swyp10.domain.auth.repository.UserRepository;
+import com.swyp10.domain.auth.service.common.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

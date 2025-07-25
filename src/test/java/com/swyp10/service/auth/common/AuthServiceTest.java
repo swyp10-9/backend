@@ -1,13 +1,14 @@
 package com.swyp10.service.auth.common;
 
-import com.swyp10.dto.auth.OAuthProvider;
-import com.swyp10.dto.auth.common.LoginRequest;
-import com.swyp10.dto.auth.common.OAuthUserInfo;
-import com.swyp10.dto.auth.common.SignupRequest;
-import com.swyp10.dto.auth.common.TokenResponse;
-import com.swyp10.entity.LoginType;
-import com.swyp10.entity.OAuthAccount;
-import com.swyp10.entity.User;
+import com.swyp10.domain.auth.service.common.*;
+import com.swyp10.domain.auth.dto.OAuthProvider;
+import com.swyp10.domain.auth.dto.common.LoginRequest;
+import com.swyp10.domain.auth.dto.common.OAuthUserInfo;
+import com.swyp10.domain.auth.dto.common.SignupRequest;
+import com.swyp10.domain.auth.dto.common.TokenResponse;
+import com.swyp10.domain.auth.entity.LoginType;
+import com.swyp10.domain.auth.entity.OAuthAccount;
+import com.swyp10.domain.auth.entity.User;
 import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;

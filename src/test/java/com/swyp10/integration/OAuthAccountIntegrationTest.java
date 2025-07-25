@@ -1,10 +1,10 @@
 package com.swyp10.integration;
 
-import com.swyp10.entity.LoginType;
-import com.swyp10.entity.OAuthAccount;
-import com.swyp10.entity.User;
-import com.swyp10.repository.OAuthAccountRepository;
-import com.swyp10.repository.UserRepository;
+import com.swyp10.domain.auth.entity.LoginType;
+import com.swyp10.domain.auth.entity.OAuthAccount;
+import com.swyp10.domain.auth.entity.User;
+import com.swyp10.domain.auth.repository.OAuthAccountRepository;
+import com.swyp10.domain.auth.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
