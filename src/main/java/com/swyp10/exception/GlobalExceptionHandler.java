@@ -1,10 +1,10 @@
 package com.swyp10.exception;
 
+import com.swyp10.global.response.CommonResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,103 +25,72 @@ public class GlobalExceptionHandler {
      * ApplicationException 처리
      */
     @ExceptionHandler(ApplicationException.class)
-    public ResponseEntity<Map<String, Object>> handleApplicationException(ApplicationException e) {
+    public ResponseEntity<CommonResponse<?>> handleApplicationException(ApplicationException e) {
         log.warn("ApplicationException: {} - {}", e.getErrorCode(), e.getMessage());
-        
+
         ErrorCode errorCode = e.getErrorCode();
         HttpStatus status = getHttpStatusFromErrorCode(errorCode);
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", "ERROR");
-        response.put("code", errorCode.getCode());
-        response.put("message", errorCode.getMessage());
-        
-        return ResponseEntity.status(status).body(response);
+
+        return ResponseEntity.status(status)
+            .body(CommonResponse.fail(errorCode.getMessage(), errorCode.getCode()));
     }
 
     /**
      * RestClientException 처리
      */
     @ExceptionHandler(RestClientException.class)
-    public ResponseEntity<Map<String, Object>> handleRestClientException(
-            RestClientException e) {
+    public ResponseEntity<CommonResponse<?>> handleRestClientException(RestClientException e) {
         log.warn("RestClientException: 네트워크 오류 '{}'", e.getMessage());
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", "ERROR");
-        response.put("code", 5001);
-        response.put("message", e.getMessage());
-
-
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.badRequest()
+            .body(CommonResponse.fail(e.getMessage(), ErrorCode.NETWORK_ERROR.getCode()));
     }
 
     /**
      * MissingServletRequestParameterException 처리
      */
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<Map<String, Object>> handleMissingServletRequestParameterException(
-            MissingServletRequestParameterException e) {
+    public ResponseEntity<CommonResponse<?>> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
         log.warn("MissingServletRequestParameterException: 필수 파라미터 '{}' 누락", e.getParameterName());
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", "ERROR");
-        response.put("code", 4020);
-        response.put("message", e.getMessage());
-
-
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.badRequest()
+            .body(CommonResponse.fail(ErrorCode.MISSING_REQUEST_PARAM.getMessage(), ErrorCode.MISSING_REQUEST_PARAM.getCode()));
     }
 
     /**
      * Validation 예외 처리
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException e) {
+    public ResponseEntity<CommonResponse<?>> handleValidationException(MethodArgumentNotValidException e) {
         log.warn("Validation Exception: {}", e.getMessage());
-        
+
         Map<String, String> fieldErrors = new HashMap<>();
         for (FieldError error : e.getBindingResult().getFieldErrors()) {
             fieldErrors.put(error.getField(), error.getDefaultMessage());
         }
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", "ERROR");
-        response.put("code", 4022);
-        response.put("message", "입력값이 올바르지 않습니다.");
-        response.put("fieldErrors", fieldErrors);
-        
-        return ResponseEntity.badRequest().body(response);
+
+        return ResponseEntity.badRequest()
+            .body(CommonResponse.fail(ErrorCode.INVALID_REQUEST_PARAM.getMessage(),
+                ErrorCode.INVALID_REQUEST_PARAM.getCode(), fieldErrors));
     }
 
     /**
      * 일반 RuntimeException 처리
      */
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException e) {
+    public ResponseEntity<CommonResponse<?>> handleRuntimeException(RuntimeException e) {
         log.error("RuntimeException: {}", e.getMessage(), e);
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", "ERROR");
-        response.put("code", 4000);
-        response.put("message", e.getMessage());
-        
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.badRequest()
+            .body(CommonResponse.fail(e.getMessage(), ErrorCode.BAD_REQUEST.getCode()));
     }
 
     /**
      * 기타 모든 예외 처리
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleException(Exception e) {
+    public ResponseEntity<CommonResponse<?>> handleException(Exception e) {
         log.error("Unexpected Exception: {}", e.getMessage(), e);
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", "ERROR");
-        response.put("code", 5000);
-        response.put("message", "서버 내부 오류가 발생했습니다.");
-        
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(CommonResponse.fail(ErrorCode.INTERNAL_SERVER_ERROR.getMessage(),
+                ErrorCode.INTERNAL_SERVER_ERROR.getCode()));
     }
 
     /**
