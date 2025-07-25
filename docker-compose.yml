@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    volumes:
+      - ./mariadb-data:/var/lib/mysql
+  backend:
+    image: ${DOCKER_USERNAME}/swyp10-9-backend:latest
+    container_name: swyp10-9-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
+      JWT_SECRET: ${JWT_SECRET}
+      KAKAO_REDIRECT_URI: ${KAKAO_REDIRECT_URI}
+    depends_on:
+      -  mariadb
