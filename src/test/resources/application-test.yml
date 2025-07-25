@@ -26,18 +26,18 @@ spring:
 
 logging:
   level:
-    org.hibernate.SQL: debug
-    org.hibernate.type.descriptor.sql: trace
-    com.swyp10: debug
-    org.springframework: debug
-    root: info
+    org.hibernate.SQL: info
+    org.hibernate.type.descriptor.sql: info
+    com.swyp10: info
+    org.springframework: warn
+    root: warn
 
 server:
   port: 0
 
 # JWT 설정 (테스트용)
 jwt:
-  secret: test-secret-key-for-jwt-token-must-be-at-least-256-bits-long-for-security-purposes
+  secret: this-is-a-very-long-test-secret-key-for-jwt-token-that-must-be-at-least-256-bits-long-for-security-purposes-and-testing
   expiration: 3600 # 1시간
   refresh-expiration: 7200 # 2시간
 
@@ -54,5 +54,5 @@ KAKAO_CLIENT_ID: test-kakao-client-id
 DB_USERNAME: sa
 DB_PASSWORD: 
 DB_NAME: testdb
-JWT_SECRET: test-secret-key-for-jwt-token-must-be-at-least-256-bits-long-for-security-purposes
+JWT_SECRET: this-is-a-very-long-test-secret-key-for-jwt-token-that-must-be-at-least-256-bits-long-for-security-purposes-and-testing
 KAKAO_REDIRECT_URI: http://localhost:8080/test/kakao/callback
