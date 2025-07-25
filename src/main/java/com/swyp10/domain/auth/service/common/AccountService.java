@@ -5,6 +5,7 @@ import com.swyp10.domain.auth.entity.LoginType;
 import com.swyp10.domain.auth.entity.OAuthAccount;
 import com.swyp10.domain.auth.entity.User;
 import com.swyp10.domain.auth.repository.OAuthAccountRepository;
+import com.swyp10.domain.auth.repository.UserRepository;
 import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccountService {
     
     private final OAuthAccountRepository oauthAccountRepository;
-    private final UserService userService;
+    private final UserRepository userRepository;
     /**
      * OAuth 계정 찾기 또는 생성
      */
@@ -55,7 +56,8 @@ public class AccountService {
             throw new ApplicationException(ErrorCode.SIGNUP_ALREADY_COMPLETED);
         }
 
-        User user = userService.findById(userId);
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_FOUND));
         oauthAccount.setUser(user);
         
         oauthAccountRepository.save(oauthAccount);

@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface FestivalTravelCourseRepository extends JpaRepository<FestivalTravelCourse, Long> {
 
-    public List<FestivalTravelCourse> findByFestivalId(long festivalId);
+    public List<FestivalTravelCourse> findByFestivalFestivalId(long festivalId);
 
     @Modifying
-    public void deleteByFestivalIdAndTravelCourseId(long festivalId, long travelCourseId);
+    public void deleteByIdFestivalIdAndIdCourseId(long festivalId, long travelCourseId);
 }

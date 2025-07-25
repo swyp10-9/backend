@@ -29,13 +29,15 @@ logging:
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql: trace
     com.swyp10: debug
+    org.springframework: debug
+    root: info
 
 server:
   port: 0
 
 # JWT 설정 (테스트용)
 jwt:
-  secret: test-secret-key-for-jwt-token-must-be-at-least-256-bits-long-for-security
+  secret: test-secret-key-for-jwt-token-must-be-at-least-256-bits-long-for-security-purposes
   expiration: 3600 # 1시간
   refresh-expiration: 7200 # 2시간
 
@@ -46,3 +48,11 @@ oauth:
     redirect-uri: http://localhost:8080/test/kakao/callback
     token-url: https://kauth.kakao.com/oauth/token
     user-info-url: https://kapi.kakao.com/v2/user/me
+
+# 환경변수 기본값 설정
+KAKAO_CLIENT_ID: test-kakao-client-id
+DB_USERNAME: sa
+DB_PASSWORD: 
+DB_NAME: testdb
+JWT_SECRET: test-secret-key-for-jwt-token-must-be-at-least-256-bits-long-for-security-purposes
+KAKAO_REDIRECT_URI: http://localhost:8080/test/kakao/callback

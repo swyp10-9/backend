@@ -9,6 +9,7 @@ import com.swyp10.domain.auth.entity.User;
 import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
 import com.swyp10.domain.auth.repository.OAuthAccountRepository;
+import com.swyp10.domain.auth.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,9 @@ class AccountServiceTest {
 
     @Mock
     private OAuthAccountRepository oauthAccountRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private AccountService accountService;
@@ -141,6 +145,54 @@ class AccountServiceTest {
 
         // then
         verify(oauthAccountRepository).save(any(OAuthAccount.class));
+    }
+
+    @Test
+    @DisplayName("OAuth 계정과 기존 사용자 연동 - 성공")
+    void linkOAuthAccountToUser_Success() {
+        // given
+        when(oauthAccountRepository.findById(1L))
+                .thenReturn(Optional.of(oauthAccount));
+        when(userRepository.findById(1L))
+                .thenReturn(Optional.of(user));
+        when(oauthAccountRepository.save(any(OAuthAccount.class)))
+                .thenReturn(oauthAccount);
+
+        // when
+        accountService.linkOAuthAccountToUser(1L, 1L);
+
+        // then
+        verify(userRepository).findById(1L);
+        verify(oauthAccountRepository).save(any(OAuthAccount.class));
+    }
+
+    @Test
+    @DisplayName("OAuth 계정과 기존 사용자 연동 - 사용자 없음")
+    void linkOAuthAccountToUser_UserNotFound_ThrowsException() {
+        // given
+        when(oauthAccountRepository.findById(1L))
+                .thenReturn(Optional.of(oauthAccount));
+        when(userRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> accountService.linkOAuthAccountToUser(1L, 1L))
+                .isInstanceOf(ApplicationException.class)
+                .hasMessageContaining(ErrorCode.USER_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("OAuth 계정과 기존 사용자 연동 - 이미 연동된 계정")
+    void linkOAuthAccountToUser_AlreadyLinked_ThrowsException() {
+        // given
+        oauthAccount.setUser(user);
+        when(oauthAccountRepository.findById(1L))
+                .thenReturn(Optional.of(oauthAccount));
+
+        // when & then
+        assertThatThrownBy(() -> accountService.linkOAuthAccountToUser(1L, 1L))
+                .isInstanceOf(ApplicationException.class)
+                .hasMessageContaining(ErrorCode.SIGNUP_ALREADY_COMPLETED.getMessage());
     }
 
     @Test

@@ -21,7 +21,7 @@ public class FestivalTravelCourseService {
         if (festivalId == null || festivalId <= 0) {
             throw new ApplicationException(ErrorCode.BAD_REQUEST, "Invalid festival ID: " + festivalId);
         }
-        return festivalTravelCourseRepository.findByFestivalId(festivalId);
+        return festivalTravelCourseRepository.findByFestivalFestivalId(festivalId);
     }
 
     @Transactional
@@ -40,6 +40,6 @@ public class FestivalTravelCourseService {
         if (courseId == null || courseId <= 0) {
             throw new ApplicationException(ErrorCode.BAD_REQUEST, "Invalid course ID: " + courseId);
         }
-        festivalTravelCourseRepository.deleteByFestivalIdAndTravelCourseId(festivalId, courseId);
+        festivalTravelCourseRepository.deleteByIdFestivalIdAndIdCourseId(festivalId, courseId);
     }
 }
