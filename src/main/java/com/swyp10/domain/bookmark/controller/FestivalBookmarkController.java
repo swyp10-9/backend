@@ -18,6 +18,7 @@ public class FestivalBookmarkController {
 
     private final UserBookmarkService bookmarkService;
 
+    @Operation(summary = "북마크 저장", description = "로그인 사용자의 축제 북마크 저장")
     @PostMapping("/{festivalId}/bookmarks")
     public Long addBookmark(
         @PathVariable Long festivalId,

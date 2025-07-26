@@ -2,6 +2,7 @@ package com.swyp10.domain.restaurant.controller;
 
 import com.swyp10.domain.restaurant.dto.response.FestivalRestaurantListResponse;
 import com.swyp10.domain.restaurant.service.RestaurantService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ public class FestivalRestaurantController {
 
     private final RestaurantService restaurantService;
 
+    @Operation(summary = "맛집 조회", description = "해당 축제 지역 내 맛집 조회")
     @GetMapping("/{festivalId}/restaurants")
     public FestivalRestaurantListResponse getFestivalRestaurants(@PathVariable Long festivalId) {
         return restaurantService.getFestivalRestaurants(festivalId);

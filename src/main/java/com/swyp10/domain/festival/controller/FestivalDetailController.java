@@ -2,6 +2,7 @@ package com.swyp10.domain.festival.controller;
 
 import com.swyp10.domain.festival.dto.response.FestivalDetailResponse;
 import com.swyp10.domain.festival.service.FestivalServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,7 @@ public class FestivalDetailController {
 
     private final FestivalServiceImpl festivalService;
 
+    @Operation(summary = "축제 상세 조회", description = "축제 상세 조히ㅗ")
     @GetMapping("/{festivalId}")
     public FestivalDetailResponse getFestivalDetail(@PathVariable Long festivalId) {
         return festivalService.getFestivalDetail(festivalId);

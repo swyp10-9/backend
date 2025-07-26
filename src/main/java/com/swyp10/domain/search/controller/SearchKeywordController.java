@@ -2,6 +2,7 @@ package com.swyp10.domain.search.controller;
 
 import com.swyp10.domain.search.dto.response.SearchKeywordListResponse;
 import com.swyp10.domain.search.service.SearchKeywordService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +18,7 @@ public class SearchKeywordController {
 
     private final SearchKeywordService searchKeywordService;
 
-    // 인기 검색어 top 10 조회
+    @Operation(summary = "인기 검색어 조회", description = "인기 검색어 조회 - Top10")
     @GetMapping("/keywords/top")
     public SearchKeywordListResponse getTopKeywords(
         @RequestParam(defaultValue = "10") int limit

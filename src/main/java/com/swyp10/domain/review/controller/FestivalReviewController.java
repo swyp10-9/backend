@@ -3,6 +3,7 @@ package com.swyp10.domain.review.controller;
 import com.swyp10.domain.review.dto.request.FestivalReviewCreateRequest;
 import com.swyp10.domain.review.dto.response.FestivalReviewListResponse;
 import com.swyp10.domain.review.service.UserReviewService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +18,13 @@ public class FestivalReviewController {
 
     private final UserReviewService reviewService;
 
+    @Operation(summary = "축제 리뷰 목록 조회", description = "해당 축제의 리뷰 목록 조회")
     @GetMapping("/{festivalId}/reviews")
     public FestivalReviewListResponse getFestivalReviews(@PathVariable Long festivalId) {
         return reviewService.getFestivalReviews(festivalId);
     }
 
+    @Operation(summary = "리뷰 등록", description = "사용자가 특정 축제에 리뷰 작성")
     @PostMapping("/{festivalId}/reviews")
     public Long createFestivalReview(
         @PathVariable Long festivalId,
