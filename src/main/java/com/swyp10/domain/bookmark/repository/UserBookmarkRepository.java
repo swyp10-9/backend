@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface UserBookmarkRepository extends JpaRepository<UserBookmark, Long> {
-    Optional<UserBookmark> findByUserIdAndFestivalId(Long userId, Long festivalId);
+    Optional<UserBookmark> findByUser_UserIdAndFestival_FestivalId(Long userId, Long festivalId);
 }

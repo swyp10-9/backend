@@ -1,5 +1,6 @@
 package com.swyp10.domain.travelcourse.service;
 
+import com.swyp10.domain.travelcourse.dto.response.FestivalTravelCourseListResponse;
 import com.swyp10.domain.travelcourse.entity.TravelCourse;
 import com.swyp10.domain.travelcourse.repository.TravelCourseRepository;
 import com.swyp10.exception.ApplicationException;
@@ -28,5 +29,9 @@ public class TravelCourseService {
     @Transactional
     public void deleteTravelCourse(Long courseId) {
         travelCourseRepository.deleteById(courseId);
+    }
+
+    public FestivalTravelCourseListResponse getFestivalTravelCourses(Long festivalId) {
+        return null;
     }
 }

@@ -1,5 +1,7 @@
 package com.swyp10.domain.review.service;
 
+import com.swyp10.domain.review.dto.request.FestivalReviewCreateRequest;
+import com.swyp10.domain.review.dto.response.FestivalReviewListResponse;
 import com.swyp10.domain.review.entity.UserReview;
 import com.swyp10.domain.review.repository.UserReviewRepository;
 import com.swyp10.exception.ApplicationException;
@@ -29,4 +31,14 @@ public class UserReviewService {
     public void deleteUserReview(Long userReviewId) {
         userReviewRepository.deleteById(userReviewId);
     }
+
+    public FestivalReviewListResponse getFestivalReviews(Long festivalId) {
+        return null;
+    }
+
+    @Transactional
+    public Long createFestivalReview(Long userId, Long festivalId, FestivalReviewCreateRequest request) {
+        return null;
+    }
+
 }

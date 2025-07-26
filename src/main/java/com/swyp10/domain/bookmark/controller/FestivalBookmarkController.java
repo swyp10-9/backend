@@ -1,0 +1,28 @@
+package com.swyp10.domain.bookmark.controller;
+
+import com.swyp10.domain.bookmark.service.UserBookmarkService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/v1/festivals")
+@RequiredArgsConstructor
+@Tag(name = "북마크", description = "북마크 저장 API")
+public class FestivalBookmarkController {
+
+    private final UserBookmarkService bookmarkService;
+
+    @PostMapping("/{festivalId}/bookmarks")
+    public Long addBookmark(
+        @PathVariable Long festivalId,
+        @AuthenticationPrincipal Long userId
+    ) {
+        return bookmarkService.addBookmark(userId, festivalId);
+    }
+}

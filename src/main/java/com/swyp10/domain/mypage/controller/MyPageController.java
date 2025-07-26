@@ -4,6 +4,7 @@ import com.swyp10.domain.mypage.dto.request.MyInfoUpdateRequest;
 import com.swyp10.domain.mypage.dto.response.MyReviewListResponse;
 import com.swyp10.domain.mypage.dto.response.MyInfoResponse;
 import com.swyp10.domain.mypage.service.MyPageService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/mypage")
 @RequiredArgsConstructor
+@Tag(name = "마이페이지", description = "마이페이지 API")
 public class MyPageController {
 
     private final MyPageService myPageService;

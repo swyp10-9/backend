@@ -45,6 +45,6 @@ public class User extends BaseTimeEntity {
     private List<OAuthAccount> oauthAccounts = new ArrayList<>();
 
     public void updateProfile(String nickname) {
-
+        this.nickname = nickname;
     }
 }
