@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-class FestivalTravelCourseResponse {
+public class FestivalTravelCourseResponse {
     @Schema(description = "코스 ID", example = "22")
     private Long id;
     @Schema(description = "코스명", example = "해운대 산책로")

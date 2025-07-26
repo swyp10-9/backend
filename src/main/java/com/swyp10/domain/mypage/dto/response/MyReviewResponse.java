@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Getter
 @Builder
-class MyReviewResponse {
+public class MyReviewResponse {
     @Schema(description = "리뷰 ID", example = "11")
     private Long id;
 

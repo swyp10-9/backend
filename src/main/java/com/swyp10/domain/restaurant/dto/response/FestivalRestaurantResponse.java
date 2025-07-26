@@ -6,11 +6,11 @@ import lombok.Getter;
 
 @Getter
 @Builder
-class FestivalRestaurantResponse {
+public class FestivalRestaurantResponse {
     @Schema(description = "식당명", example = "해운대 횟집")
     private String name;
     @Schema(description = "주소", example = "부산광역시 해운대구 해운대해변로 123")
     private String address;
     @Schema(description = "대표 이미지", example = "https://...")
-    private String imageUrl;;
+    private String imageUrl;
 }

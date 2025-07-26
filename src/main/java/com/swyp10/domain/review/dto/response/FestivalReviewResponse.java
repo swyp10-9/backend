@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 @Getter
 @Builder
-class FestivalReviewResponse {
+public class FestivalReviewResponse {
     @Schema(description = "리뷰 ID", example = "201")
     private Long id;
     @Schema(description = "작성자 닉네임", example = "홍길동")
