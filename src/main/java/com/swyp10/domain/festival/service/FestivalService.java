@@ -1,32 +1,19 @@
 package com.swyp10.domain.festival.service;
 
+import com.swyp10.domain.festival.dto.request.*;
+import com.swyp10.domain.festival.dto.response.FestivalDetailResponse;
+import com.swyp10.domain.festival.dto.response.FestivalListResponse;
 import com.swyp10.domain.festival.entity.Festival;
-import com.swyp10.domain.festival.repository.FestivalRepository;
-import com.swyp10.exception.ApplicationException;
-import com.swyp10.exception.ErrorCode;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-@Service
-@RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class FestivalService {
+public interface FestivalService {
+    Festival getFestival(Long festivalId);
+    Festival createFestival(Festival festival);
+    void deleteFestival(Long festivalId);
 
-    private final FestivalRepository festivalRepository;
-
-    public Festival getFestival(Long festivalId) {
-        return festivalRepository.findById(festivalId)
-            .orElseThrow(() -> new ApplicationException(ErrorCode.BAD_REQUEST, "Festival not found: " + festivalId));
-    }
-
-    @Transactional
-    public Festival createFestival(Festival festival) {
-        return festivalRepository.save(festival);
-    }
-
-    @Transactional
-    public void deleteFestival(Long festivalId) {
-        festivalRepository.deleteById(festivalId);
-    }
+    FestivalListResponse getFestivalsForMap(FestivalMapRequest request);
+    FestivalListResponse getFestivalsForCalendar(FestivalCalendarRequest request);
+    FestivalListResponse getFestivalsForPersonalTest(FestivalPersonalTestRequest request);
+    FestivalListResponse searchFestivals(FestivalSearchRequest request);
+    FestivalListResponse getMyPageFestivals(FestivalMyPageRequest request);
+    FestivalDetailResponse getFestivalDetail(Long festivalId);
 }

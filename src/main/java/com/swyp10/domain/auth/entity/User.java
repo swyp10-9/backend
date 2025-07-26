@@ -43,4 +43,11 @@ public class User extends BaseTimeEntity {
     @Builder.Default
     @JsonIgnore
     private List<OAuthAccount> oauthAccounts = new ArrayList<>();
+
+    public void updateProfile(String nickname) {
+        if (nickname == null || nickname.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nickname cannot be null or empty");
+        }
+        this.nickname = nickname;
+    }
 }

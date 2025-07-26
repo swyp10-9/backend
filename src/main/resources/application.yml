@@ -35,3 +35,10 @@ oauth:
     redirect-uri: ${KAKAO_REDIRECT_URI:http://localhost:8080/test/kakao/callback}
     token-url: ${KAKAO_TOKEN_URL:https://kauth.kakao.com/oauth/token}
     user-info-url: ${KAKAO_USER_INFO_URL:https://kapi.kakao.com/v2/user/me}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    url: /v3/api-docs
+    path: /swagger-ui.html
