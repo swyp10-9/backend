@@ -43,4 +43,8 @@ public class User extends BaseTimeEntity {
     @Builder.Default
     @JsonIgnore
     private List<OAuthAccount> oauthAccounts = new ArrayList<>();
+
+    public void updateProfile(String nickname) {
+
+    }
 }
