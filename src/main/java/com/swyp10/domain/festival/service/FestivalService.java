@@ -1,5 +1,7 @@
 package com.swyp10.domain.festival.service;
 
+import com.swyp10.domain.festival.dto.request.*;
+import com.swyp10.domain.festival.dto.response.FestivalListResponse;
 import com.swyp10.domain.festival.entity.Festival;
 import com.swyp10.domain.festival.repository.FestivalRepository;
 import com.swyp10.exception.ApplicationException;
@@ -28,5 +30,25 @@ public class FestivalService {
     @Transactional
     public void deleteFestival(Long festivalId) {
         festivalRepository.deleteById(festivalId);
+    }
+
+    public FestivalListResponse getFestivalsForMap(FestivalMapRequest request) {
+        return null;
+    }
+
+    public FestivalListResponse getFestivalsForCalendar(FestivalCalendarRequest request) {
+        return null;
+    }
+
+    public FestivalListResponse getFestivalsForPersonalTest(FestivalPersonalTestRequest request) {
+        return null;
+    }
+
+    public FestivalListResponse searchFestivals(FestivalSearchRequest request) {
+        return null;
+    }
+
+    public FestivalListResponse getMyPageFestivals(FestivalMyPageRequest request) {
+        return null;
     }
 }
