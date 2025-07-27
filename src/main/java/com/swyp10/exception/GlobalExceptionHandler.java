@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
         HttpStatus status = getHttpStatusFromErrorCode(errorCode);
 
         return ResponseEntity.status(status)
-            .body(CommonResponse.fail(errorCode.getMessage(), errorCode.getCode()));
+            .body(CommonResponse.fail(e.getMessage(), errorCode.getCode()));
     }
 
     /**
@@ -78,8 +78,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<CommonResponse<?>> handleRuntimeException(RuntimeException e) {
         log.error("RuntimeException: {}", e.getMessage(), e);
-        return ResponseEntity.badRequest()
-            .body(CommonResponse.fail(e.getMessage(), ErrorCode.BAD_REQUEST.getCode()));
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(CommonResponse.fail(ErrorCode.INTERNAL_SERVER_ERROR.getMessage(),
+                ErrorCode.INTERNAL_SERVER_ERROR.getCode()));
     }
 
     /**
@@ -99,7 +100,7 @@ public class GlobalExceptionHandler {
     private HttpStatus getHttpStatusFromErrorCode(ErrorCode errorCode) {
         return switch (errorCode.getCode()) {
             case 4000, 4001, 4002, 4003, 4008, 4009, 4010, 4011, 4017, 4018, 4019 -> HttpStatus.BAD_REQUEST;
-            case 4004, 4015 -> HttpStatus.NOT_FOUND;
+            case 4004, 4015, 4027 -> HttpStatus.NOT_FOUND;
             case 4005, 4014, 4016 -> HttpStatus.CONFLICT;
             case 4006, 4007, 4012, 4013 -> HttpStatus.UNAUTHORIZED;
             case 5000 -> HttpStatus.INTERNAL_SERVER_ERROR;
