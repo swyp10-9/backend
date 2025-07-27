@@ -18,7 +18,7 @@ public class FestivalDetailController {
 
     private final FestivalService festivalService;
 
-    @Operation(summary = "축제 상세 조회", description = "축제 상세 조히ㅗ")
+    @Operation(summary = "축제 상세 조회", description = "축제 상세 조회")
     @GetMapping("/{festivalId}")
     public FestivalDetailResponse getFestivalDetail(@PathVariable Long festivalId) {
         return festivalService.getFestivalDetail(festivalId);
