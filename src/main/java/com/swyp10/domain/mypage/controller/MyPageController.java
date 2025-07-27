@@ -27,7 +27,7 @@ public class MyPageController {
         security = { @SecurityRequirement(name = "Bearer Authentication") }
     )
     @GetMapping("/reviews")
-    public MyReviewListResponse getMyReviews(@AuthenticationPrincipal Long userId) {
+    public MyReviewListResponse getMyReviews(@AuthenticationPrincipal Long userId) { //todo Long userId -> UserDetails 리펙토링
         return myPageService.getMyReviews(userId);
     }
 
