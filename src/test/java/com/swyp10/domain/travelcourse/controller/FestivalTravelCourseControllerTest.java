@@ -3,6 +3,7 @@ package com.swyp10.domain.travelcourse.controller;
 import com.swyp10.domain.travelcourse.dto.response.FestivalTravelCourseListResponse;
 import com.swyp10.domain.travelcourse.dto.response.FestivalTravelCourseResponse;
 import com.swyp10.domain.travelcourse.service.TravelCourseService;
+import com.swyp10.exception.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -66,14 +67,14 @@ class FestivalTravelCourseControllerTest {
             // given
             when(travelCourseService.getFestivalTravelCourses(anyLong()))
                 .thenThrow(new com.swyp10.exception.ApplicationException(
-                    com.swyp10.exception.ErrorCode.BAD_REQUEST, "Festival not found"
+                    ErrorCode.FESTIVAL_NOT_FOUND, "축제를 찾을 수 없습니다."
                 ));
 
             // when & then
             mockMvc.perform(get("/api/v1/festivals/{festivalId}/travel-courses", 999L))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.success").value(false))
-                .andExpect(jsonPath("$.message").value("Festival not found"));
+                .andExpect(jsonPath("$.message").value("축제를 찾을 수 없습니다."));
         }
     }
 }

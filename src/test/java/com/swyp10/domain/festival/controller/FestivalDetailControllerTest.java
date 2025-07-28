@@ -53,11 +53,15 @@ class FestivalDetailControllerTest {
         mockMvc.perform(get("/api/v1/festivals/1001"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data.title").value("음성명작페스티벌"))
-            .andExpect(jsonPath("$.data.startDate").value("2025-09-25"));
+            .andExpect(jsonPath("$.data.startDate").value("2025-09-25"))
+            .andExpect(jsonPath("$.data.endDate").value("2025-09-28"))
+            .andExpect(jsonPath("$.data.thumbnail").value("http://tong.visitkorea.or.kr/cms/resource/81/3338681_image2_1.jpg"))
+            .andExpect(jsonPath("$.data.mapx").value("127.5881015063"))
+            .andExpect(jsonPath("$.data.mapy").value("36.9913818048"));
     }
 
     @Test
-    @DisplayName("존재하지 않는 축제 상세 조회시 404 반환")
+    @DisplayName("존재하지 않는 축제 상세 조회시 404 반환 - 실패")
     void getFestivalDetail_notFound() throws Exception {
         // given
         when(festivalService.getFestivalDetail(anyLong()))

@@ -64,7 +64,7 @@ class FestivalBookmarkControllerTest {
         void addBookmark_alreadyExists() throws Exception {
             // given
             when(bookmarkService.addBookmark(any(), any()))
-                .thenThrow(new ApplicationException(ErrorCode.USER_ALREADY_EXISTS, "이미 북마크된 축제입니다."));
+                .thenThrow(new ApplicationException(ErrorCode.BOOKMARK_ALREADY_EXISTS, "이미 북마크된 축제입니다."));
 
             // when & then
             mockMvc.perform(post("/api/v1/festivals/{festivalId}/bookmarks", 1001L)
