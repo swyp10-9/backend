@@ -19,7 +19,6 @@ public enum RegionFilter {
         this.displayName = value;
     }
 
-    @JsonValue
     public String getDisplayName() {
         return displayName;
     }

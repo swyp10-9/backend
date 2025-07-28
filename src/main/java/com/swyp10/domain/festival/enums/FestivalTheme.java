@@ -15,7 +15,6 @@ public enum FestivalTheme {
 
     FestivalTheme(String value) { this.displayName = value; }
 
-    @JsonValue
     public String getDisplayName() { return displayName; }
 
     @JsonCreator
