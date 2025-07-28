@@ -13,7 +13,6 @@ public enum FestivalPeriod {
 
     FestivalPeriod(String value) { this.displayName = value; }
 
-    @JsonValue
     public String getDisplayName() { return displayName; }
 
     @JsonCreator

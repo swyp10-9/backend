@@ -4,8 +4,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.Setter;
 
-@Getter
+@Getter @Setter
 public class MyInfoUpdateRequest {
     @Schema(description = "닉네임", example = "홍길동", maxLength = 20)
     @NotBlank(message = "닉네임은 필수입니다.")

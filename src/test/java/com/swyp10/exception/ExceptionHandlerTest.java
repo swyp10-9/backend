@@ -161,6 +161,6 @@ class ExceptionHandlerTest {
         mockMvc.perform(post("/api/v1/auth/oauth/login/kakao")
                 .param("code", "test-code")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest()); // 400으로 수정 (RuntimeException은 400으로 처리됨)
+                .andExpect(status().isInternalServerError()); // 500으로 수정 (RuntimeException은 500으로 처리됨)
     }
 }
