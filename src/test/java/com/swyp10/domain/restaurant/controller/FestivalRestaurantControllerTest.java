@@ -1,5 +1,6 @@
 package com.swyp10.domain.restaurant.controller;
 
+import com.swyp10.domain.restaurant.dto.request.FestivalRestaurantPageRequest;
 import com.swyp10.domain.restaurant.dto.response.FestivalRestaurantListResponse;
 import com.swyp10.domain.restaurant.dto.response.FestivalRestaurantResponse;
 import com.swyp10.domain.restaurant.service.RestaurantService;
@@ -16,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -42,30 +44,40 @@ class FestivalRestaurantControllerTest {
         void getFestivalRestaurants_success() throws Exception {
             // given
             FestivalRestaurantListResponse mockResponse = FestivalRestaurantListResponse.builder()
-                .restaurants(List.of(
+                .content(List.of(
                     FestivalRestaurantResponse.builder()
                         .name("해운대 횟집")
                         .address("부산광역시 해운대구 해운대해변로 123")
                         .imageUrl("https://...")
                         .build()
                 ))
+                .page(0)
+                .size(20)
+                .totalElements(1L)
+                .totalPages(1)
+                .first(true)
+                .last(true)
+                .empty(false)
                 .build();
 
-            when(restaurantService.getFestivalRestaurants(anyLong()))
+            when(restaurantService.getFestivalRestaurants(any(FestivalRestaurantPageRequest.class)))
                 .thenReturn(mockResponse);
 
             // when & then
             mockMvc.perform(get("/api/v1/festivals/{festivalId}/restaurants", 1L))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.restaurants[0].name").value("해운대 횟집"))
-                .andExpect(jsonPath("$.data.restaurants[0].address").value("부산광역시 해운대구 해운대해변로 123"));
+                .andExpect(jsonPath("$.data.content[0].name").value("해운대 횟집"))
+                .andExpect(jsonPath("$.data.content[0].address").value("부산광역시 해운대구 해운대해변로 123"))
+                .andExpect(jsonPath("$.data.page").value(0))
+                .andExpect(jsonPath("$.data.size").value(20))
+                .andExpect(jsonPath("$.data.totalElements").value(1));
         }
 
         @Test
         @DisplayName("축제 ID가 존재하지 않으면 400 에러 반환 - 실패")
         void getFestivalRestaurants_festivalNotFound() throws Exception {
             // given
-            when(restaurantService.getFestivalRestaurants(anyLong()))
+            when(restaurantService.getFestivalRestaurants(any(FestivalRestaurantPageRequest.class)))
                 .thenThrow(new ApplicationException(ErrorCode.BAD_REQUEST, "Festival not found"));
 
             // when & then

@@ -1,5 +1,6 @@
 package com.swyp10.domain.travelcourse.controller;
 
+import com.swyp10.domain.travelcourse.dto.request.FestivalTravelCoursePageRequest;
 import com.swyp10.domain.travelcourse.dto.response.FestivalTravelCourseListResponse;
 import com.swyp10.domain.travelcourse.dto.response.FestivalTravelCourseResponse;
 import com.swyp10.domain.travelcourse.service.TravelCourseService;
@@ -51,7 +52,7 @@ class FestivalTravelCourseControllerTest {
                 ))
                 .build();
 
-            when(travelCourseService.getFestivalTravelCourses(any()))
+            when(travelCourseService.getFestivalTravelCourses(any(FestivalTravelCoursePageRequest.class)))
                 .thenReturn(mockResponse);
 
             // when & then
@@ -65,7 +66,7 @@ class FestivalTravelCourseControllerTest {
         @DisplayName("축제가 존재하지 않는 경우 404 반환 - 실패")
         void getFestivalTravelCourses_notFound() throws Exception {
             // given
-            when(travelCourseService.getFestivalTravelCourses(anyLong()))
+            when(travelCourseService.getFestivalTravelCourses(any(FestivalTravelCoursePageRequest.class)))
                 .thenThrow(new com.swyp10.exception.ApplicationException(
                     ErrorCode.FESTIVAL_NOT_FOUND, "축제를 찾을 수 없습니다."
                 ));

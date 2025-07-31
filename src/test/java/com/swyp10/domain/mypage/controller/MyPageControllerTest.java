@@ -39,25 +39,68 @@ class MyPageControllerTest {
     @WithMockUser(username = "user", roles = "USER")
     @DisplayName("내 리뷰 목록 조회 - 성공")
     void getMyReviews_success() throws Exception {
+        // given
+        List<MyReviewResponse> reviews = List.of(
+            MyReviewResponse.builder()
+                .id(1L)
+                .festivalId(10L)
+                .festivalTitle("부산 불꽃축제")
+                .festivalThumbnail("https://...")
+                .content("최고의 축제!")
+                .createdAt(LocalDate.now())
+                .build()
+        );
+
         MyReviewListResponse mockResponse = MyReviewListResponse.builder()
-            .totalCount(1L)
-            .reviews(List.of(
-                MyReviewResponse.builder()
-                    .id(1L)
-                    .festivalId(10L)
-                    .festivalTitle("부산 불꽃축제")
-                    .festivalThumbnail("https://...")
-                    .content("최고의 축제!")
-                    .createdAt(LocalDate.now())
-                    .build()
-            ))
+            .content(reviews)  // totalCount, reviews -> content로 변경
+            .page(0)
+            .size(20)
+            .totalElements(1L)
+            .totalPages(1)
+            .first(true)
+            .last(true)
+            .empty(false)
             .build();
 
-        when(myPageService.getMyReviews(any())).thenReturn(mockResponse);
+        when(myPageService.getMyReviews(any(), any())).thenReturn(mockResponse);
 
-        mockMvc.perform(get("/api/v1/mypage/reviews"))
+        // when & then
+        mockMvc.perform(get("/api/v1/mypage/reviews")
+                .param("page", "0")
+                .param("size", "20"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.data.totalCount").value(1));
+            .andExpect(jsonPath("$.data.totalElements").value(1))
+            .andExpect(jsonPath("$.data.content[0].festivalTitle").value("부산 불꽃축제"))
+            .andExpect(jsonPath("$.data.page").value(0))
+            .andExpect(jsonPath("$.data.size").value(20));
+    }
+
+    @Test
+    @WithMockUser(username = "user", roles = "USER")
+    @DisplayName("내 리뷰 목록 조회 - 페이징 파라미터와 함께")
+    void getMyReviews_withPagination_success() throws Exception {
+        // given
+        MyReviewListResponse mockResponse = MyReviewListResponse.builder()
+            .content(List.of())
+            .page(1)
+            .size(10)
+            .totalElements(0L)
+            .totalPages(0)
+            .first(false)
+            .last(true)
+            .empty(true)
+            .build();
+
+        when(myPageService.getMyReviews(any(), any())).thenReturn(mockResponse);
+
+        // when & then
+        mockMvc.perform(get("/api/v1/mypage/reviews")
+                .param("page", "1")
+                .param("size", "10"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.page").value(1))
+            .andExpect(jsonPath("$.data.size").value(10))
+            .andExpect(jsonPath("$.data.empty").value(true));
     }
 
     @Test

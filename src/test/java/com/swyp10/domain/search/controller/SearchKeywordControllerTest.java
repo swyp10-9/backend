@@ -36,19 +36,28 @@ class SearchKeywordControllerTest {
     @DisplayName("인기 검색어 Top10 조회 - 성공")
     void getTopKeywords_success() throws Exception {
         // given
+        List<SearchKeywordResponse> keywords = List.of(
+            SearchKeywordResponse.builder()
+                .keyword("불꽃축제")
+                .count(321L)
+                .lastSearchedAt(LocalDateTime.of(2025, 8, 1, 10, 0))
+                .build(),
+            SearchKeywordResponse.builder()
+                .keyword("음식축제")
+                .count(120L)
+                .lastSearchedAt(LocalDateTime.of(2025, 8, 2, 14, 30))
+                .build()
+        );
+
         SearchKeywordListResponse mockResponse = SearchKeywordListResponse.builder()
-            .keywords(List.of(
-                SearchKeywordResponse.builder()
-                    .keyword("불꽃축제")
-                    .count(321L)
-                    .lastSearchedAt(LocalDateTime.of(2025, 8, 1, 10, 0))
-                    .build(),
-                SearchKeywordResponse.builder()
-                    .keyword("음식축제")
-                    .count(120L)
-                    .lastSearchedAt(LocalDateTime.of(2025, 8, 2, 14, 30))
-                    .build()
-            ))
+            .content(keywords)
+            .page(0)
+            .size(2)
+            .totalElements(2L)
+            .totalPages(1)
+            .first(true)
+            .last(true)
+            .empty(false)
             .build();
 
         when(searchKeywordService.getTopKeywords(anyInt())).thenReturn(mockResponse);
@@ -57,10 +66,13 @@ class SearchKeywordControllerTest {
         mockMvc.perform(get("/api/v1/search/keywords/top")
                 .param("limit", "2"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.data.keywords[0].keyword").value("불꽃축제"))
-            .andExpect(jsonPath("$.data.keywords[0].count").value(321))
-            .andExpect(jsonPath("$.data.keywords[1].keyword").value("음식축제"))
-            .andExpect(jsonPath("$.data.keywords[1].count").value(120));
+            .andExpect(jsonPath("$.data.content[0].keyword").value("불꽃축제"))
+            .andExpect(jsonPath("$.data.content[0].count").value(321))
+            .andExpect(jsonPath("$.data.content[1].keyword").value("음식축제"))
+            .andExpect(jsonPath("$.data.content[1].count").value(120))
+            .andExpect(jsonPath("$.data.page").value(0))
+            .andExpect(jsonPath("$.data.size").value(2))
+            .andExpect(jsonPath("$.data.totalElements").value(2));
     }
 
     @Test
