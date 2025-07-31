@@ -1,5 +1,6 @@
 package com.swyp10.domain.restaurant.service;
 
+import com.swyp10.domain.restaurant.dto.request.FestivalRestaurantPageRequest;
 import com.swyp10.domain.restaurant.dto.response.FestivalRestaurantListResponse;
 import com.swyp10.domain.restaurant.entity.Restaurant;
 import com.swyp10.domain.restaurant.repository.RestaurantRepository;
@@ -34,7 +35,7 @@ public class RestaurantService {
         restaurantRepository.deleteById(restaurantId);
     }
 
-    public FestivalRestaurantListResponse getFestivalRestaurants(Long festivalId) {
+    public FestivalRestaurantListResponse getFestivalRestaurants(FestivalRestaurantPageRequest request) {
         return null;
     }
 }

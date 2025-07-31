@@ -1,5 +1,6 @@
 package com.swyp10.domain.travelcourse.service;
 
+import com.swyp10.domain.travelcourse.dto.request.FestivalTravelCoursePageRequest;
 import com.swyp10.domain.travelcourse.dto.response.FestivalTravelCourseListResponse;
 import com.swyp10.domain.travelcourse.entity.TravelCourse;
 import com.swyp10.domain.travelcourse.repository.TravelCourseRepository;
@@ -31,7 +32,7 @@ public class TravelCourseService {
         travelCourseRepository.deleteById(courseId);
     }
 
-    public FestivalTravelCourseListResponse getFestivalTravelCourses(Long festivalId) {
+    public FestivalTravelCourseListResponse getFestivalTravelCourses(FestivalTravelCoursePageRequest request) {
         return null;
     }
 }

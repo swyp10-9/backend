@@ -21,7 +21,6 @@ public class FestivalTravelCourseController {
     public FestivalTravelCourseListResponse getFestivalTravelCourses(
             @PathVariable Long festivalId,
             @ModelAttribute FestivalTravelCoursePageRequest request) {
-        // festivalId를 request에 설정
         request.setFestivalId(festivalId);
         return travelCourseService.getFestivalTravelCourses(request);
     }

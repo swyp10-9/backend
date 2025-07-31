@@ -21,7 +21,6 @@ public class FestivalRestaurantController {
     public FestivalRestaurantListResponse getFestivalRestaurants(
             @PathVariable Long festivalId,
             @ModelAttribute FestivalRestaurantPageRequest request) {
-        // festivalId를 request에 설정
         request.setFestivalId(festivalId);
         return restaurantService.getFestivalRestaurants(request);
     }

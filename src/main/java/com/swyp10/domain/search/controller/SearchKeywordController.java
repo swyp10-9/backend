@@ -23,11 +23,4 @@ public class SearchKeywordController {
     ) {
         return searchKeywordService.getTopKeywords(limit);
     }
-    
-    @Operation(summary = "검색어 목록 조회", description = "검색어 목록 조회 (페이징 지원)")
-    @GetMapping("/keywords")
-    public SearchKeywordListResponse getSearchKeywords(
-            @ModelAttribute SearchKeywordPageRequest request) {
-        return searchKeywordService.getSearchKeywords(request);
-    }
 }
