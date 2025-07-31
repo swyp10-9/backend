@@ -1,5 +1,6 @@
 package com.swyp10.domain.travelcourse.controller;
 
+import com.swyp10.domain.travelcourse.dto.request.FestivalTravelCoursePageRequest;
 import com.swyp10.domain.travelcourse.dto.response.FestivalTravelCourseListResponse;
 import com.swyp10.domain.travelcourse.service.TravelCourseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,9 +16,13 @@ public class FestivalTravelCourseController {
 
     private final TravelCourseService travelCourseService;
 
-    @Operation(summary = "여행 코스 조회", description = "축제 지역 내 여행 코스 추천")
+    @Operation(summary = "여행 코스 조회", description = "축제 지역 내 여행 코스 추천 (페이징 지원)")
     @GetMapping("/{festivalId}/travel-courses")
-    public FestivalTravelCourseListResponse getFestivalTravelCourses(@PathVariable Long festivalId) {
-        return travelCourseService.getFestivalTravelCourses(festivalId);
+    public FestivalTravelCourseListResponse getFestivalTravelCourses(
+            @PathVariable Long festivalId,
+            @ModelAttribute FestivalTravelCoursePageRequest request) {
+        // festivalId를 request에 설정
+        request.setFestivalId(festivalId);
+        return travelCourseService.getFestivalTravelCourses(request);
     }
 }

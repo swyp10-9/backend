@@ -4,6 +4,7 @@ import com.swyp10.domain.mypage.dto.request.MyInfoUpdateRequest;
 import com.swyp10.domain.mypage.dto.response.MyReviewListResponse;
 import com.swyp10.domain.mypage.dto.response.MyInfoResponse;
 import com.swyp10.domain.mypage.service.MyPageService;
+import com.swyp10.global.page.PageRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,12 +24,14 @@ public class MyPageController {
     private final MyPageService myPageService;
 
     @Operation(summary = "리뷰 목록 조회",
-        description = "사용자 리뷰 작성 목록 조회",
+        description = "사용자 리뷰 작성 목록 조회 (페이징 지원)",
         security = { @SecurityRequirement(name = "Bearer Authentication") }
     )
     @GetMapping("/reviews")
-    public MyReviewListResponse getMyReviews(@AuthenticationPrincipal Long userId) { //todo Long userId -> UserDetails 리펙토링
-        return myPageService.getMyReviews(userId);
+    public MyReviewListResponse getMyReviews(
+            @AuthenticationPrincipal Long userId,
+            @ModelAttribute PageRequest pageRequest) {
+        return myPageService.getMyReviews(userId, pageRequest);
     }
 
     @Operation(summary = "리뷰 삭제",

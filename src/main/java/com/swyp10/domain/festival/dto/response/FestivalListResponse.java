@@ -1,23 +1,17 @@
 package com.swyp10.domain.festival.dto.response;
 
+import com.swyp10.global.page.PageResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.util.List;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Builder
-public class FestivalListResponse {
-    @Schema(description = "총 조회 개수", example = "1024")
-    private Long totalCount;
-
-    @Schema(description = "페이지 오프셋", example = "0")
-    private Integer offset;
-
-    @Schema(description = "페이지 사이즈", example = "20")
-    private Integer limit;
-
-    @Schema(description = "축제 목록")
-    private List<FestivalSummaryResponse> festivals;
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+@Schema(description = "축제 목록 응답")
+public class FestivalListResponse extends PageResponse<FestivalSummaryResponse> {
+    // 추가적인 필드가 필요한 경우 여기에 추가 
 }

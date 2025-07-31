@@ -10,6 +10,7 @@ import com.swyp10.domain.mypage.dto.response.MyReviewListResponse;
 import com.swyp10.domain.review.repository.UserReviewRepository;
 import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
+import com.swyp10.global.page.PageRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +25,7 @@ public class MyPageServiceImpl implements MyPageService {
     private final UserBookmarkRepository bookmarkRepository;
 
     @Override
-    public MyReviewListResponse getMyReviews(Long userId) {
-        //todo: userId로 리뷰 목록 반환 (DTO로 변환)
+    public MyReviewListResponse getMyReviews(Long userId, PageRequest pageRequest) {
         return null;
     }
 

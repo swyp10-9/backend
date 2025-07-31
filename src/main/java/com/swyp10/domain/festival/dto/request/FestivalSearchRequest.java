@@ -2,13 +2,19 @@ package com.swyp10.domain.festival.dto.request;
 
 import com.swyp10.domain.festival.enums.FestivalTheme;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
 @Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
 public class FestivalSearchRequest extends FestivalPageRequest {
     
     @Schema(description = "검색 시작 날짜", example = "2025-08-01")

@@ -1,20 +1,17 @@
 package com.swyp10.domain.search.controller;
 
+import com.swyp10.domain.search.dto.request.SearchKeywordPageRequest;
 import com.swyp10.domain.search.dto.response.SearchKeywordListResponse;
 import com.swyp10.domain.search.service.SearchKeywordService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/search")
 @RequiredArgsConstructor
-@Tag(name = "검색", description = "검색어 순위 API")
+@Tag(name = "검색", description = "검색어 순위 & 조회 API")
 public class SearchKeywordController {
 
     private final SearchKeywordService searchKeywordService;
@@ -25,5 +22,12 @@ public class SearchKeywordController {
         @RequestParam(defaultValue = "10") int limit
     ) {
         return searchKeywordService.getTopKeywords(limit);
+    }
+    
+    @Operation(summary = "검색어 목록 조회", description = "검색어 목록 조회 (페이징 지원)")
+    @GetMapping("/keywords")
+    public SearchKeywordListResponse getSearchKeywords(
+            @ModelAttribute SearchKeywordPageRequest request) {
+        return searchKeywordService.getSearchKeywords(request);
     }
 }

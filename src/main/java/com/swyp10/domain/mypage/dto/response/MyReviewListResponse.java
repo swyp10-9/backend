@@ -1,17 +1,18 @@
 package com.swyp10.domain.mypage.dto.response;
 
+import com.swyp10.global.page.PageResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
 @Getter
-@Builder
-public class MyReviewListResponse {
-    @Schema(description = "리뷰 총 개수", example = "5")
-    private Long totalCount;
-
-    @Schema(description = "리뷰 목록")
-    private List<MyReviewResponse> reviews;
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+@Schema(description = "내 리뷰 목록 응답")
+public class MyReviewListResponse extends PageResponse<MyReviewResponse> {
 }

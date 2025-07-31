@@ -6,6 +6,7 @@ import com.swyp10.domain.review.entity.UserReview;
 import com.swyp10.domain.review.repository.UserReviewRepository;
 import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
+import com.swyp10.global.page.PageRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +33,7 @@ public class UserReviewService {
         userReviewRepository.deleteById(userReviewId);
     }
 
-    public FestivalReviewListResponse getFestivalReviews(Long festivalId) {
+    public FestivalReviewListResponse getFestivalReviews(Long festivalId, PageRequest pageRequest) {
         return null;
     }
 
