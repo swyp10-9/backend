@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swyp10.domain.auth.controller.AuthController;
 import com.swyp10.domain.auth.dto.common.SignupRequest;
 import com.swyp10.domain.auth.dto.common.TokenResponse;
+import com.swyp10.exception.ApplicationException;
+import com.swyp10.exception.ErrorCode;
 import com.swyp10.exception.GlobalExceptionHandler;
 import com.swyp10.domain.auth.service.common.AuthService;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,5 +75,37 @@ class AuthControllerTest {
      mockMvc.perform(post("/api/v1/auth/oauth/login/kakao")
              .contentType(MediaType.APPLICATION_JSON))
              .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("토큰 연장 - 성공")
+    void refreshToken_Success() throws Exception {
+        // given
+        TokenResponse refreshResponse = TokenResponse.of("new-access-token", 1L, "테스트사용자");
+        
+        when(authService.refreshToken("Bearer test-access-token"))
+                .thenReturn(refreshResponse);
+
+        // when & then
+        mockMvc.perform(post("/api/v1/auth/refresh")
+                .header("Authorization", "Bearer test-access-token")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("new-access-token"))
+                .andExpect(jsonPath("$.userId").value(1))
+                .andExpect(jsonPath("$.nickname").value("테스트사용자"));
+    }
+
+    @Test
+    @DisplayName("토큰 연장 - Authorization 헤더 누락")
+    void refreshToken_MissingAuthHeader() throws Exception {
+        // given
+        when(authService.refreshToken(null))
+                .thenThrow(new ApplicationException(ErrorCode.MISSING_REQUEST_HEADER));
+
+        // when & then
+        mockMvc.perform(post("/api/v1/auth/refresh")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 }

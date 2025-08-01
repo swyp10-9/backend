@@ -50,4 +50,20 @@ public class AuthController {
         UserInfo userInfo = authService.getCurrentUser(authHeader);
         return ResponseEntity.ok(userInfo);
     }
+
+    /**
+     * 토큰 연장
+     */
+    @PostMapping("/refresh")
+    @Operation(
+        summary = "토큰 연장", 
+        description = "현재 토큰을 연장하여 새로운 토큰 발급",
+        security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    public ResponseEntity<TokenResponse> refreshToken(
+        @Parameter(hidden = true) @RequestHeader(value = "Authorization", required = false) String authHeader
+    ) {
+        TokenResponse tokenResponse = authService.refreshToken(authHeader);
+        return ResponseEntity.ok(tokenResponse);
+    }
 }

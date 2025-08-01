@@ -190,6 +190,75 @@ public class TokenService {
         return signupCompleted != null && signupCompleted;
     }
     
+    // === 토큰 연장 ===
+    
+    /**
+     * Access Token 연장 (기존 토큰의 정보를 유지하면서 새로운 만료시간으로 생성)
+     */
+    public String refreshAccessToken(String token) {
+        try {
+            // 토큰에서 기존 정보 추출
+            Claims claims = getClaimsFromToken(token);
+            String tokenType = getTokenType(token);
+            
+            if (TokenType.USER.getValue().equals(tokenType)) {
+                // USER 토큰 연장
+                Long userId = Long.parseLong(claims.getSubject());
+                String email = claims.get(AuthConstants.EMAIL_CLAIM, String.class);
+                String nickname = claims.get(AuthConstants.NICKNAME_CLAIM, String.class);
+                Boolean signupCompleted = claims.get(AuthConstants.SIGNUP_COMPLETED_CLAIM, Boolean.class);
+                
+                Date[] dates = calculateTokenDates();
+                String newToken = Jwts.builder()
+                    .setSubject(String.valueOf(userId))
+                    .claim(AuthConstants.EMAIL_CLAIM, email)
+                    .claim(AuthConstants.NICKNAME_CLAIM, nickname)
+                    .claim(AuthConstants.SIGNUP_COMPLETED_CLAIM, signupCompleted)
+                    .claim(AuthConstants.TOKEN_TYPE_CLAIM, TokenType.USER.getValue())
+                    .setIssuedAt(dates[0])
+                    .setExpiration(dates[1])
+                    .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                    .compact();
+                    
+                log.info("JWT User Token 연장: userId={}", userId);
+                return newToken;
+                
+            } else if (TokenType.OAUTH.getValue().equals(tokenType)) {
+                // OAUTH 토큰 연장
+                Long oauthAccountId = Long.parseLong(claims.getSubject());
+                String provider = claims.get(AuthConstants.PROVIDER_CLAIM, String.class);
+                String providerUserId = claims.get(AuthConstants.PROVIDER_USER_ID_CLAIM, String.class);
+                String providerNickname = claims.get(AuthConstants.PROVIDER_NICKNAME_CLAIM, String.class);
+                String providerEmail = claims.get(AuthConstants.PROVIDER_EMAIL_CLAIM, String.class);
+                Boolean signupCompleted = claims.get(AuthConstants.SIGNUP_COMPLETED_CLAIM, Boolean.class);
+                
+                Date[] dates = calculateTokenDates();
+                String newToken = Jwts.builder()
+                    .setSubject(String.valueOf(oauthAccountId))
+                    .claim(AuthConstants.PROVIDER_CLAIM, provider)
+                    .claim(AuthConstants.PROVIDER_USER_ID_CLAIM, providerUserId)
+                    .claim(AuthConstants.PROVIDER_NICKNAME_CLAIM, providerNickname)
+                    .claim(AuthConstants.PROVIDER_EMAIL_CLAIM, providerEmail)
+                    .claim(AuthConstants.SIGNUP_COMPLETED_CLAIM, signupCompleted)
+                    .claim(AuthConstants.TOKEN_TYPE_CLAIM, TokenType.OAUTH.getValue())
+                    .setIssuedAt(dates[0])
+                    .setExpiration(dates[1])
+                    .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                    .compact();
+                    
+                log.info("JWT OAuth Token 연장: oauthAccountId={}", oauthAccountId);
+                return newToken;
+            } else {
+                throw new ApplicationException(ErrorCode.UNKNOWN_TOKEN_TYPE);
+            }
+            
+        } catch (ApplicationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ApplicationException(ErrorCode.TOKEN_GENERATION_FAILED, "토큰 연장 실패", e);
+        }
+    }
+    
     // === Private 메서드들 ===
     
     /**

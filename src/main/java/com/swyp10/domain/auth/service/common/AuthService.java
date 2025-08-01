@@ -222,4 +222,42 @@ public class AuthService {
         log.info("OAuth 연동 완료: userId={}, provider={}, oauthAccountId={}", 
                 userId, provider, oauthAccount.getOauthId());
     }
+    
+    /**
+     * 토큰 연장
+     */
+    @Transactional(readOnly = true)
+    public TokenResponse refreshToken(String authHeader) {
+        // 토큰 추출 및 검증
+        String token = tokenService.extractAndValidateToken(authHeader);
+        if (token == null) {
+            throw new ApplicationException(ErrorCode.INVALID_TOKEN);
+        }
+        
+        // 토큰 연장
+        String newToken = tokenService.refreshAccessToken(token);
+        
+        // 토큰 타입에 따라 응답 생성
+        String tokenType = tokenService.getTokenType(newToken);
+        
+        if (TokenType.USER.getValue().equals(tokenType)) {
+            // USER 토큰인 경우
+            Long userId = tokenService.getUserIdFromToken(newToken);
+            User user = userService.findById(userId);
+            
+            log.info("USER 토큰 연장 완료: userId={}", userId);
+            return TokenResponse.of(newToken, user.getUserId(), user.getNickname());
+            
+        } else if (TokenType.OAUTH.getValue().equals(tokenType)) {
+            // OAUTH 토큰인 경우
+            Long oauthAccountId = tokenService.getOAuthAccountIdFromToken(newToken);
+            OAuthAccount oauthAccount = accountService.findById(oauthAccountId);
+            
+            log.info("OAUTH 토큰 연장 완료: oauthAccountId={}", oauthAccountId);
+            return TokenResponse.ofOAuth(newToken, oauthAccount.getProviderNickname());
+            
+        } else {
+            throw new ApplicationException(ErrorCode.UNKNOWN_TOKEN_TYPE);
+        }
+    }
 }

@@ -282,4 +282,85 @@ class TokenServiceTest {
                 .isEqualTo(ErrorCode.TOKEN_PARSING_FAILED);
         }
     }
+
+    @Nested
+    @DisplayName("토큰 연장 테스트")
+    class TokenRefreshTest {
+
+        @Test
+        @DisplayName("USER 토큰 연장 성공")
+        void refresh_user_token_success() throws InterruptedException {
+            // given
+            String originalToken = tokenService.generateAccessToken(testUser);
+            
+            // 토큰 생성 시간이 다르도록 잠시 대기
+            Thread.sleep(1000);
+
+            // when
+            String refreshedToken = tokenService.refreshAccessToken(originalToken);
+
+            // then
+            assertThat(refreshedToken).isNotNull();
+            assertThat(refreshedToken).isNotEmpty();
+            assertThat(refreshedToken).isNotEqualTo(originalToken); // 새로운 토큰이어야 함
+
+            // 기존 토큰과 새 토큰의 내용이 동일한지 확인 (만료시간 제외)
+            Claims originalClaims = tokenService.getClaimsFromToken(originalToken);
+            Claims refreshedClaims = tokenService.getClaimsFromToken(refreshedToken);
+
+            assertThat(refreshedClaims.getSubject()).isEqualTo(originalClaims.getSubject());
+            assertThat(refreshedClaims.get("email")).isEqualTo(originalClaims.get("email"));
+            assertThat(refreshedClaims.get("nickname")).isEqualTo(originalClaims.get("nickname"));
+            assertThat(refreshedClaims.get("tokenType")).isEqualTo(originalClaims.get("tokenType"));
+            assertThat(refreshedClaims.get("signupCompleted")).isEqualTo(originalClaims.get("signupCompleted"));
+
+            // 새 토큰의 발급시간이 더 최신이어야 함
+            assertThat(refreshedClaims.getIssuedAt()).isAfter(originalClaims.getIssuedAt());
+        }
+
+        @Test
+        @DisplayName("OAUTH 토큰 연장 성공")
+        void refresh_oauth_token_success() throws InterruptedException {
+            // given
+            String originalToken = tokenService.generateOAuthToken(testOAuthAccount);
+            
+            // 토큰 생성 시간이 다르도록 잠시 대기
+            Thread.sleep(1000);
+
+            // when
+            String refreshedToken = tokenService.refreshAccessToken(originalToken);
+
+            // then
+            assertThat(refreshedToken).isNotNull();
+            assertThat(refreshedToken).isNotEmpty();
+            assertThat(refreshedToken).isNotEqualTo(originalToken);
+
+            // 기존 토큰과 새 토큰의 내용이 동일한지 확인
+            Claims originalClaims = tokenService.getClaimsFromToken(originalToken);
+            Claims refreshedClaims = tokenService.getClaimsFromToken(refreshedToken);
+
+            assertThat(refreshedClaims.getSubject()).isEqualTo(originalClaims.getSubject());
+            assertThat(refreshedClaims.get("provider")).isEqualTo(originalClaims.get("provider"));
+            assertThat(refreshedClaims.get("providerUserId")).isEqualTo(originalClaims.get("providerUserId"));
+            assertThat(refreshedClaims.get("providerNickname")).isEqualTo(originalClaims.get("providerNickname"));
+            assertThat(refreshedClaims.get("providerEmail")).isEqualTo(originalClaims.get("providerEmail"));
+            assertThat(refreshedClaims.get("tokenType")).isEqualTo(originalClaims.get("tokenType"));
+
+            // 새 토큰의 발급시간이 더 최신이어야 함
+            assertThat(refreshedClaims.getIssuedAt()).isAfter(originalClaims.getIssuedAt());
+        }
+
+        @Test
+        @DisplayName("유효하지 않은 토큰 연장 시 예외 발생")
+        void refresh_invalid_token_throws_exception() {
+            // given
+            String invalidToken = "invalid.jwt.token";
+
+            // when & then
+            assertThatThrownBy(() -> tokenService.refreshAccessToken(invalidToken))
+                .isInstanceOf(ApplicationException.class)
+                .extracting("errorCode")
+                .isEqualTo(ErrorCode.TOKEN_PARSING_FAILED);
+        }
+    }
 }
