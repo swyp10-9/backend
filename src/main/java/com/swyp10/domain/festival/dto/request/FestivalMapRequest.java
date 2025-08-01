@@ -8,27 +8,27 @@ import lombok.Setter;
 @Getter @Setter
 public class FestivalMapRequest extends FestivalPageRequest {
 
-    @Schema(description = "축제 상태", example = "ONGOING")
+    @Schema(description = "축제 상태", required = false, nullable = false, example = "ONGOING")
     private FestivalStatus status = FestivalStatus.ALL;
 
-    @Schema(description = "기간", example = "THIS_WEEK")
+    @Schema(description = "기간", required = false, nullable = false, example = "THIS_WEEK")
     private FestivalPeriod period = FestivalPeriod.ALL;
 
-    @Schema(description = "누구랑", example = "FAMILY")
+    @Schema(description = "누구랑", required = false, nullable = false, example = "FAMILY")
     private FestivalWithWhom withWhom = FestivalWithWhom.ALL;
 
-    @Schema(description = "테마", example = "CULTURE_ART")
+    @Schema(description = "테마", required = false, nullable = false, example = "CULTURE_ART")
     private FestivalTheme theme = FestivalTheme.ALL;
 
-    @Schema(description = "좌상단 위도", example = "37.6")
+    @Schema(description = "좌상단 위도", required = false, nullable = true, example = "37.6")
     private Double latTopLeft;
 
-    @Schema(description = "좌상단 경도", example = "126.9")
+    @Schema(description = "좌상단 경도", required = false, nullable = true, example = "126.9")
     private Double lngTopLeft;
 
-    @Schema(description = "우하단 위도", example = "37.4")
+    @Schema(description = "우하단 위도", required = false, nullable = true, example = "37.4")
     private Double latBottomRight;
 
-    @Schema(description = "우하단 경도", example = "127.1")
+    @Schema(description = "우하단 경도", required = false, nullable = true, example = "127.1")
     private Double lngBottomRight;
 }

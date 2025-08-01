@@ -2,17 +2,28 @@ package com.swyp10.domain.auth.dto.common;
 
 import com.swyp10.domain.auth.dto.OAuthProvider;
 import com.swyp10.domain.auth.dto.kakao.KakaoUserResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
+@Schema(description = "OAuth 사용자 정보")
 public class OAuthUserInfo {
     
+    @Schema(description = "이메일 주소 (선택동의시 null 가능)", required = false, nullable = true, example = "user@example.com")
     private String email;
+    
+    @Schema(description = "닉네임", required = false, nullable = false, example = "홍길동")
     private String nickname;
+    
+    @Schema(description = "프로필 이미지 URL", required = false, nullable = true, example = "https://example.com/profile.jpg")
     private String profileImage;
+    
+    @Schema(description = "OAuth 고유 ID", required = false, nullable = false, example = "1234567890")
     private String oauthId;  // OAuth 고유 ID
+    
+    @Schema(description = "OAuth 제공자", required = false, nullable = false, example = "KAKAO")
     private OAuthProvider provider;
 
     // Kakao 응답을 OAuthUserInfo로 변환하는 팩토리 메서드

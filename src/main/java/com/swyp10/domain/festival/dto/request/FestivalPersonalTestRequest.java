@@ -7,6 +7,6 @@ import lombok.Setter;
 
 @Getter @Setter
 public class FestivalPersonalTestRequest extends FestivalPageRequest {
-    @Schema( description = "테스트 성향 결과", example = "ENERGIZER")
+    @Schema( description = "테스트 성향 결과", required = false, nullable = true, example = "ENERGIZER")
     private FestivalPersonalityType personalityType;
 }

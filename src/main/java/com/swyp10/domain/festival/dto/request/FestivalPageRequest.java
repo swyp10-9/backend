@@ -14,6 +14,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class FestivalPageRequest extends PageRequest {
     
-    @Schema(description = "정렬 기준 (예: createdAt,desc)", example = "createdAt,desc")
+    @Schema(description = "정렬 기준 (예: createdAt,desc)", required = false, nullable = true, example = "createdAt,desc")
     private String sort;
 }
