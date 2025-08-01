@@ -3,17 +3,112 @@ package com.swyp10.domain.festival.service;
 import com.swyp10.domain.festival.dto.request.*;
 import com.swyp10.domain.festival.dto.response.FestivalDetailResponse;
 import com.swyp10.domain.festival.dto.response.FestivalListResponse;
+import com.swyp10.domain.festival.dto.tourapi.DetailCommon2Dto;
+import com.swyp10.domain.festival.dto.tourapi.DetailImage2Dto;
+import com.swyp10.domain.festival.dto.tourapi.DetailIntro2Dto;
+import com.swyp10.domain.festival.dto.tourapi.SearchFestival2Dto;
 import com.swyp10.domain.festival.entity.Festival;
+import com.swyp10.domain.festival.mapper.FestivalMapper;
+import com.swyp10.domain.festival.repository.FestivalRepository;
+import com.swyp10.exception.ApplicationException;
+import com.swyp10.exception.ErrorCode;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-public interface FestivalService {
-    Festival getFestival(Long festivalId);
-    Festival createFestival(Festival festival);
-    void deleteFestival(Long festivalId);
+import java.util.List;
 
-    FestivalListResponse getFestivalsForMap(FestivalMapRequest request);
-    FestivalListResponse getFestivalsForCalendar(FestivalCalendarRequest request);
-    FestivalListResponse getFestivalsForPersonalTest(FestivalPersonalTestRequest request);
-    FestivalListResponse searchFestivals(FestivalSearchRequest request);
-    FestivalListResponse getMyPageFestivals(FestivalMyPageRequest request);
-    FestivalDetailResponse getFestivalDetail(Long festivalId);
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class FestivalService {
+
+    private final FestivalRepository festivalRepository;
+
+    @Transactional
+    public Festival saveOrUpdateFestival(
+        SearchFestival2Dto searchFestival2Dto,
+        DetailCommon2Dto detailCommon2Dto,
+        DetailIntro2Dto detailIntro2Dto,
+        List<DetailImage2Dto> detailImage2DtoList
+    ) {
+        return festivalRepository.findByContentId(searchFestival2Dto.getContentid())
+            .map(existing -> {
+                // overview, detailIntro update
+                existing.clearDetailImages();
+
+                // 기존 필드도 업데이트 가능하게 추가 (필요에 따라 setter 추가 권장)
+                existing.updateOverview(detailCommon2Dto.getOverview());
+                existing.updateDetailIntro(FestivalMapper.toDetailIntro(detailIntro2Dto));
+                existing.updateBasicInfo(FestivalMapper.toBasicInfo(searchFestival2Dto));
+
+                // 이미지들 다시 추가
+                detailImage2DtoList.stream()
+                    .map(FestivalMapper::toFestivalImage)
+                    .forEach(existing::addDetailImage);
+
+                return existing;
+            })
+            .orElseGet(() ->
+                festivalRepository.save(FestivalMapper.toEntity(
+                    searchFestival2Dto, detailCommon2Dto, detailIntro2Dto, detailImage2DtoList
+                ))
+            );
+    }
+
+    public Festival findByFestivalId(Long festivalId) {
+        return festivalRepository.findById(festivalId)
+            .orElseThrow(() -> new ApplicationException(ErrorCode.BAD_REQUEST, "Festival not found: " + festivalId));
+    }
+
+
+    public Festival findByContentId(String contentId) {
+        return festivalRepository.findByContentId(contentId)
+            .orElseThrow(() -> new ApplicationException(ErrorCode.FESTIVAL_NOT_FOUND));
+    }
+
+    /**
+     * 모든 축제 리스트 조회 (페이지네이션 필요시 Pageable 파라미터 추가)
+     */
+    public List<Festival> findAllFestivals() {
+        return festivalRepository.findAll();
+    }
+
+    public boolean existsByContentId(String contentId) {
+        return festivalRepository.findByContentId(contentId).isPresent();
+    }
+
+    @Transactional
+    public Festival createFestival(Festival festival) {
+        return festivalRepository.save(festival);
+    }
+
+    @Transactional
+    public void deleteFestival(Long festivalId) {
+        festivalRepository.deleteById(festivalId);
+    }
+
+    public FestivalListResponse getFestivalsForMap(FestivalMapRequest request) {
+        return null;
+    }
+
+    public FestivalListResponse getFestivalsForCalendar(FestivalCalendarRequest request) {
+        return null;
+    }
+
+    public FestivalListResponse getFestivalsForPersonalTest(FestivalPersonalTestRequest request) {
+        return null;
+    }
+
+    public FestivalListResponse searchFestivals(FestivalSearchRequest request) {
+        return null;
+    }
+
+    public FestivalListResponse getMyPageFestivals(FestivalMyPageRequest request) {
+        return null;
+    }
+
+    public FestivalDetailResponse getFestivalDetail(Long festivalId) {
+        return null;
+    }
 }

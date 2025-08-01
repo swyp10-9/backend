@@ -29,30 +29,25 @@ import static lombok.AccessLevel.PROTECTED;
 @Builder
 public class Festival extends BaseTimeEntity {
 
-    @Id @GeneratedValue(strategy = IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "festival_id")
     private Long festivalId;
 
-    @Column(length = 255, nullable = false)
-    private String name;
+    @Column(name = "content_id", unique = true, nullable = false, length = 32)
+    private String contentId;
 
-    @Column(name = "start_date", nullable = false)
-    private LocalDate startDate;
-
-    @Column(name = "end_date", nullable = false)
-    private LocalDate endDate;
-
-    private FestivalTheme theme;
+    @Embedded
+    private FestivalBasicInfo basicInfo;
 
     @Column(columnDefinition = "TEXT")
-    private String description;
+    private String overview;
 
-    @Column(columnDefinition = "TEXT")
-    private String thumbnail;
+    @Embedded
+    private FestivalDetailIntro detailIntro;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "json")
-    private Map<String, Object> location;
+    @OneToMany(mappedBy = "festival", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<FestivalImage> detailImages = new ArrayList<>();
 
     @OneToOne(mappedBy = "festival", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private FestivalStatistics statistics;
@@ -71,9 +66,30 @@ public class Festival extends BaseTimeEntity {
     @JsonIgnore
     private List<UserReview> reviews = new ArrayList<>();
 
+    // 
+    public void updateOverview(String overview) {
+        this.overview = overview;
+    }
+    public void updateDetailIntro(FestivalDetailIntro detailIntro) {
+        this.detailIntro = detailIntro;
+    }
+    public void updateBasicInfo(FestivalBasicInfo basicInfo) {
+        this.basicInfo = basicInfo;
+    }
+
     // 연관 관계 메서드
     public void initializeStatistics() {
         FestivalStatistics stats = FestivalStatistics.createEmpty(this);
         this.statistics = stats;
+    }
+
+    public void addDetailImage(FestivalImage image) {
+        detailImages.add(image);
+        image.setFestival(this);
+    }
+
+    public void clearDetailImages() {
+        detailImages.forEach(img -> img.setFestival(null));
+        detailImages.clear();
     }
 }
