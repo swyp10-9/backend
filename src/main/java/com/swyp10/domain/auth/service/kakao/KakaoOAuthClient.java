@@ -30,8 +30,8 @@ public class KakaoOAuthClient implements OAuthClient {
     @Value("${oauth.kakao.client-id}")
     private String KAKAO_CLIENT_ID;
     
-    @Value("${oauth.kakao.redirect-uri}")
-    private String KAKAO_REDIRECT_URI;
+    @Value("${oauth.kakao.redirect-path}")
+    private String KAKAO_REDIRECT_PATH;
     
     @Value("${oauth.kakao.token-url}")
     private String KAKAO_TOKEN_URL;
@@ -44,15 +44,26 @@ public class KakaoOAuthClient implements OAuthClient {
     }
     
     /**
-     * 인가 코드로 Kakao Access Token 발급
+     * 인가 코드로 Kakao Access Token 발급 (기본 origin 사용)
+     * @deprecated origin을 명시적으로 전달하는 getAccessToken(String code, String origin) 사용 권장
      */
     @Override
+    @Deprecated
     public String getAccessToken(String code) {
+        throw new ApplicationException(ErrorCode.MISSING_REQUEST_HEADER, 
+                "Origin 정보가 필요합니다. getAccessToken(code, origin) 메서드를 사용하세요.");
+    }
+    
+    /**
+     * 인가 코드로 Kakao Access Token 발급 (동적 origin 사용)
+     */
+    public String getAccessToken(String code, String origin) {
         try {
-            HttpEntity<MultiValueMap<String, String>> request = createTokenRequest(code);
+            String redirectUri = origin + KAKAO_REDIRECT_PATH;
+            HttpEntity<MultiValueMap<String, String>> request = createTokenRequest(code, redirectUri);
             
             log.info("카카오 토큰 발급 요청: clientId={}, redirectUri={}", 
-                    KAKAO_CLIENT_ID, KAKAO_REDIRECT_URI);
+                    KAKAO_CLIENT_ID, redirectUri);
             
             ResponseEntity<String> response = restTemplate.exchange(
                 KAKAO_TOKEN_URL,
@@ -117,14 +128,14 @@ public class KakaoOAuthClient implements OAuthClient {
     /**
      * 토큰 요청 생성
      */
-    private HttpEntity<MultiValueMap<String, String>> createTokenRequest(String code) {
+    private HttpEntity<MultiValueMap<String, String>> createTokenRequest(String code, String redirectUri) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", AuthConstants.CONTENT_TYPE_FORM_URLENCODED);
         
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", AuthConstants.GRANT_TYPE_AUTHORIZATION_CODE);
         params.add("client_id", KAKAO_CLIENT_ID);
-        params.add("redirect_uri", KAKAO_REDIRECT_URI);
+        params.add("redirect_uri", redirectUri);
         params.add("code", code);
         
         return new HttpEntity<>(params, headers);

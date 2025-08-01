@@ -32,7 +32,7 @@ jwt:
 oauth:
   kakao:
     client-id: ${KAKAO_CLIENT_ID:your-kakao-client-id}
-    redirect-uri: ${KAKAO_REDIRECT_URI:http://localhost:8080/test/kakao/callback}
+    redirect-path: ${KAKAO_REDIRECT_PATH:/api/auth/kakao-redirect}
     token-url: ${KAKAO_TOKEN_URL:https://kauth.kakao.com/oauth/token}
     user-info-url: ${KAKAO_USER_INFO_URL:https://kapi.kakao.com/v2/user/me}
 

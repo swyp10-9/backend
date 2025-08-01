@@ -42,7 +42,7 @@ class ExceptionHandlerTest {
     @DisplayName("카카오 토큰 예외 처리")
     void kakaoTokenException_ExceptionHandling() throws Exception {
         // given
-        when(authService.processOAuthLogin(anyString(), anyString()))
+        when(authService.processOAuthLogin(anyString(), anyString(), anyString()))
                 .thenThrow(new ApplicationException(ErrorCode.KAKAO_TOKEN_EXCEPTION));
 
         // when & then
@@ -58,7 +58,7 @@ class ExceptionHandlerTest {
     @DisplayName("카카오 사용자 정보 조회 예외 처리")
     void kakaoUserInfoException_ExceptionHandling() throws Exception {
         // given
-        when(authService.processOAuthLogin(anyString(), anyString()))
+        when(authService.processOAuthLogin(anyString(), anyString(), anyString()))
                 .thenThrow(new ApplicationException(ErrorCode.KAKAO_USER_INFO_EXCEPTION));
 
         // when & then
@@ -74,7 +74,7 @@ class ExceptionHandlerTest {
     @DisplayName("OAuth 계정 찾기 실패 예외 처리")
     void oauthAccountNotFound_ExceptionHandling() throws Exception {
         // given
-        when(authService.processOAuthLogin(anyString(), anyString()))
+        when(authService.processOAuthLogin(anyString(), anyString(), anyString()))
                 .thenThrow(new ApplicationException(ErrorCode.OAUTH_ACCOUNT_NOT_FOUND));
 
         // when & then
@@ -90,7 +90,7 @@ class ExceptionHandlerTest {
     @DisplayName("사용자 찾기 실패 예외 처리")
     void userNotFound_ExceptionHandling() throws Exception {
         // given
-        when(authService.processOAuthLogin(anyString(), anyString()))
+        when(authService.processOAuthLogin(anyString(), anyString(), anyString()))
                 .thenThrow(new ApplicationException(ErrorCode.USER_NOT_FOUND));
 
         // when & then
@@ -106,7 +106,7 @@ class ExceptionHandlerTest {
     @DisplayName("토큰 생성 실패 예외 처리")
     void tokenGenerationFailed_ExceptionHandling() throws Exception {
         // given
-        when(authService.processOAuthLogin(anyString(), anyString()))
+        when(authService.processOAuthLogin(anyString(), anyString(), anyString()))
                 .thenThrow(new ApplicationException(ErrorCode.TOKEN_GENERATION_FAILED));
 
         // when & then
@@ -122,7 +122,7 @@ class ExceptionHandlerTest {
     @DisplayName("이메일 중복 예외 처리")
     void emailAlreadyExists_ExceptionHandling() throws Exception {
         // given
-        when(authService.processOAuthLogin(anyString(), anyString()))
+        when(authService.processOAuthLogin(anyString(), anyString(), anyString()))
                 .thenThrow(new ApplicationException(ErrorCode.EMAIL_ALREADY_EXISTS));
 
         // when & then
@@ -138,7 +138,7 @@ class ExceptionHandlerTest {
     @DisplayName("잘못된 토큰 예외 처리")
     void invalidToken_ExceptionHandling() throws Exception {
         // given
-        when(authService.processOAuthLogin(anyString(), anyString()))
+        when(authService.processOAuthLogin(anyString(), anyString(), anyString()))
                 .thenThrow(new ApplicationException(ErrorCode.INVALID_TOKEN));
 
         // when & then
@@ -154,7 +154,7 @@ class ExceptionHandlerTest {
     @DisplayName("일반적인 예외 처리")
     void generalException_ExceptionHandling() throws Exception {
         // given
-        when(authService.processOAuthLogin(anyString(), anyString()))
+        when(authService.processOAuthLogin(anyString(), anyString(), anyString()))
                 .thenThrow(new RuntimeException("예기치 않은 오류"));
 
         // when & then

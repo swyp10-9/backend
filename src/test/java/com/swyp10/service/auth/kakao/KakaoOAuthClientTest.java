@@ -41,7 +41,7 @@ class KakaoOAuthClientTest {
         ReflectionTestUtils.setField(kakaoOAuthClient, "KAKAO_TOKEN_URL", KAKAO_TOKEN_URL);
         ReflectionTestUtils.setField(kakaoOAuthClient, "KAKAO_USER_INFO_URL", KAKAO_USER_INFO_URL);
         ReflectionTestUtils.setField(kakaoOAuthClient, "KAKAO_CLIENT_ID", "test-client-id");
-        ReflectionTestUtils.setField(kakaoOAuthClient, "KAKAO_REDIRECT_URI", "http://localhost:8080/test/callback");
+        ReflectionTestUtils.setField(kakaoOAuthClient, "KAKAO_REDIRECT_PATH", "/api/auth/kakao-redirect");
     }
 
     @Test
@@ -65,7 +65,7 @@ class KakaoOAuthClientTest {
                 eq(String.class))).thenReturn(responseEntity);
 
         // when
-        String result = kakaoOAuthClient.getAccessToken(code);
+        String result = kakaoOAuthClient.getAccessToken(code, "http://localhost:8080");
 
         // then
         assertThat(result).isEqualTo("test-access-token");
@@ -83,7 +83,7 @@ class KakaoOAuthClientTest {
                 eq(String.class))).thenThrow(new RestClientException("토큰 발급 실패"));
 
         // when & then
-        assertThatThrownBy(() -> kakaoOAuthClient.getAccessToken(code))
+        assertThatThrownBy(() -> kakaoOAuthClient.getAccessToken(code, "http://localhost:8080"))
                 .isInstanceOf(ApplicationException.class)
                 .hasMessageContaining(ErrorCode.KAKAO_TOKEN_EXCEPTION.getMessage());
     }

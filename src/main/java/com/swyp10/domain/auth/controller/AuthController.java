@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Tag(name = "인증", description = "OAuth 로그인 및 회원가입 API")
 public class AuthController {
-    
+
     private final AuthService authService;
 
     /**
@@ -29,9 +30,11 @@ public class AuthController {
     @Operation(summary = "OAuth 인가 코드 로그인", description = "OAuth 인가 코드로 로그인 처리 - 항상 토큰 반환")
     public ResponseEntity<TokenResponse> oauthLogin(
         @Parameter(description = "OAuth 제공자", example = "kakao") @PathVariable String provider,
-        @Parameter(description = "OAuth 인가 코드") @RequestParam String code
+        @Parameter(description = "OAuth 인가 코드") @RequestParam String code,
+        HttpServletRequest request
     ) {
-        TokenResponse tokenResponse = authService.processOAuthLogin(provider, code);
+        String origin = getOriginFromRequest(request);
+        TokenResponse tokenResponse = authService.processOAuthLogin(provider, code, origin);
         return ResponseEntity.ok(tokenResponse);
     }
 
@@ -40,7 +43,7 @@ public class AuthController {
      */
     @GetMapping("/me")
     @Operation(
-        summary = "사용자 정보 조회", 
+        summary = "사용자 정보 조회",
         description = "JWT 토큰으로 현재 로그인한 사용자 정보 조회",
         security = @SecurityRequirement(name = "Bearer Authentication")
     )
@@ -56,7 +59,7 @@ public class AuthController {
      */
     @PostMapping("/refresh")
     @Operation(
-        summary = "토큰 연장", 
+        summary = "토큰 연장",
         description = "현재 토큰을 연장하여 새로운 토큰 발급",
         security = @SecurityRequirement(name = "Bearer Authentication")
     )
@@ -65,5 +68,24 @@ public class AuthController {
     ) {
         TokenResponse tokenResponse = authService.refreshToken(authHeader);
         return ResponseEntity.ok(tokenResponse);
+    }
+
+    /**
+     * 요청에서 origin 추출 (scheme + host + port)
+     */
+    private String getOriginFromRequest(HttpServletRequest request) {
+        String scheme = request.getScheme(); // http, https
+        String serverName = request.getServerName(); // localhost, example.com
+        int serverPort = request.getServerPort(); // 8080, 443
+
+        String origin = scheme + "://" + serverName;
+
+        // 기본 포트가 아닌 경우에만 포트 추가
+        if ((scheme.equals("http") && serverPort != 80) ||
+            (scheme.equals("https") && serverPort != 443)) {
+            origin += ":" + serverPort;
+        }
+
+        return origin;
     }
 }

@@ -55,7 +55,7 @@ class AuthControllerTest {
     @DisplayName("OAuth 로그인 - 성공")
     void oauthLogin_Success() throws Exception {
         // given
-        when(authService.processOAuthLogin("kakao", "test-code"))
+        when(authService.processOAuthLogin(eq("kakao"), eq("test-code"), anyString()))
                 .thenReturn(tokenResponse);
 
         // when & then

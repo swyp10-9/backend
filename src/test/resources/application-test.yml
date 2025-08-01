@@ -55,4 +55,4 @@ DB_USERNAME: sa
 DB_PASSWORD: 
 DB_NAME: testdb
 JWT_SECRET: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
-KAKAO_REDIRECT_URI: http://localhost:8080/test/kakao/callback
+KAKAO_REDIRECT_PATH: /api/auth/kakao-redirect

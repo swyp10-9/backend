@@ -6,6 +6,7 @@ import com.swyp10.domain.auth.dto.common.*;
 import com.swyp10.domain.auth.entity.OAuthAccount;
 import com.swyp10.domain.auth.entity.User;
 
+import com.swyp10.domain.auth.service.kakao.KakaoOAuthClient;
 import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,19 +30,36 @@ public class AuthService {
     private final TokenService tokenService;
     
     /**
-     * OAuth 인가 코드로 로그인 처리 - 바로 User 생성
+     * OAuth 인가 코드로 로그인 처리 - 바로 User 생성 (기본 origin 사용)
      */
     @Transactional
     public TokenResponse processOAuthLogin(String provider, String code) {
+        return processOAuthLogin(provider, code, null);
+    }
+    
+    /**
+     * OAuth 인가 코드로 로그인 처리 - 바로 User 생성 (동적 origin 사용)
+     */
+    @Transactional
+    public TokenResponse processOAuthLogin(String provider, String code, String origin) {
         OAuthProvider oauthProvider = OAuthProvider.fromString(provider);
         
-        log.info("{} OAuth 로그인 요청: code={}", provider, code.substring(0, Math.min(code.length(), 10)) + "...");
+        log.info("{} OAuth 로그인 요청: code={}, origin={}", provider, 
+                code.substring(0, Math.min(code.length(), 10)) + "...", origin);
         
         // OAuth 클라이언트 선택 (현재는 카카오만 지원)
         OAuthClient oauthClient = oauthClientFactory.getClient(oauthProvider);
         
         // 1단계: 인가 코드로 액세스 토큰 발급
-        String accessToken = oauthClient.getAccessToken(code);
+        String accessToken;
+        if (origin != null && oauthClient instanceof KakaoOAuthClient) {
+            // 카카오의 경우 동적 origin 사용
+            accessToken = ((KakaoOAuthClient) oauthClient)
+                    .getAccessToken(code, origin);
+        } else {
+            // 기본 방식 사용
+            accessToken = oauthClient.getAccessToken(code);
+        }
         
         // 2단계: 액세스 토큰으로 사용자 정보 조회
         OAuthUserInfo oauthUserInfo = oauthClient.getUserInfo(accessToken);
