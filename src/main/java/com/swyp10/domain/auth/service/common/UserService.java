@@ -44,6 +44,45 @@ public class UserService {
             .orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_FOUND));
     }
     
+    /**
+     * 카카오 ID로 사용자 조회 또는 생성 (email 필드에 카카오 ID 저장)
+     */
+    @Transactional
+    public User findByKakaoIdOrCreate(com.swyp10.domain.auth.dto.common.OAuthUserInfo oauthUserInfo) {
+        // email 필드에 카카오 ID를 저장하라고 기존 사용자 확인
+        String kakaoIdAsEmail = "kakao_" + oauthUserInfo.getOauthId();
+        return userRepository.findByEmail(kakaoIdAsEmail)
+            .orElseGet(() -> createKakaoUser(oauthUserInfo, kakaoIdAsEmail));
+    }
+    
+    /**
+     * 카카오 사용자 생성 (email 필드에 카카오 ID 저장)
+     */
+    private User createKakaoUser(com.swyp10.domain.auth.dto.common.OAuthUserInfo oauthUserInfo, String kakaoIdAsEmail) {
+        // 닉네임이 없으면 기본값 설정
+        String nickname = oauthUserInfo.getNickname() != null ? 
+            oauthUserInfo.getNickname() : 
+            "카카오사용자" + oauthUserInfo.getOauthId();
+        
+        // 비밀번호는 UUID로 설정 (사용하지 않지만 nullable=false이므로)
+        String dummyPassword = passwordEncoder.encode(java.util.UUID.randomUUID().toString());
+        
+        User newUser = User.builder()
+            .email(kakaoIdAsEmail) // email 필드에 카카오 ID 저장
+            .password(dummyPassword) // 더미 비밀번호 (사용 안함)
+            .nickname(nickname)
+            .profileImage(oauthUserInfo.getProfileImage())
+            .signupCompleted(true) // 카카오 로그인으로 바로 완료 처리
+            .build();
+        
+        User savedUser = userRepository.save(newUser);
+        
+        log.info("카카오 사용자 생성 완료: userId={}, kakaoId={}, email={}", 
+                savedUser.getUserId(), oauthUserInfo.getOauthId(), kakaoIdAsEmail);
+        
+        return savedUser;
+    }
+    
     // === 이메일 관련 ===
     
     /**

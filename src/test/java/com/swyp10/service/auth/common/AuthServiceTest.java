@@ -1,11 +1,8 @@
 package com.swyp10.service.auth.common;
 
+import com.swyp10.domain.auth.dto.common.*;
 import com.swyp10.domain.auth.service.common.*;
 import com.swyp10.domain.auth.dto.OAuthProvider;
-import com.swyp10.domain.auth.dto.common.LoginRequest;
-import com.swyp10.domain.auth.dto.common.OAuthUserInfo;
-import com.swyp10.domain.auth.dto.common.SignupRequest;
-import com.swyp10.domain.auth.dto.common.TokenResponse;
 import com.swyp10.domain.auth.entity.LoginType;
 import com.swyp10.domain.auth.entity.OAuthAccount;
 import com.swyp10.domain.auth.entity.User;
@@ -125,43 +122,6 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("카카오 OAuth 로그인 성공 - 추가 회원가입 필요")
-        void kakao_oauth_login_success_needs_additional_signup() {
-            // given
-            String provider = "kakao";
-            String code = "test_auth_code";
-            String accessToken = "test_access_token";
-            String oauthToken = "oauth_jwt_token";
-
-            OAuthUserInfo userInfo = OAuthUserInfo.builder()
-                .provider(OAuthProvider.KAKAO)
-                .oauthId("12345")
-                .email("test@example.com")
-                .nickname("카카오유저")
-                .build();
-
-            // Factory를 통해 클라이언트 반환하도록 모킹
-            given(oAuthClientFactory.getClient(OAuthProvider.KAKAO)).willReturn(mockOAuthClient);
-            given(mockOAuthClient.getAccessToken(code)).willReturn(accessToken);
-            given(mockOAuthClient.getUserInfo(accessToken)).willReturn(userInfo);
-            given(accountService.findOrCreate(userInfo)).willReturn(testOAuthAccount);
-            given(accountService.isSignupCompleted(1L)).willReturn(false);
-            given(tokenService.generateOAuthToken(testOAuthAccount)).willReturn(oauthToken);
-
-            // when
-            TokenResponse result = authService.processOAuthLogin(provider, code);
-
-            // then
-            assertThat(result).isNotNull();
-            assertThat(result.getAccessToken()).isEqualTo(oauthToken);
-            assertThat(result.getNickname()).isEqualTo("카카오유저");
-
-            verify(accountService).isSignupCompleted(1L);
-            verify(tokenService).generateOAuthToken(testOAuthAccount);
-            verify(accountService, never()).findUserByOAuthAccount(any());
-        }
-
-        @Test
         @DisplayName("지원하지 않는 OAuth 제공자로 요청 시 예외 발생")
         void oauth_login_with_unsupported_provider_throws_exception() {
             // given
@@ -273,7 +233,7 @@ class AuthServiceTest {
             given(userService.findById(1L)).willReturn(testUser);
 
             // when
-            AuthService.UserInfo result = authService.getCurrentUser(authHeader);
+            UserInfo result = authService.getCurrentUser(authHeader);
 
             // then
             assertThat(result).isNotNull();

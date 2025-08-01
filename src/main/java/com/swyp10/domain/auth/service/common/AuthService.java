@@ -2,15 +2,13 @@ package com.swyp10.domain.auth.service.common;
 
 import com.swyp10.constants.TokenType;
 import com.swyp10.domain.auth.dto.OAuthProvider;
-import com.swyp10.domain.auth.dto.common.SignupRequest;
+import com.swyp10.domain.auth.dto.common.*;
 import com.swyp10.domain.auth.entity.OAuthAccount;
 import com.swyp10.domain.auth.entity.User;
-import com.swyp10.domain.auth.dto.common.LoginRequest;
-import com.swyp10.domain.auth.dto.common.TokenResponse;
 
-import com.swyp10.domain.auth.dto.common.OAuthUserInfo;
 import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,7 +29,7 @@ public class AuthService {
     private final TokenService tokenService;
     
     /**
-     * OAuth 인가 코드로 로그인 처리
+     * OAuth 인가 코드로 로그인 처리 - 바로 User 생성
      */
     @Transactional
     public TokenResponse processOAuthLogin(String provider, String code) {
@@ -39,7 +37,7 @@ public class AuthService {
         
         log.info("{} OAuth 로그인 요청: code={}", provider, code.substring(0, Math.min(code.length(), 10)) + "...");
         
-        // OAuth 클라이언트 선택
+        // OAuth 클라이언트 선택 (현재는 카카오만 지원)
         OAuthClient oauthClient = oauthClientFactory.getClient(oauthProvider);
         
         // 1단계: 인가 코드로 액세스 토큰 발급
@@ -48,30 +46,16 @@ public class AuthService {
         // 2단계: 액세스 토큰으로 사용자 정보 조회
         OAuthUserInfo oauthUserInfo = oauthClient.getUserInfo(accessToken);
         
-        // 3단계: OAuth 계정 찾기 또는 생성
-        OAuthAccount oauthAccount = accountService.findOrCreate(oauthUserInfo);
+        // 3단계: 기존 사용자 확인 또는 새 사용자 생성
+        User user = userService.findByKakaoIdOrCreate(oauthUserInfo);
         
-        // 4단계: 회원가입 완료 여부 확인
-        boolean isSignupCompleted = accountService.isSignupCompleted(oauthAccount.getOauthId());
+        // 4단계: 사용자 토큰 생성 및 반환
+        String userAccessToken = tokenService.generateAccessToken(user);
         
-        if (isSignupCompleted) {
-            // 회원가입이 완료된 경우: USER 토큰 생성
-            User user = accountService.findUserByOAuthAccount(oauthAccount.getOauthId());
-            String completedAccessToken = tokenService.generateAccessToken(user);
-            
-            log.info("OAuth 로그인 성공 (회원가입 완료): provider={}, userId={}", 
-                    provider, user.getUserId());
-            
-            return TokenResponse.of(completedAccessToken, user.getUserId(), user.getNickname());
-        } else {
-            // 회원가입이 미완료된 경우: OAUTH 토큰 생성
-            String oauthToken = tokenService.generateOAuthToken(oauthAccount);
-            
-            log.info("OAuth 로그인 성공 (추가 회원가입 필요): provider={}, oauthAccountId={}", 
-                    provider, oauthAccount.getOauthId());
-            
-            return TokenResponse.ofOAuth(oauthToken, oauthAccount.getProviderNickname());
-        }
+        log.info("카카오 OAuth 로그인 성공: userId={}, kakaoId={}", 
+                user.getUserId(), user.getEmail());
+        
+        return TokenResponse.of(userAccessToken, user.getUserId(), user.getNickname());
     }
     
     /**
@@ -237,36 +221,5 @@ public class AuthService {
         
         log.info("OAuth 연동 완료: userId={}, provider={}, oauthAccountId={}", 
                 userId, provider, oauthAccount.getOauthId());
-    }
-
-    /**
-     * 사용자 정보 응답 DTO
-     */
-    public static class UserInfo {
-        private final Long userId;
-        private final String email;
-        private final String nickname;
-        
-        private UserInfo(Long userId, String email, String nickname) {
-            this.userId = userId;
-            this.email = email;
-            this.nickname = nickname;
-        }
-        
-        public static UserInfo from(User user) {
-            return new UserInfo(user.getUserId(), user.getEmail(), user.getNickname());
-        }
-        
-        public Long getUserId() {
-            return userId;
-        }
-        
-        public String getEmail() {
-            return email;
-        }
-        
-        public String getNickname() {
-            return nickname;
-        }
     }
 }

@@ -67,43 +67,11 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("OAuth 추가 회원가입 완료 - 성공")
-    void completeAdditionalSignup_Success() throws Exception {
-        // given
-        when(authService.completeAdditionalSignup(anyString(), any(SignupRequest.class)))
-                .thenReturn(tokenResponse);
-
-        // when & then
-        mockMvc.perform(post("/api/v1/auth/oauth/signup")
-                .header("Authorization", "Bearer test-oauth-token")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(signupRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").value("test-access-token"))
-                .andExpect(jsonPath("$.userId").value(1))
-                .andExpect(jsonPath("$.nickname").value("테스트사용자"));
-    }
-
-    @Test
     @DisplayName("OAuth 로그인 - 필수 파라미터 누락")
     void oauthLogin_MissingCode() throws Exception {
         // when & then
      mockMvc.perform(post("/api/v1/auth/oauth/login/kakao")
              .contentType(MediaType.APPLICATION_JSON))
              .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @DisplayName("잘못된 요청 - 유효성 검사 실패")
-    void invalidRequest_ValidationFailed() throws Exception {
-        // given
-        SignupRequest invalidRequest = new SignupRequest("invalid-email", "123", "");
-
-        // when & then
-        mockMvc.perform(post("/api/v1/auth/oauth/signup")
-                .header("Authorization", "Bearer test-oauth-token")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidRequest)))
-                .andExpect(status().isBadRequest());
     }
 }
