@@ -15,8 +15,13 @@ public class FestivalImage {
     private Long id;
 
     private String imgid;
+
+    @Column(columnDefinition = "TEXT")
     private String originimgurl;
+
+    @Column(columnDefinition = "TEXT")
     private String smallimageurl;
+
     private String serialnum;
 
     @ManyToOne(fetch = FetchType.LAZY)

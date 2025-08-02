@@ -58,7 +58,7 @@ public class FestivalService {
 
     public Festival findByFestivalId(Long festivalId) {
         return festivalRepository.findById(festivalId)
-            .orElseThrow(() -> new ApplicationException(ErrorCode.BAD_REQUEST, "Festival not found: " + festivalId));
+            .orElseThrow(() -> new ApplicationException(ErrorCode.FESTIVAL_NOT_FOUND));
     }
 
 
@@ -84,7 +84,7 @@ public class FestivalService {
     }
 
     @Transactional
-    public void deleteFestival(Long festivalId) {
+    public void deleteByFestivalId(Long festivalId) {
         festivalRepository.deleteById(festivalId);
     }
 

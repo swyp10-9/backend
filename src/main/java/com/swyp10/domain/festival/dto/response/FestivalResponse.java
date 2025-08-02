@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 @Getter
@@ -53,15 +54,28 @@ public class FestivalResponse {
     
     // Festival Entity를 FestivalResponse로 변환하는 정적 팩토리 메서드
     public static FestivalResponse from(Festival festival) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+        LocalDate startDate = null;
+        String eventStartDateStr = festival.getBasicInfo().getEventstartdate();
+        if (eventStartDateStr != null && !eventStartDateStr.isBlank()) {
+            startDate = LocalDate.parse(eventStartDateStr, formatter);
+        }
+
+        LocalDate endDate = null;
+        String eventEndDateStr = festival.getBasicInfo().getEventenddate();
+        if (eventEndDateStr != null && !eventEndDateStr.isBlank()) {
+            endDate = LocalDate.parse(eventEndDateStr, formatter);
+        }
+
         return FestivalResponse.builder()
                 .festivalId(festival.getFestivalId())
-                .name(festival.getName())
-                .startDate(festival.getStartDate())
-                .endDate(festival.getEndDate())
-                .theme(festival.getTheme())
-                .description(festival.getDescription())
-                .thumbnail(festival.getThumbnail())
-                .location(festival.getLocation())
+                .name(festival.getBasicInfo().getTitle())
+                .startDate(startDate)
+                .endDate(endDate)
+                .description(festival.getOverview())
+                .thumbnail(festival.getBasicInfo().getFirstimage())
+                .location(Map.of("mapX", festival.getBasicInfo().getMapx(), "mapY", festival.getBasicInfo().getMapy()))
                 .region(festival.getRegion() != null ? RegionResponse.from(festival.getRegion()) : null)
                 .createdAt(festival.getCreatedAt())
                 .updatedAt(festival.getUpdatedAt())

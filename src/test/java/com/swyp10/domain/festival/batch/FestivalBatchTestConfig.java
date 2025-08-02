@@ -8,7 +8,6 @@ import com.swyp10.domain.festival.dto.tourapi.DetailIntro2Dto;
 import com.swyp10.domain.festival.dto.tourapi.SearchFestival2Dto;
 import com.swyp10.domain.festival.service.FestivalService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -26,11 +25,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @Configuration
-@Profile("!test")
+@Profile("test")
 @RequiredArgsConstructor
-public class FestivalBatchConfig {
+public class FestivalBatchTestConfig {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
@@ -38,7 +36,7 @@ public class FestivalBatchConfig {
     private final TourApiClient tourApiClient;
     private final ObjectMapper objectMapper;
 
-    private static final String SERVICE_KEY = "NYxrwdvbgchC%2BIW35g87NwgQoz%2FoqxwkVYW1O2Ihur8r3%2BH35FIzVQBedsthKFqUOUQ9PthT4hnHxjC4Ijg2cA%3D%3D";
+    private static final String SERVICE_KEY = "rMf1BnEiIzxMDy5ADMJs1BjMCnnadpTsGu%2FeEM0kz7Xv6lBZoDxhd9X1bnm0V6hF1vMa8NjyERbRud6ytGG%2BUg%3D%3D";
 
     @Bean
     public Job festivalSyncJob(Step festivalSyncStep) {
@@ -64,7 +62,7 @@ public class FestivalBatchConfig {
             int pageSize = 10;
             do {
                 Map<String, Object> response = tourApiClient.searchFestival2(
-                    SERVICE_KEY, "ETC", "swyp10", "json", pageSize, page, "20250101", "20251231"
+                    SERVICE_KEY, "ETC", "swyp10", "json", pageSize, page, "20251201", "20251201"
                 );
 
                 Map<String, Object> body = getNestedMap(response, "response", "body");
