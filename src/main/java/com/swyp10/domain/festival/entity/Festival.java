@@ -2,6 +2,10 @@ package com.swyp10.domain.festival.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.swyp10.common.BaseTimeEntity;
+import com.swyp10.domain.festival.enums.FestivalPersonalityType;
+import com.swyp10.domain.festival.enums.FestivalStatus;
+import com.swyp10.domain.festival.enums.FestivalTheme;
+import com.swyp10.domain.festival.enums.FestivalWithWhom;
 import com.swyp10.domain.region.entity.Region;
 import com.swyp10.domain.review.entity.UserReview;
 import jakarta.persistence.*;
@@ -39,6 +43,18 @@ public class Festival extends BaseTimeEntity {
     @Embedded
     private FestivalDetailIntro detailIntro;
 
+    @Enumerated(EnumType.STRING)
+    private FestivalPersonalityType personalityType;
+
+    @Enumerated(EnumType.STRING)
+    private FestivalStatus status;
+
+    @Enumerated(EnumType.STRING)
+    private FestivalTheme theme;
+
+    @Enumerated(EnumType.STRING)
+    private FestivalWithWhom withWhom;
+
     @OneToMany(mappedBy = "festival", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<FestivalImage> detailImages = new ArrayList<>();
@@ -64,9 +80,11 @@ public class Festival extends BaseTimeEntity {
     public void updateOverview(String overview) {
         this.overview = overview;
     }
+
     public void updateDetailIntro(FestivalDetailIntro detailIntro) {
         this.detailIntro = detailIntro;
     }
+
     public void updateBasicInfo(FestivalBasicInfo basicInfo) {
         this.basicInfo = basicInfo;
     }
