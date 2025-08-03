@@ -5,6 +5,7 @@ import com.swyp10.domain.festival.entity.Festival;
 import com.swyp10.domain.festival.repository.FestivalRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import({TestConfig.class, FestivalBatchTestConfig.class})
 @ActiveProfiles("test")
 @DisplayName("FestivalBatch 통합 테스트")
+@EnabledIfSystemProperty(named = "run.integration.tests", matches = "true")
 public class FestivalBatchIntegrationTest {
 
     @Autowired

@@ -49,4 +49,20 @@ public interface TourApiClient {
         @RequestParam("contentId") String contentId,
         @RequestParam("imageYN") String imageYN
     );
+
+    @GetMapping("/areaCode2")
+    Map<String, Object> areaCode2(
+        @RequestParam("serviceKey") String serviceKey,
+        @RequestParam("MobileOS") String mobileOS,
+        @RequestParam("MobileApp") String mobileApp,
+        @RequestParam("_type") String type
+    );
+
+    @GetMapping("/ldongCode2")
+    Map<String, Object> ldongCode2(
+        @RequestParam("serviceKey") String serviceKey,
+        @RequestParam("MobileOS") String mobileOS,
+        @RequestParam("MobileApp") String mobileApp,
+        @RequestParam("_type") String type
+    );
 }
