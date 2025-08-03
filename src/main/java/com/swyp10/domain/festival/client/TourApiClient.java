@@ -65,4 +65,38 @@ public interface TourApiClient {
         @RequestParam("MobileApp") String mobileApp,
         @RequestParam("_type") String type
     );
+
+    @GetMapping("/areaBasedList2")
+    Map<String, Object> areaBasedList2(
+        @RequestParam("serviceKey") String serviceKey,
+        @RequestParam("MobileOS") String mobileOS,
+        @RequestParam("MobileApp") String mobileApp,
+        @RequestParam("_type") String type,
+        @RequestParam("contentTypeId") String contentTypeId,
+        @RequestParam("numOfRows") int numOfRows,
+        @RequestParam("pageNo") int pageNo
+    );
+
+    @GetMapping("/areaBasedList2")
+    Map<String, Object> areaBasedList2(
+        @RequestParam("serviceKey") String serviceKey,
+        @RequestParam("MobileOS") String mobileOS,
+        @RequestParam("MobileApp") String mobileApp,
+        @RequestParam("_type") String type,
+        @RequestParam("contentTypeId") String contentTypeId,
+        @RequestParam("areaCode") String areaCode,
+        @RequestParam("sigunguCode") String sigunguCode,
+        @RequestParam("numOfRows") int numOfRows,
+        @RequestParam("pageNo") int pageNo
+    );
+
+    @GetMapping("/detailInfo2")
+    Map<String, Object> detailInfo2(
+        @RequestParam("serviceKey") String serviceKey,
+        @RequestParam("MobileOS") String mobileOS,
+        @RequestParam("MobileApp") String mobileApp,
+        @RequestParam("_type") String type,
+        @RequestParam("contentId") String contentId,
+        @RequestParam("contentTypeId") String contentTypeId
+    );
 }
