@@ -2,10 +2,7 @@ package com.swyp10.domain.festival.mapper;
 
 import com.swyp10.domain.festival.dto.tourapi.*;
 import com.swyp10.domain.festival.entity.*;
-import com.swyp10.domain.festival.enums.FestivalPersonalityType;
-import com.swyp10.domain.festival.enums.FestivalStatus;
-import com.swyp10.domain.festival.enums.FestivalTheme;
-import com.swyp10.domain.festival.enums.FestivalWithWhom;
+import com.swyp10.domain.festival.enums.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -148,6 +145,40 @@ public class FestivalMapper {
         return FestivalWithWhom.ALL;  // 기본값
     }
 
+    public static RegionFilter mapRegionFilterByAreaCode(String areaCode) {
+        if (areaCode == null) {
+            return RegionFilter.ALL; // 기본값
+        }
+        switch (areaCode) {
+            case "1":  // 서울
+                return RegionFilter.SEOUL;
+            case "2":  // 인천 (경기)
+            case "31": // 경기도
+                return RegionFilter.GYEONGGI;
+            case "3":  // 대전 (충청)
+            case "8":  // 세종특별자치시 (충청)
+            case "11": // 충청북도
+            case "12": // 충청남도
+                return RegionFilter.CHUNGCHEONG;
+            case "4":  // 대구 (경상)
+            case "6":  // 부산 (경상)
+            case "7":  // 울산 (경상)
+            case "13": // 경상북도
+            case "14": // 경상남도
+                return RegionFilter.GYEONGSANG;
+            case "5":  // 광주 (전라)
+            case "15": // 전북특별자치도
+            case "16": // 전라남도
+                return RegionFilter.JEOLLA;
+            case "32": // 강원특별자치도
+                return RegionFilter.GANGWON;
+            case "39": // 제주도
+                return RegionFilter.JEJU;
+            default:
+                return RegionFilter.ALL;  // 미분류 또는 전체
+        }
+    }
+
     private static LocalDate parseDate(String yyyymmdd) {
         if (yyyymmdd == null || yyyymmdd.length() != 8) return null;
         try {
@@ -184,6 +215,7 @@ public class FestivalMapper {
             .status(calculateStatus(startDate, endDate))
             .theme(mapThemeByText(searchFestival2Dto.getTitle(), detailCommon2Dto.getOverview()))
             .withWhom(mapWithWhomByText(searchFestival2Dto.getTitle(), detailCommon2Dto.getOverview()))
+            .regionFilter(mapRegionFilterByAreaCode(searchFestival2Dto.getAreacode()))
             .detailImages(images)
             .build();
 
