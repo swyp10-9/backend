@@ -9,7 +9,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "com.swyp10.domain")
 public class CommonResponseAdvice implements ResponseBodyAdvice<Object> {
 
     @Autowired
@@ -18,11 +18,21 @@ public class CommonResponseAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
         String uri = request.getRequestURI();
-        // Swagger 및 Actuator, Health Check 등은 래핑하지 않음
-        return !uri.startsWith("/v3/api-docs")
-            && !uri.startsWith("/swagger-ui")
-            && !uri.startsWith("/swagger-resources")
-            && !uri.startsWith("/actuator");
+
+        // Swagger, Actuator 등 기존 제외
+        if (uri.startsWith("/v3/api-docs")
+            || uri.startsWith("/swagger-ui")
+            || uri.startsWith("/swagger-resources")
+            || uri.startsWith("/actuator")) {
+            return false;
+        }
+
+        // Feign 호출 시 예외 처리 (예: 특정 헤더 X-Feign-Client 존재시)
+        if (request.getHeader("X-Feign-Client") != null) {
+            return false;
+        }
+
+        return true;
     }
 
     @Override

@@ -18,6 +18,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -40,7 +41,8 @@ public class FestivalBatchConfig {
     private final TourApiClient tourApiClient;
     private final ObjectMapper objectMapper;
 
-    private static final String SERVICE_KEY = "NYxrwdvbgchC%2BIW35g87NwgQoz%2FoqxwkVYW1O2Ihur8r3%2BH35FIzVQBedsthKFqUOUQ9PthT4hnHxjC4Ijg2cA%3D%3D";
+    @Value("${tourapi.service-key}")
+    private String SERVICE_KEY;
 
     @Bean
     public Job festivalSyncJob(Step festivalSyncStep) {
@@ -66,7 +68,7 @@ public class FestivalBatchConfig {
             int pageSize = 10;
             do {
                 Map<String, Object> response = tourApiClient.searchFestival2(
-                    SERVICE_KEY, "ETC", "swyp10", "json", pageSize, page, "20250101", "20251231"
+                    SERVICE_KEY, "ETC", "swyp10", "json", pageSize, page, "20251201", "20251201"
                 );
 
                 Map<String, Object> body = getNestedMap(response, "response", "body");

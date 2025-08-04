@@ -67,6 +67,8 @@ public class FestivalBatchUtils {
      */
     public DetailCommon2Dto parseDetailCommon2Dto(Map<String, Object> response) {
         Map<String, Object> body = getNestedMap(response, "response", "body");
+        if (body.get("items") instanceof String) return new DetailCommon2Dto();
+
         Map<String, Object> items = (Map<String, Object>) body.get("items");
         if (items == null || items.get("item") == null) return new DetailCommon2Dto();
 
@@ -95,6 +97,8 @@ public class FestivalBatchUtils {
      */
     public DetailIntro2Dto parseDetailIntro2Dto(Map<String, Object> response) {
         Map<String, Object> body = getNestedMap(response, "response", "body");
+        if (body.get("items") instanceof String) return new DetailIntro2Dto();
+
         Map<String, Object> items = (Map<String, Object>) body.get("items");
         if (items == null || items.get("item") == null) return new DetailIntro2Dto();
 
@@ -138,6 +142,8 @@ public class FestivalBatchUtils {
      */
     public List<DetailImage2Dto> parseDetailImageList2Dto(Map<String, Object> response) {
         Map<String, Object> body = getNestedMap(response, "response", "body");
+        if (body.get("items") instanceof String) return Collections.emptyList();
+
         Object itemsObj = body.get("items");
         if (itemsObj == null || "null".equals(itemsObj)) {
             return Collections.emptyList();

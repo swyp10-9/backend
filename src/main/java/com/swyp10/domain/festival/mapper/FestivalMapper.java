@@ -159,16 +159,19 @@ public class FestivalMapper {
             case "8":  // 세종특별자치시 (충청)
             case "11": // 충청북도
             case "12": // 충청남도
+            case "34": // 충청남도
                 return RegionFilter.CHUNGCHEONG;
             case "4":  // 대구 (경상)
             case "6":  // 부산 (경상)
             case "7":  // 울산 (경상)
             case "13": // 경상북도
             case "14": // 경상남도
+            case "36": // 경상남도
                 return RegionFilter.GYEONGSANG;
             case "5":  // 광주 (전라)
             case "15": // 전북특별자치도
             case "16": // 전라남도
+            case "38": // 전라남도
                 return RegionFilter.JEOLLA;
             case "32": // 강원특별자치도
                 return RegionFilter.GANGWON;

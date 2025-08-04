@@ -16,6 +16,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -36,7 +37,8 @@ public class RestaurantBatchConfig {
     private final TourApiClient tourApiClient;
     private final ObjectMapper objectMapper;
 
-    private static final String SERVICE_KEY = "발급받은_API_키";
+    @Value("${tourapi.service-key}")
+    private String SERVICE_KEY;
 
     @Bean
     public Job restaurantSyncJob(Step restaurantSyncStep) {
