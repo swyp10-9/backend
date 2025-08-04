@@ -44,6 +44,15 @@ public class FestivalBatchConfig {
     @Value("${tourapi.service-key}")
     private String SERVICE_KEY;
 
+    @Value("${tourapi.batch.festival.event-start-date}")
+    private String eventStartDate;
+
+    @Value("${tourapi.batch.festival.event-end-date}")
+    private String eventEndDate;
+
+    @Value("${tourapi.batch.page-size}")
+    private int pageSize;
+
     @Bean
     public Job festivalSyncJob(Step festivalSyncStep) {
         return new JobBuilder("festivalSyncJob", jobRepository)
@@ -65,13 +74,12 @@ public class FestivalBatchConfig {
         return (contribution, chunkContext) -> {
             int page = 1;
             int totalCount;
-            int pageSize = 10;
             do {
                 Map<String, Object> response = tourApiClient.searchFestival2(
-                    SERVICE_KEY, "ETC", "swyp10", "json", pageSize, page, "20251201", "20251201"
+                    SERVICE_KEY, "ETC", "swyp10", "json", pageSize, page, eventStartDate, eventEndDate
                 );
 
-                Map<String, Object> body = getNestedMap(response, "response", "body");
+                Map<String, Object> body = FestivalBatchUtils.getNestedMap(response, "response", "body");
                 totalCount = Integer.parseInt(String.valueOf(body.get("totalCount")));
 
                 Map<String, Object> items = (Map<String, Object>) body.get("items");
@@ -113,20 +121,5 @@ public class FestivalBatchConfig {
 
             return RepeatStatus.FINISHED;
         };
-    }
-
-    // 다단계 중첩 map 안전 추출
-    @SuppressWarnings("unchecked")
-    private Map<String, Object> getNestedMap(Map<String, Object> map, String... keys) {
-        Map<String, Object> current = map;
-        for (String key : keys) {
-            Object value = current.get(key);
-            if (value instanceof Map) {
-                current = (Map<String, Object>) value;
-            } else {
-                return Collections.emptyMap();
-            }
-        }
-        return current;
     }
 }

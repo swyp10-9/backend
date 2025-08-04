@@ -7,12 +7,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Map;
 
+@Slf4j
 @Getter
 @Builder
 @NoArgsConstructor
@@ -59,13 +62,21 @@ public class FestivalResponse {
         LocalDate startDate = null;
         String eventStartDateStr = festival.getBasicInfo().getEventstartdate();
         if (eventStartDateStr != null && !eventStartDateStr.isBlank()) {
-            startDate = LocalDate.parse(eventStartDateStr, formatter);
+            try {
+                startDate = LocalDate.parse(eventStartDateStr, formatter);
+            } catch (DateTimeParseException e) {
+                log.error("start date parse error", e);
+            }
         }
 
         LocalDate endDate = null;
         String eventEndDateStr = festival.getBasicInfo().getEventenddate();
         if (eventEndDateStr != null && !eventEndDateStr.isBlank()) {
-            endDate = LocalDate.parse(eventEndDateStr, formatter);
+            try {
+                endDate = LocalDate.parse(eventEndDateStr, formatter);
+            } catch (DateTimeParseException e) {
+                log.error("end date parse error", e);
+            }
         }
 
         return FestivalResponse.builder()

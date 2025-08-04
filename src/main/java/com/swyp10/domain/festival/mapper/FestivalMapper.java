@@ -5,12 +5,15 @@ import com.swyp10.domain.festival.entity.*;
 import com.swyp10.domain.festival.enums.*;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class FestivalMapper {
 
     public static FestivalBasicInfo toBasicInfo(SearchFestival2Dto dto) {
+        if(dto == null) return null;
         return FestivalBasicInfo.builder()
             .addr1(dto.getAddr1())
             .areacode(dto.getAreacode())
@@ -35,6 +38,7 @@ public class FestivalMapper {
     }
 
     public static FestivalDetailIntro toDetailIntro(DetailIntro2Dto dto) {
+        if(dto == null) return null;
         return FestivalDetailIntro.builder()
             .agelimit(dto.getAgelimit())
             .bookingplace(dto.getBookingplace())
@@ -56,6 +60,7 @@ public class FestivalMapper {
     }
 
     public static FestivalImage toFestivalImage(DetailImage2Dto dto) {
+        if(dto == null) return null;
         return FestivalImage.builder()
             .imgid(dto.getImgid())
             .originimgurl(dto.getOriginimgurl())
@@ -185,11 +190,8 @@ public class FestivalMapper {
     private static LocalDate parseDate(String yyyymmdd) {
         if (yyyymmdd == null || yyyymmdd.length() != 8) return null;
         try {
-            int year = Integer.parseInt(yyyymmdd.substring(0, 4));
-            int month = Integer.parseInt(yyyymmdd.substring(4, 6));
-            int day = Integer.parseInt(yyyymmdd.substring(6, 8));
-            return LocalDate.of(year, month, day);
-        } catch (Exception e) {
+            return LocalDate.parse(yyyymmdd, DateTimeFormatter.ofPattern("yyyyMMdd"));
+        } catch (DateTimeParseException e) {
             return null;
         }
     }

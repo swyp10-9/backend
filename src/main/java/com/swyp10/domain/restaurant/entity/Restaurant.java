@@ -48,9 +48,6 @@ public class Restaurant {
     }
 
     public void clearMenus() {
-        for (RestaurantMenu menu : menus) {
-            menu.setRestaurant(null);
-        }
         menus.clear();
     }
 }

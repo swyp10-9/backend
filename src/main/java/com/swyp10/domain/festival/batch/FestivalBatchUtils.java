@@ -21,7 +21,7 @@ public class FestivalBatchUtils {
      * @return 최종 Map (없으면 빈 Map 반환)
      */
     @SuppressWarnings("unchecked")
-    public Map<String, Object> getNestedMap(Map<String, Object> map, String... keys) {
+    public static Map<String, Object> getNestedMap(Map<String, Object> map, String... keys) {
         Map<String, Object> current = map;
         for (String key : keys) {
             Object value = current.get(key);

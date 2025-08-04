@@ -5,7 +5,6 @@ import jakarta.persistence.Embeddable;
 import lombok.*;
 
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -42,7 +41,7 @@ public class RestaurantBasicInfo {
 
     private String title;
 
-    private String lDongRegnCd;
+    private String ldongRegnCd;
 
-    private String lDongSignguCd;
+    private String ldongSignguCd;
 }

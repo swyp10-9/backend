@@ -44,6 +44,11 @@ oauth:
 # TourAPI 설정
 tourapi:
   service-key: ${TOUR_API_KEY:NYxrwdvbgchC%2BIW35g87NwgQoz%2FoqxwkVYW1O2Ihur8r3%2BH35FIzVQBedsthKFqUOUQ9PthT4hnHxjC4Ijg2cA%3D%3D}
+  batch:
+    page-size: ${PAGE_SIZE:10}
+    festival:
+      event-start-date: ${EVENT_START_DATE:20251201}
+      event-end-date: ${EVENT_END_DATE:20251201}
 
 springdoc:
   api-docs:

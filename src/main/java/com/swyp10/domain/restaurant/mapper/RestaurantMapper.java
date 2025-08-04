@@ -50,8 +50,8 @@ public class RestaurantMapper {
             .sigungucode(dto.getSigungucode())
             .tel(dto.getTel())
             .title(dto.getTitle())
-            .lDongRegnCd(dto.getLDongRegnCd())
-            .lDongSignguCd(dto.getLDongSignguCd())
+            .ldongRegnCd(dto.getLDongRegnCd())
+            .ldongSignguCd(dto.getLDongSignguCd())
             .build();
     }
 
