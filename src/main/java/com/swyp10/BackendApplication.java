@@ -2,8 +2,9 @@ package com.swyp10;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
+@EnableFeignClients(basePackages = "com.swyp10.domain.festival.client")
 @SpringBootApplication
 public class BackendApplication {
 

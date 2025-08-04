@@ -4,6 +4,9 @@ import com.swyp10.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "travel_courses")
 @Getter
@@ -16,13 +19,35 @@ public class TravelCourse extends BaseTimeEntity {
     @Column(name = "course_id")
     private Long courseId;
 
-    private String title;
-
-    @Column(name = "duration_hours")
-    private int durationHours;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "difficulty_level")
-    private TravelDifficulty difficultyLevel;
+    @Builder.Default
+    private TravelDifficulty difficultyLevel = TravelDifficulty.NORMAL;
 
+    @Column(name = "content_id", unique = true, nullable = false, length = 32)
+    private String contentId;
+
+    @Embedded
+    private TravelCourseBasicInfo basicInfo;
+
+    @OneToMany(mappedBy = "travelCourse", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<TravelCourseDetailInfo> detailInfos = new ArrayList<>();
+
+    public void updateBasicInfo(TravelCourseBasicInfo basicInfo) {
+        this.basicInfo = basicInfo;
+    }
+
+    // 연관관계 메서드
+    public void addDetailInfo(TravelCourseDetailInfo detailInfo) {
+        detailInfos.add(detailInfo);
+        detailInfo.setTravelCourse(this);
+    }
+
+    public void clearDetailInfos() {
+        for (TravelCourseDetailInfo info : detailInfos) {
+            info.setTravelCourse(null);
+        }
+        detailInfos.clear();
+    }
 }

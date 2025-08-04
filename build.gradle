@@ -22,6 +22,7 @@ repositories {
 ext {
     snippetsDir = file('build/generated-snippets')
     querydslDir = layout.buildDirectory.dir('generated/querydsl').get().asFile
+    springCloudVersion = "2025.0.0"
 }
 
 dependencies {
@@ -31,6 +32,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // Spring Batch
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+    testImplementation 'org.springframework.batch:spring-batch-test'
 
     // MySQL JDBC Driver
     runtimeOnly 'com.mysql:mysql-connector-j'
@@ -58,6 +63,9 @@ dependencies {
     // REST Docs
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 
+    // Feign
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -66,6 +74,9 @@ dependencies {
     //lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
 }
 
 tasks.named('test') {
@@ -103,4 +114,10 @@ tasks.withType(JavaCompile).configureEach {
 
 clean {
     delete querydslDir
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion"
+    }
 }
