@@ -1,4 +1,9 @@
 spring:
+  batch:
+    job:
+      enabled: true
+    jdbc:
+      initialize-schema: always
   datasource:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:swyp10}?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
     username: ${DB_USERNAME:root}
@@ -7,10 +12,10 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MariaDBDialect
+        dialect: org.hibernate.dialect.MySQL8Dialect   # MariaDBDialect
         format_sql: true
     open-in-view: false
 
@@ -36,6 +41,15 @@ oauth:
     redirect-uri: ${KAKAO_REDIRECT_URI:/api/auth/kakao-redirect}
     token-url: ${KAKAO_TOKEN_URL:https://kauth.kakao.com/oauth/token}
     user-info-url: ${KAKAO_USER_INFO_URL:https://kapi.kakao.com/v2/user/me}
+
+# TourAPI 설정
+tourapi:
+  service-key: ${TOUR_API_KEY:NYxrwdvbgchC%2BIW35g87NwgQoz%2FoqxwkVYW1O2Ihur8r3%2BH35FIzVQBedsthKFqUOUQ9PthT4hnHxjC4Ijg2cA%3D%3D}
+  batch:
+    page-size: ${PAGE_SIZE:10}
+    festival:
+      event-start-date: ${EVENT_START_DATE:20251201}
+      event-end-date: ${EVENT_END_DATE:20251201}
 
 springdoc:
   api-docs:

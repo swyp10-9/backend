@@ -1,24 +1,19 @@
 package com.swyp10.domain.festival.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.swyp10.domain.festival.enums.FestivalTheme;
+import com.swyp10.common.BaseTimeEntity;
+import com.swyp10.domain.festival.enums.*;
 import com.swyp10.domain.region.entity.Region;
 import com.swyp10.domain.review.entity.UserReview;
-import com.swyp10.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
@@ -29,30 +24,40 @@ import static lombok.AccessLevel.PROTECTED;
 @Builder
 public class Festival extends BaseTimeEntity {
 
-    @Id @GeneratedValue(strategy = IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "festival_id")
     private Long festivalId;
 
-    @Column(length = 255, nullable = false)
-    private String name;
+    @Column(name = "content_id", unique = true, nullable = false, length = 32)
+    private String contentId;
 
-    @Column(name = "start_date", nullable = false)
-    private LocalDate startDate;
+    @Embedded
+    private FestivalBasicInfo basicInfo;
 
-    @Column(name = "end_date", nullable = false)
-    private LocalDate endDate;
+    @Column(columnDefinition = "TEXT")
+    private String overview;
 
+    @Embedded
+    private FestivalDetailIntro detailIntro;
+
+    @Enumerated(EnumType.STRING)
+    private FestivalPersonalityType personalityType;
+
+    @Enumerated(EnumType.STRING)
+    private FestivalStatus status;
+
+    @Enumerated(EnumType.STRING)
     private FestivalTheme theme;
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
+    @Enumerated(EnumType.STRING)
+    private FestivalWithWhom withWhom;
 
-    @Column(columnDefinition = "TEXT")
-    private String thumbnail;
+    @Enumerated(EnumType.STRING)
+    private RegionFilter regionFilter;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "json")
-    private Map<String, Object> location;
+    @OneToMany(mappedBy = "festival", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<FestivalImage> detailImages = new ArrayList<>();
 
     @OneToOne(mappedBy = "festival", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private FestivalStatistics statistics;
@@ -71,9 +76,32 @@ public class Festival extends BaseTimeEntity {
     @JsonIgnore
     private List<UserReview> reviews = new ArrayList<>();
 
+    // 
+    public void updateOverview(String overview) {
+        this.overview = overview;
+    }
+
+    public void updateDetailIntro(FestivalDetailIntro detailIntro) {
+        this.detailIntro = detailIntro;
+    }
+
+    public void updateBasicInfo(FestivalBasicInfo basicInfo) {
+        this.basicInfo = basicInfo;
+    }
+
     // 연관 관계 메서드
     public void initializeStatistics() {
         FestivalStatistics stats = FestivalStatistics.createEmpty(this);
         this.statistics = stats;
+    }
+
+    public void addDetailImage(FestivalImage image) {
+        detailImages.add(image);
+        image.setFestival(this);
+    }
+
+    public void clearDetailImages() {
+        detailImages.forEach(img -> img.setFestival(null));
+        detailImages.clear();
     }
 }

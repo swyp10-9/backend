@@ -7,11 +7,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Map;
 
+@Slf4j
 @Getter
 @Builder
 @NoArgsConstructor
@@ -53,15 +57,36 @@ public class FestivalResponse {
     
     // Festival Entity를 FestivalResponse로 변환하는 정적 팩토리 메서드
     public static FestivalResponse from(Festival festival) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+        LocalDate startDate = null;
+        String eventStartDateStr = festival.getBasicInfo().getEventstartdate();
+        if (eventStartDateStr != null && !eventStartDateStr.isBlank()) {
+            try {
+                startDate = LocalDate.parse(eventStartDateStr, formatter);
+            } catch (DateTimeParseException e) {
+                log.error("start date parse error", e);
+            }
+        }
+
+        LocalDate endDate = null;
+        String eventEndDateStr = festival.getBasicInfo().getEventenddate();
+        if (eventEndDateStr != null && !eventEndDateStr.isBlank()) {
+            try {
+                endDate = LocalDate.parse(eventEndDateStr, formatter);
+            } catch (DateTimeParseException e) {
+                log.error("end date parse error", e);
+            }
+        }
+
         return FestivalResponse.builder()
                 .festivalId(festival.getFestivalId())
-                .name(festival.getName())
-                .startDate(festival.getStartDate())
-                .endDate(festival.getEndDate())
-                .theme(festival.getTheme())
-                .description(festival.getDescription())
-                .thumbnail(festival.getThumbnail())
-                .location(festival.getLocation())
+                .name(festival.getBasicInfo().getTitle())
+                .startDate(startDate)
+                .endDate(endDate)
+                .description(festival.getOverview())
+                .thumbnail(festival.getBasicInfo().getFirstimage())
+                .location(Map.of("mapX", festival.getBasicInfo().getMapx(), "mapY", festival.getBasicInfo().getMapy()))
                 .region(festival.getRegion() != null ? RegionResponse.from(festival.getRegion()) : null)
                 .createdAt(festival.getCreatedAt())
                 .updatedAt(festival.getUpdatedAt())
