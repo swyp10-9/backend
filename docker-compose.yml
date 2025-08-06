@@ -10,6 +10,7 @@ services:
       MYSQL_DATABASE: ${DB_NAME}
     volumes:
       - ./mariadb-data:/var/lib/mysql
+      - ./init-db:/docker-entrypoint-initdb.d
 
   backend:
     image: ${DOCKER_USERNAME}/swyp10-9-backend:latest
