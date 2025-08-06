@@ -12,6 +12,7 @@ import com.swyp10.domain.festival.entity.FestivalBasicInfo;
 import com.swyp10.domain.festival.enums.FestivalStatus;
 import com.swyp10.domain.festival.repository.FestivalRepository;
 import com.swyp10.exception.ApplicationException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,11 @@ class FestivalServiceTest {
 
     @Autowired
     FestivalRepository festivalRepository;
+
+    @BeforeEach
+    void cleanUp() {
+        festivalRepository.deleteAll();
+    }
 
     // ========== 성공 케이스 ==========
 
@@ -158,8 +164,8 @@ class FestivalServiceTest {
             .title("통합테스트축제")
             .eventstartdate(LocalDate.now())
             .eventenddate(LocalDate.now().plusDays(1))
-            .mapx((long) 127.1)
-            .mapy((long) 37.6)
+            .mapx((double) 127.1)
+            .mapy((double) 37.6)
             .build();
 
         Festival festival = Festival.builder()

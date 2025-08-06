@@ -50,8 +50,8 @@ public class FestivalSummaryResponse {
             .address(festival.getBasicInfo().getAddr1())
             .startDate(festival.getBasicInfo().getEventstartdate())
             .endDate(festival.getBasicInfo().getEventenddate())
-            .map_x(festival.getBasicInfo().getMapx().toString())
-            .map_y(festival.getBasicInfo().getMapy().toString())
+            .map_x(String.valueOf(festival.getBasicInfo().getMapx()))
+            .map_y(String.valueOf(festival.getBasicInfo().getMapy()))
             .build();
     }
 }

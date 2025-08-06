@@ -31,9 +31,9 @@ public class FestivalBasicInfo {
     @Column(columnDefinition = "TEXT")
     private String firstimage2;
 
-    private Long mapx;
+    private Double mapx;
 
-    private Long mapy;
+    private Double mapy;
 
     private String modifiedtime;
 

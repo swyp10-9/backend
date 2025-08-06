@@ -1,9 +1,10 @@
 package com.swyp10.domain.festival.repository;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.swyp10.domain.festival.dto.request.FestivalCalendarRequest;
 import com.swyp10.domain.festival.dto.request.FestivalMapRequest;
+import com.swyp10.domain.festival.dto.response.FestivalDailyCountResponse;
 import com.swyp10.domain.festival.dto.response.FestivalSummaryResponse;
 import com.swyp10.domain.festival.entity.Festival;
 import com.swyp10.domain.festival.entity.QFestival;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -102,5 +104,70 @@ public class FestivalCustomRepositoryImpl implements FestivalCustomRepository {
             .collect(Collectors.toList());
 
         return new PageImpl<>(dtos, pageable, total);
+    }
+
+    @Override
+    public Page<FestivalSummaryResponse> findFestivalsForCalendar(FestivalCalendarRequest request, Pageable pageable) {
+        QFestival festival = QFestival.festival;
+        BooleanBuilder where = new BooleanBuilder();
+
+        // 지역 필터
+        if (request.getRegion() != null && !request.getRegion().isAll()) {
+            where.and(festival.regionFilter.eq(request.getRegion()));
+        }
+        // 누구랑 필터
+        if (request.getWithWhom() != null && !request.getWithWhom().isAll()) {
+            where.and(festival.withWhom.eq(request.getWithWhom()));
+        }
+        // 테마 필터
+        if (request.getTheme() != null && !request.getTheme().isAll()) {
+            where.and(festival.theme.eq(request.getTheme()));
+        }
+        // 날짜(달력) 필터: date가 축제기간에 포함되는 축제만
+        if (request.getDate() != null) {
+            LocalDate date = request.getDate();
+            where.and(festival.basicInfo.eventstartdate.loe(date)
+                .and(festival.basicInfo.eventenddate.goe(date)));
+        }
+
+        List<Festival> content = queryFactory
+            .selectFrom(festival)
+            .where(where)
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .orderBy(festival.basicInfo.eventstartdate.asc())
+            .fetch();
+
+        long total = queryFactory
+            .selectFrom(festival)
+            .where(where)
+            .fetchCount();
+
+        List<FestivalSummaryResponse> dtos = content.stream()
+            .map(FestivalSummaryResponse::from)
+            .collect(Collectors.toList());
+
+        return new PageImpl<>(dtos, pageable, total);
+    }
+
+    @Override
+    public List<FestivalDailyCountResponse.DailyCount> findDailyFestivalCounts(LocalDate start, LocalDate end) {
+        QFestival festival = QFestival.festival;
+
+        // 1. DB에 한 번에 일자별 개수를 구하는 쿼리 (MySQL/Postgres/DB에 따라 date range 생성 쿼리 필요)
+        List<FestivalDailyCountResponse.DailyCount> result = new ArrayList<>();
+        LocalDate date = start;
+        while (!date.isAfter(end)) {
+            Long count = queryFactory.select(festival.count())
+                .from(festival)
+                .where(
+                    festival.basicInfo.eventstartdate.loe(date)
+                        .and(festival.basicInfo.eventenddate.goe(date))
+                )
+                .fetchOne();
+            result.add(new FestivalDailyCountResponse.DailyCount(date, count == null ? 0 : count.intValue()));
+            date = date.plusDays(1);
+        }
+        return result;
     }
 }

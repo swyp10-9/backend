@@ -1,6 +1,7 @@
 package com.swyp10.domain.festival.service;
 
 import com.swyp10.domain.festival.dto.request.*;
+import com.swyp10.domain.festival.dto.response.FestivalDailyCountResponse;
 import com.swyp10.domain.festival.dto.response.FestivalDetailResponse;
 import com.swyp10.domain.festival.dto.response.FestivalListResponse;
 import com.swyp10.domain.festival.dto.response.FestivalSummaryResponse;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -70,20 +72,8 @@ public class FestivalService {
             .orElseThrow(() -> new ApplicationException(ErrorCode.FESTIVAL_NOT_FOUND));
     }
 
-    /**
-     * 모든 축제 리스트 조회 (페이지네이션 필요시 Pageable 파라미터 추가)
-     */
-    public List<Festival> findAllFestivals() {
-        return festivalRepository.findAll();
-    }
-
     public boolean existsByContentId(String contentId) {
         return festivalRepository.findByContentId(contentId).isPresent();
-    }
-
-    @Transactional
-    public Festival createFestival(Festival festival) {
-        return festivalRepository.save(festival);
     }
 
     @Transactional
@@ -92,15 +82,12 @@ public class FestivalService {
     }
 
     public FestivalListResponse getFestivalsForMap(FestivalMapRequest request) {
-        // 페이지 정보 추출 (0-based page index)
         int page = request.getPage();
         int size = request.getSize();
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        // 커스텀 레포지토리 메서드 호출 (Page<FestivalSummaryResponse> 반환)
         Page<FestivalSummaryResponse> result = festivalRepository.findFestivalsForMap(request, pageRequest);
 
-        // PageResponse로 변환 후 FestivalListResponse로 래핑
         return FestivalListResponse.builder()
             .content(result.getContent())
             .page(result.getNumber())
@@ -114,7 +101,30 @@ public class FestivalService {
     }
 
     public FestivalListResponse getFestivalsForCalendar(FestivalCalendarRequest request) {
-        return null;
+        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
+        Page<FestivalSummaryResponse> page = festivalRepository.findFestivalsForCalendar(request, pageRequest);
+
+        return FestivalListResponse.builder()
+            .content(page.getContent())
+            .page(page.getNumber())
+            .size(page.getSize())
+            .totalElements(page.getTotalElements())
+            .totalPages(page.getTotalPages())
+            .first(page.isFirst())
+            .last(page.isLast())
+            .empty(page.isEmpty())
+            .build();
+    }
+
+    public FestivalDailyCountResponse getDailyFestivalCount(LocalDate startDate, LocalDate endDate) {
+        List<FestivalDailyCountResponse.DailyCount> dailyCounts =
+            festivalRepository.findDailyFestivalCounts(startDate, endDate);
+
+        return FestivalDailyCountResponse.builder()
+            .startDate(startDate)
+            .endDate(endDate)
+            .dailyCounts(dailyCounts)
+            .build();
     }
 
     public FestivalListResponse getFestivalsForPersonalTest(FestivalPersonalTestRequest request) {

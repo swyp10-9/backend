@@ -14,6 +14,13 @@ public class FestivalMapper {
 
     public static FestivalBasicInfo toBasicInfo(SearchFestival2Dto dto) {
         if(dto == null) return null;
+
+        String mapxStr = dto.getMapx();
+        Double mapx = (mapxStr != null && !mapxStr.isBlank()) ? Double.parseDouble(mapxStr) : null;
+
+        String mapyStr = dto.getMapy();
+        Double mapy = (mapyStr != null && !mapyStr.isBlank()) ? Double.parseDouble(mapyStr) : null;
+
         return FestivalBasicInfo.builder()
             .addr1(dto.getAddr1())
             .areacode(dto.getAreacode())
@@ -23,8 +30,8 @@ public class FestivalMapper {
             .eventenddate(parseToLocalDate(dto.getEventenddate()))
             .firstimage(dto.getFirstimage())
             .firstimage2(dto.getFirstimage2())
-            .mapx(Long.parseLong(dto.getMapx()))
-            .mapy(Long.parseLong(dto.getMapy()))
+            .mapx(mapx)
+            .mapy(mapy)
             .modifiedtime(dto.getModifiedtime())
             .sigungucode(dto.getSigungucode())
             .tel(dto.getTel())
