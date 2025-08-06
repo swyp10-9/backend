@@ -26,4 +26,8 @@ public enum FestivalWithWhom {
         }
         throw new IllegalArgumentException("Invalid FestivalWithWhom: " + value);
     }
+
+    public boolean isAll() {
+        return this == ALL;
+    }
 }

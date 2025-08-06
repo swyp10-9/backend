@@ -3,6 +3,8 @@ package com.swyp10.domain.festival.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Embeddable
 @Getter
 @NoArgsConstructor
@@ -19,9 +21,9 @@ public class FestivalBasicInfo {
 
     private String createdtime;
 
-    private String eventstartdate;
+    private LocalDate eventstartdate;
 
-    private String eventenddate;
+    private LocalDate eventenddate;
 
     @Column(columnDefinition = "TEXT")
     private String firstimage;
@@ -29,9 +31,9 @@ public class FestivalBasicInfo {
     @Column(columnDefinition = "TEXT")
     private String firstimage2;
 
-    private String mapx;
+    private Long mapx;
 
-    private String mapy;
+    private Long mapy;
 
     private String modifiedtime;
 

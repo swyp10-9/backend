@@ -3,6 +3,7 @@ package com.swyp10.domain.festival.service;
 import com.swyp10.domain.festival.dto.request.*;
 import com.swyp10.domain.festival.dto.response.FestivalDetailResponse;
 import com.swyp10.domain.festival.dto.response.FestivalListResponse;
+import com.swyp10.domain.festival.dto.response.FestivalSummaryResponse;
 import com.swyp10.domain.festival.dto.tourapi.DetailCommon2Dto;
 import com.swyp10.domain.festival.dto.tourapi.DetailImage2Dto;
 import com.swyp10.domain.festival.dto.tourapi.DetailIntro2Dto;
@@ -13,6 +14,8 @@ import com.swyp10.domain.festival.repository.FestivalRepository;
 import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,7 +92,25 @@ public class FestivalService {
     }
 
     public FestivalListResponse getFestivalsForMap(FestivalMapRequest request) {
-        return null;
+        // 페이지 정보 추출 (0-based page index)
+        int page = request.getPage();
+        int size = request.getSize();
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        // 커스텀 레포지토리 메서드 호출 (Page<FestivalSummaryResponse> 반환)
+        Page<FestivalSummaryResponse> result = festivalRepository.findFestivalsForMap(request, pageRequest);
+
+        // PageResponse로 변환 후 FestivalListResponse로 래핑
+        return FestivalListResponse.builder()
+            .content(result.getContent())
+            .page(result.getNumber())
+            .size(result.getSize())
+            .totalElements(result.getTotalElements())
+            .totalPages(result.getTotalPages())
+            .first(result.isFirst())
+            .last(result.isLast())
+            .empty(result.isEmpty())
+            .build();
     }
 
     public FestivalListResponse getFestivalsForCalendar(FestivalCalendarRequest request) {

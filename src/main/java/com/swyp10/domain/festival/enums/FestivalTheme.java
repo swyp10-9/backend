@@ -26,4 +26,8 @@ public enum FestivalTheme {
         }
         throw new IllegalArgumentException("Invalid FestivalTheme: " + value);
     }
+
+    public boolean isAll() {
+        return this == ALL;
+    }
 }

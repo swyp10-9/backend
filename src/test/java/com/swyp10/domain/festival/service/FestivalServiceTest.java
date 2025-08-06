@@ -1,11 +1,15 @@
 package com.swyp10.domain.festival.service;
 
 import com.swyp10.config.TestConfig;
+import com.swyp10.domain.festival.dto.request.FestivalMapRequest;
+import com.swyp10.domain.festival.dto.response.FestivalListResponse;
 import com.swyp10.domain.festival.dto.tourapi.DetailCommon2Dto;
 import com.swyp10.domain.festival.dto.tourapi.DetailImage2Dto;
 import com.swyp10.domain.festival.dto.tourapi.DetailIntro2Dto;
 import com.swyp10.domain.festival.dto.tourapi.SearchFestival2Dto;
 import com.swyp10.domain.festival.entity.Festival;
+import com.swyp10.domain.festival.entity.FestivalBasicInfo;
+import com.swyp10.domain.festival.enums.FestivalStatus;
 import com.swyp10.domain.festival.repository.FestivalRepository;
 import com.swyp10.exception.ApplicationException;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +20,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -143,5 +148,58 @@ class FestivalServiceTest {
     void deleteById_notFound_noException() {
         // when/then
         festivalService.deleteByFestivalId(999999L);
+    }
+
+    @Test
+    @DisplayName("축제 리스트 조회 - 지도 페이지 성공")
+    void getFestivalsForMap_success() {
+        // given
+        FestivalBasicInfo basicInfo = FestivalBasicInfo.builder()
+            .title("통합테스트축제")
+            .eventstartdate(LocalDate.now())
+            .eventenddate(LocalDate.now().plusDays(1))
+            .mapx((long) 127.1)
+            .mapy((long) 37.6)
+            .build();
+
+        Festival festival = Festival.builder()
+            .contentId("1233")
+            .basicInfo(basicInfo)
+            .status(FestivalStatus.ONGOING)
+            .build();
+
+        festivalRepository.save(festival);
+
+        FestivalMapRequest req = new FestivalMapRequest();
+        req.setLatTopLeft(38.0);
+        req.setLngTopLeft(126.0);
+        req.setLatBottomRight(36.0);
+        req.setLngBottomRight(128.0);
+
+        // when
+        FestivalListResponse res = festivalService.getFestivalsForMap(req);
+
+        // then
+        assertThat(res.getContent()).isNotEmpty();
+        assertThat(res.getContent().get(0).getTitle()).isEqualTo("통합테스트축제");
+    }
+
+    @Test
+    @DisplayName("축제 리스트 조회 - 지도 페이지 결과 없음")
+    void getFestivalsForMap_empty() {
+        // given
+        // 데이터 없이 테스트
+        FestivalMapRequest req = new FestivalMapRequest();
+        req.setLatTopLeft(38.0);
+        req.setLngTopLeft(126.0);
+        req.setLatBottomRight(36.0);
+        req.setLngBottomRight(128.0);
+
+        // when
+        FestivalListResponse res = festivalService.getFestivalsForMap(req);
+
+        // then
+        assertThat(res.getContent()).isEmpty();
+        assertThat(res.getTotalElements()).isEqualTo(0);
     }
 }

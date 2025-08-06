@@ -19,12 +19,12 @@ public class FestivalMapper {
             .areacode(dto.getAreacode())
             .contenttypeid(dto.getContenttypeid())
             .createdtime(dto.getCreatedtime())
-            .eventstartdate(dto.getEventstartdate())
-            .eventenddate(dto.getEventenddate())
+            .eventstartdate(parseToLocalDate(dto.getEventstartdate()))
+            .eventenddate(parseToLocalDate(dto.getEventenddate()))
             .firstimage(dto.getFirstimage())
             .firstimage2(dto.getFirstimage2())
-            .mapx(dto.getMapx())
-            .mapy(dto.getMapy())
+            .mapx(Long.parseLong(dto.getMapx()))
+            .mapy(Long.parseLong(dto.getMapy()))
             .modifiedtime(dto.getModifiedtime())
             .sigungucode(dto.getSigungucode())
             .tel(dto.getTel())
@@ -35,6 +35,14 @@ public class FestivalMapper {
             .progresstype(dto.getProgresstype())
             .festivaltype(dto.getFestivaltype())
             .build();
+    }
+
+    public static LocalDate parseToLocalDate(String dateStr) {
+        if (dateStr == null || dateStr.isBlank()) {
+            return null;
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        return LocalDate.parse(dateStr, formatter);
     }
 
     public static FestivalDetailIntro toDetailIntro(DetailIntro2Dto dto) {

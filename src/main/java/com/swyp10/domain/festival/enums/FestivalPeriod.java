@@ -24,4 +24,8 @@ public enum FestivalPeriod {
         }
         throw new IllegalArgumentException("Invalid FestivalPeriod: " + value);
     }
+
+    public boolean isAll() {
+        return this == ALL;
+    }
 }
