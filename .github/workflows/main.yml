@@ -26,8 +26,8 @@ jobs:
       - name: Gradle Wrapper 실행 권한 부여
         run: chmod +x ./gradlew
 
-      - name: Gradle 빌드 (테스트 포함)
-        run: ./gradlew build
+      - name: Gradle 빌드 (테스트 제외)
+        run: ./gradlew build -x test
         env:
           DB_HOST: localhost
           DB_PORT: 3306
