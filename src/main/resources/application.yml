@@ -4,6 +4,7 @@ spring:
       enabled: true
     jdbc:
       initialize-schema: always
+      isolation-level-for-create: read_committed
   datasource:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:swyp10}?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
     username: ${DB_USERNAME:root}
@@ -18,6 +19,7 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect   # MariaDBDialect
         format_sql: true
     open-in-view: false
+    defer-datasource-initialization: true
 
 logging:
   level:
@@ -44,12 +46,12 @@ oauth:
 
 # TourAPI 설정
 tourapi:
-  service-key: ${TOUR_API_KEY:your-tour-api-key}
+  service-key: ${TOUR_API_KEY:NYxrwdvbgchC%2BIW35g87NwgQoz%2FoqxwkVYW1O2Ihur8r3%2BH35FIzVQBedsthKFqUOUQ9PthT4hnHxjC4Ijg2cA%3D%3D}
   batch:
     page-size: ${PAGE_SIZE:10}
     festival:
-      event-start-date: ${EVENT_START_DATE:20250101}
-      event-end-date: ${EVENT_END_DATE:20251231}
+      event-start-date: ${EVENT_START_DATE:20251201}
+      event-end-date: ${EVENT_END_DATE:20251201}
 
 springdoc:
   api-docs:
