@@ -39,15 +39,11 @@ public class FestivalService {
     ) {
         return festivalRepository.findByContentId(searchFestival2Dto.getContentid())
             .map(existing -> {
-                // overview, detailIntro update
                 existing.clearDetailImages();
-
-                // 기존 필드도 업데이트 가능하게 추가 (필요에 따라 setter 추가 권장)
                 existing.updateOverview(detailCommon2Dto.getOverview());
                 existing.updateDetailIntro(FestivalMapper.toDetailIntro(detailIntro2Dto));
                 existing.updateBasicInfo(FestivalMapper.toBasicInfo(searchFestival2Dto));
 
-                // 이미지들 다시 추가
                 detailImage2DtoList.stream()
                     .map(FestivalMapper::toFestivalImage)
                     .forEach(existing::addDetailImage);
@@ -128,7 +124,20 @@ public class FestivalService {
     }
 
     public FestivalListResponse getFestivalsForPersonalTest(FestivalPersonalTestRequest request) {
-        return null;
+        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
+
+        Page<FestivalSummaryResponse> page = festivalRepository.findFestivalsForPersonalTest(request, pageRequest);
+
+        return FestivalListResponse.builder()
+            .content(page.getContent())
+            .page(page.getNumber())
+            .size(page.getSize())
+            .totalElements(page.getTotalElements())
+            .totalPages(page.getTotalPages())
+            .first(page.isFirst())
+            .last(page.isLast())
+            .empty(page.isEmpty())
+            .build();
     }
 
     public FestivalListResponse searchFestivals(FestivalSearchRequest request) {

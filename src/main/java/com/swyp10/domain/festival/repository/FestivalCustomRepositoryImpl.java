@@ -4,6 +4,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.swyp10.domain.festival.dto.request.FestivalCalendarRequest;
 import com.swyp10.domain.festival.dto.request.FestivalMapRequest;
+import com.swyp10.domain.festival.dto.request.FestivalPersonalTestRequest;
 import com.swyp10.domain.festival.dto.response.FestivalDailyCountResponse;
 import com.swyp10.domain.festival.dto.response.FestivalSummaryResponse;
 import com.swyp10.domain.festival.entity.Festival;
@@ -169,5 +170,35 @@ public class FestivalCustomRepositoryImpl implements FestivalCustomRepository {
             date = date.plusDays(1);
         }
         return result;
+    }
+
+    @Override
+    public Page<FestivalSummaryResponse> findFestivalsForPersonalTest(FestivalPersonalTestRequest request, Pageable pageable) {
+        QFestival festival = QFestival.festival;
+
+        BooleanBuilder where = new BooleanBuilder();
+
+        if (request.getPersonalityType() != null) {
+            where.and(festival.personalityType.eq(request.getPersonalityType()));
+        }
+
+        List<Festival> content = queryFactory
+            .selectFrom(festival)
+            .where(where)
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .orderBy(festival.createdAt.desc())
+            .fetch();
+
+        long total = queryFactory
+            .selectFrom(festival)
+            .where(where)
+            .fetchCount();
+
+        List<FestivalSummaryResponse> dtos = content.stream()
+            .map(FestivalSummaryResponse::from)
+            .collect(Collectors.toList());
+
+        return new PageImpl<>(dtos, pageable, total);
     }
 }

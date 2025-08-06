@@ -3,14 +3,12 @@ package com.swyp10.domain.festival.repository;
 import com.swyp10.config.QueryDslConfig;
 import com.swyp10.domain.festival.dto.request.FestivalCalendarRequest;
 import com.swyp10.domain.festival.dto.request.FestivalMapRequest;
+import com.swyp10.domain.festival.dto.request.FestivalPersonalTestRequest;
 import com.swyp10.domain.festival.dto.response.FestivalDailyCountResponse;
 import com.swyp10.domain.festival.dto.response.FestivalSummaryResponse;
 import com.swyp10.domain.festival.entity.Festival;
 import com.swyp10.domain.festival.entity.FestivalBasicInfo;
-import com.swyp10.domain.festival.enums.FestivalStatus;
-import com.swyp10.domain.festival.enums.FestivalTheme;
-import com.swyp10.domain.festival.enums.FestivalWithWhom;
-import com.swyp10.domain.festival.enums.RegionFilter;
+import com.swyp10.domain.festival.enums.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -230,6 +228,59 @@ class FestivalCustomRepositoryImplTest {
             // then
             assertThat(counts).hasSize(5);
             assertThat(counts.stream().allMatch(c -> c.getCount() == 0)).isTrue();
+        }
+    }
+
+    @Nested
+    @DisplayName("getFestivalsForPersonalTest")
+    class FestivalsForPersonalTest {
+        @Test
+        @DisplayName("성향 기반 축제 리스트 조회 - 성공")
+        void findFestivalsForPersonalTest_success() {
+            // Given
+            FestivalPersonalityType personalityType = FestivalPersonalityType.ENERGIZER;
+            Festival festival = Festival.builder()
+                .contentId("1112")
+                .personalityType(personalityType)
+                .basicInfo(
+                    com.swyp10.domain.festival.entity.FestivalBasicInfo.builder()
+                        .title("에너지 넘치는 축제")
+                        .eventstartdate(LocalDate.now())
+                        .eventenddate(LocalDate.now().plusDays(1))
+                        .build()
+                )
+                .build();
+
+            festivalRepository.save(festival);
+
+            FestivalPersonalTestRequest req = new FestivalPersonalTestRequest();
+            req.setPersonalityType(personalityType);
+
+            PageRequest pageable = PageRequest.of(0, 10);
+
+            // When
+            Page<FestivalSummaryResponse> result = festivalRepository.findFestivalsForPersonalTest(req, pageable);
+
+            // Then
+            assertThat(result.getTotalElements()).isEqualTo(1);
+            assertThat(result.getContent().get(0).getTitle()).isEqualTo("에너지 넘치는 축제");
+        }
+
+        @Test
+        @DisplayName("성향 기반 축제 리스트 조회 - 결과 없음")
+        void findFestivalsForPersonalTest_empty() {
+            // Given
+            FestivalPersonalTestRequest req = new FestivalPersonalTestRequest();
+            req.setPersonalityType(FestivalPersonalityType.HEALER); // DB에 없는 타입
+
+            PageRequest pageable = PageRequest.of(0, 10);
+
+            // When
+            Page<FestivalSummaryResponse> result = festivalRepository.findFestivalsForPersonalTest(req, pageable);
+
+            // Then
+            assertThat(result.getTotalElements()).isEqualTo(0);
+            assertThat(result.getContent()).isEmpty();
         }
     }
 }
