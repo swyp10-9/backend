@@ -29,12 +29,15 @@ jobs:
       - name: Gradle 빌드 (테스트 포함)
         run: ./gradlew build
         env:
-          KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_NAME: ${{secrets.DB_NAME}}
+          DB_HOST: localhost
+          DB_PORT: 3306
+          DB_NAME: test_db
+          DB_USERNAME: test
+          DB_PASSWORD: test
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
           KAKAO_REDIRECT_URI: ${{ secrets.KAKAO_REDIRECT_URI }}
+          TOUR_API_KEY: ${{ secrets.TOUR_API_KEY }}
 
       - name: DockerHub 로그인
         uses: docker/login-action@v3
@@ -77,12 +80,34 @@ jobs:
             
             echo "🔧 환경변수 설정"
             export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
-            export KAKAO_CLIENT_ID="${{ secrets.KAKAO_CLIENT_ID }}"
+            
+            # 데이터베이스 설정
+            export DB_HOST=mariadb
+            export DB_PORT=3306
+            export DB_NAME="${{ secrets.DB_NAME }}"
             export DB_USERNAME="${{ secrets.DB_USERNAME }}"
             export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
-            export DB_NAME="${{ secrets.DB_NAME }}"
+            
+            # JWT 설정
             export JWT_SECRET="${{ secrets.JWT_SECRET }}"
+            export JWT_EXPIRATION="${{ secrets.JWT_EXPIRATION }}"
+            export JWT_REFRESH_EXPIRATION="${{ secrets.JWT_REFRESH_EXPIRATION }}"
+            
+            # 카카오 OAuth 설정
+            export KAKAO_CLIENT_ID="${{ secrets.KAKAO_CLIENT_ID }}"
+            export KAKAO_REDIRECT_PATH="${{ secrets.KAKAO_REDIRECT_PATH }}"
             export KAKAO_REDIRECT_URI="${{ secrets.KAKAO_REDIRECT_URI }}"
+            export KAKAO_TOKEN_URL="${{ secrets.KAKAO_TOKEN_URL }}"
+            export KAKAO_USER_INFO_URL="${{ secrets.KAKAO_USER_INFO_URL }}"
+            
+            # TourAPI 설정
+            export TOUR_API_KEY="${{ secrets.TOUR_API_KEY }}"
+            export PAGE_SIZE="${{ secrets.PAGE_SIZE }}"
+            export EVENT_START_DATE="${{ secrets.EVENT_START_DATE }}"
+            export EVENT_END_DATE="${{ secrets.EVENT_END_DATE }}"
+            
+            # 서버 설정
+            export SERVER_PORT=8080
             
             echo "📥 최신 이미지 다운로드"
             docker-compose pull
@@ -91,8 +116,8 @@ jobs:
             docker-compose up -d
             
             echo "⏳ 컨테이너 시작 대기"
-            sleep 10
+            sleep 15
             
             echo "✅ 배포 완료! 실행 중인 컨테이너 확인:"
             docker-compose ps
-            docker-compose logs --tail=20
+            docker-compose logs --tail=30
