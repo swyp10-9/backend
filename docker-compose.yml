@@ -43,8 +43,8 @@ services:
       # TourAPI 설정
       TOUR_API_KEY: ${TOUR_API_KEY}
       PAGE_SIZE: ${PAGE_SIZE:-10}
-      EVENT_START_DATE: ${EVENT_START_DATE:-20251201}
-      EVENT_END_DATE: ${EVENT_END_DATE:-20251201}
+      EVENT_START_DATE: ${EVENT_START_DATE:-20250101}
+      EVENT_END_DATE: ${EVENT_END_DATE:-20251231}
 
     depends_on:
       - mariadb
