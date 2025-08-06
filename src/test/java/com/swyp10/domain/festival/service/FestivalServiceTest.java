@@ -4,6 +4,7 @@ import com.swyp10.config.TestConfig;
 import com.swyp10.domain.festival.dto.request.FestivalCalendarRequest;
 import com.swyp10.domain.festival.dto.request.FestivalMapRequest;
 import com.swyp10.domain.festival.dto.request.FestivalPersonalTestRequest;
+import com.swyp10.domain.festival.dto.request.FestivalSearchRequest;
 import com.swyp10.domain.festival.dto.response.FestivalDailyCountResponse;
 import com.swyp10.domain.festival.dto.response.FestivalListResponse;
 import com.swyp10.domain.festival.dto.tourapi.DetailCommon2Dto;
@@ -360,6 +361,51 @@ class FestivalServiceTest {
             // then
             assertThat(result.getContent()).isEmpty();
             assertThat(result.getTotalElements()).isEqualTo(0);
+        }
+    }
+
+    @Nested
+    @DisplayName("축제 검색 Service 테스트")
+    class FestivalSearchTest {
+        @Test
+        @DisplayName("축제 리스트 조회(검색 페이지) - 성공")
+        void searchFestivals_success() {
+            // given
+            FestivalBasicInfo basicInfo = FestivalBasicInfo.builder()
+                .title("여름 페스티벌")
+                .addr1("부산광역시")
+                .build();
+            Festival festival = Festival.builder()
+                .contentId("9999")
+                .overview("신나는 여름 축제")
+                .basicInfo(basicInfo)
+                .build();
+            festivalRepository.save(festival);
+
+            FestivalSearchRequest req = new FestivalSearchRequest();
+            req.setSearchParam("여름");
+
+            // when
+            FestivalListResponse response = festivalService.searchFestivals(req);
+
+            // then
+            assertThat(response.getContent()).isNotEmpty();
+            assertThat(response.getContent().get(0).getTitle()).contains("여름");
+        }
+
+        @Test
+        @DisplayName("축제 조회 리스트(검색 페이지) - 결과 없음")
+        void searchFestivals_empty() {
+            // given
+            FestivalSearchRequest req = new FestivalSearchRequest();
+            req.setSearchParam("이상한검색어");
+
+            // when
+            FestivalListResponse response = festivalService.searchFestivals(req);
+
+            // then
+            assertThat(response.getContent()).isEmpty();
+            assertThat(response.getTotalElements()).isEqualTo(0);
         }
     }
 }

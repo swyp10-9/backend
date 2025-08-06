@@ -4,6 +4,7 @@ import com.swyp10.config.QueryDslConfig;
 import com.swyp10.domain.festival.dto.request.FestivalCalendarRequest;
 import com.swyp10.domain.festival.dto.request.FestivalMapRequest;
 import com.swyp10.domain.festival.dto.request.FestivalPersonalTestRequest;
+import com.swyp10.domain.festival.dto.request.FestivalSearchRequest;
 import com.swyp10.domain.festival.dto.response.FestivalDailyCountResponse;
 import com.swyp10.domain.festival.dto.response.FestivalSummaryResponse;
 import com.swyp10.domain.festival.entity.Festival;
@@ -281,6 +282,51 @@ class FestivalCustomRepositoryImplTest {
             // Then
             assertThat(result.getTotalElements()).isEqualTo(0);
             assertThat(result.getContent()).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("searchFestivals")
+    class FestivalSearch {
+        @Test
+        @DisplayName("축제 리스트 조회(검색 페이지) - 성공")
+        void searchFestivals_success() {
+            // given
+            FestivalBasicInfo basicInfo = FestivalBasicInfo.builder()
+                .title("한강 벚꽃축제")
+                .addr1("서울특별시 영등포구")
+                .build();
+            Festival festival = Festival.builder()
+                .contentId("12345")
+                .overview("서울의 대표 봄축제")
+                .basicInfo(basicInfo)
+                .build();
+            festivalRepository.save(festival);
+
+            FestivalSearchRequest req = new FestivalSearchRequest();
+            req.setSearchParam("벚꽃");
+
+            // when
+            Page<FestivalSummaryResponse> page = festivalRepository.searchFestivals(req, PageRequest.of(0, 10));
+
+            // then
+            assertThat(page.getTotalElements()).isGreaterThan(0);
+            assertThat(page.getContent().get(0).getTitle()).contains("벚꽃");
+        }
+
+        @Test
+        @DisplayName("축제 리스트 조회(검색 페이지) - 검색 결과 없음")
+        void searchFestivals_noResult() {
+            // given: DB에 아무런 matching 데이터가 없는 상황
+            FestivalSearchRequest req = new FestivalSearchRequest();
+            req.setSearchParam("존재하지않는축제명");
+
+            // when
+            Page<FestivalSummaryResponse> page = festivalRepository.searchFestivals(req, PageRequest.of(0, 10));
+
+            // then
+            assertThat(page.getTotalElements()).isEqualTo(0);
+            assertThat(page.getContent()).isEmpty();
         }
     }
 }

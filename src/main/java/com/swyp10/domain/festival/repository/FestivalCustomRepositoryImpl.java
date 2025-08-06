@@ -1,10 +1,12 @@
 package com.swyp10.domain.festival.repository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.swyp10.domain.festival.dto.request.FestivalCalendarRequest;
 import com.swyp10.domain.festival.dto.request.FestivalMapRequest;
 import com.swyp10.domain.festival.dto.request.FestivalPersonalTestRequest;
+import com.swyp10.domain.festival.dto.request.FestivalSearchRequest;
 import com.swyp10.domain.festival.dto.response.FestivalDailyCountResponse;
 import com.swyp10.domain.festival.dto.response.FestivalSummaryResponse;
 import com.swyp10.domain.festival.entity.Festival;
@@ -155,7 +157,7 @@ public class FestivalCustomRepositoryImpl implements FestivalCustomRepository {
     public List<FestivalDailyCountResponse.DailyCount> findDailyFestivalCounts(LocalDate start, LocalDate end) {
         QFestival festival = QFestival.festival;
 
-        // 1. DB에 한 번에 일자별 개수를 구하는 쿼리 (MySQL/Postgres/DB에 따라 date range 생성 쿼리 필요)
+        // DB에 한 번에 일자별 개수를 구하는 쿼리
         List<FestivalDailyCountResponse.DailyCount> result = new ArrayList<>();
         LocalDate date = start;
         while (!date.isAfter(end)) {
@@ -180,6 +182,39 @@ public class FestivalCustomRepositoryImpl implements FestivalCustomRepository {
 
         if (request.getPersonalityType() != null) {
             where.and(festival.personalityType.eq(request.getPersonalityType()));
+        }
+
+        List<Festival> content = queryFactory
+            .selectFrom(festival)
+            .where(where)
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .orderBy(festival.createdAt.desc())
+            .fetch();
+
+        long total = queryFactory
+            .selectFrom(festival)
+            .where(where)
+            .fetchCount();
+
+        List<FestivalSummaryResponse> dtos = content.stream()
+            .map(FestivalSummaryResponse::from)
+            .collect(Collectors.toList());
+
+        return new PageImpl<>(dtos, pageable, total);
+    }
+
+    @Override
+    public Page<FestivalSummaryResponse> searchFestivals(FestivalSearchRequest request, Pageable pageable) {
+        QFestival festival = QFestival.festival;
+
+        BooleanBuilder where = new BooleanBuilder();
+        String search = request.getSearchParam();
+        if (search != null && !search.isBlank()) {
+            BooleanExpression titleLike = festival.basicInfo.title.containsIgnoreCase(search);
+            BooleanExpression descLike = festival.overview.containsIgnoreCase(search);
+            BooleanExpression addrLike = festival.basicInfo.addr1.containsIgnoreCase(search);
+            where.and(titleLike.or(descLike).or(addrLike));
         }
 
         List<Festival> content = queryFactory

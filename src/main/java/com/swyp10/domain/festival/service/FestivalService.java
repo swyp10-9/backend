@@ -141,7 +141,19 @@ public class FestivalService {
     }
 
     public FestivalListResponse searchFestivals(FestivalSearchRequest request) {
-        return null;
+        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
+        Page<FestivalSummaryResponse> page = festivalRepository.searchFestivals(request, pageRequest);
+
+        return FestivalListResponse.builder()
+            .content(page.getContent())
+            .page(page.getNumber())
+            .size(page.getSize())
+            .totalElements(page.getTotalElements())
+            .totalPages(page.getTotalPages())
+            .first(page.isFirst())
+            .last(page.isLast())
+            .empty(page.isEmpty())
+            .build();
     }
 
     public FestivalListResponse getMyPageFestivals(FestivalMyPageRequest request) {
