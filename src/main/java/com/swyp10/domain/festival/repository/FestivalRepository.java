@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface FestivalRepository extends JpaRepository<Festival, Long> {
+public interface FestivalRepository extends JpaRepository<Festival, Long>, FestivalCustomRepository {
     Optional<Festival> findByContentId(String contentId);
 }

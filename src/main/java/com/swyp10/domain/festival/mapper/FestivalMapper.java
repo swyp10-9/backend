@@ -14,17 +14,24 @@ public class FestivalMapper {
 
     public static FestivalBasicInfo toBasicInfo(SearchFestival2Dto dto) {
         if(dto == null) return null;
+
+        String mapxStr = dto.getMapx();
+        Double mapx = (mapxStr != null && !mapxStr.isBlank()) ? Double.parseDouble(mapxStr) : null;
+
+        String mapyStr = dto.getMapy();
+        Double mapy = (mapyStr != null && !mapyStr.isBlank()) ? Double.parseDouble(mapyStr) : null;
+
         return FestivalBasicInfo.builder()
             .addr1(dto.getAddr1())
             .areacode(dto.getAreacode())
             .contenttypeid(dto.getContenttypeid())
             .createdtime(dto.getCreatedtime())
-            .eventstartdate(dto.getEventstartdate())
-            .eventenddate(dto.getEventenddate())
+            .eventstartdate(parseToLocalDate(dto.getEventstartdate()))
+            .eventenddate(parseToLocalDate(dto.getEventenddate()))
             .firstimage(dto.getFirstimage())
             .firstimage2(dto.getFirstimage2())
-            .mapx(dto.getMapx())
-            .mapy(dto.getMapy())
+            .mapx(mapx)
+            .mapy(mapy)
             .modifiedtime(dto.getModifiedtime())
             .sigungucode(dto.getSigungucode())
             .tel(dto.getTel())
@@ -35,6 +42,19 @@ public class FestivalMapper {
             .progresstype(dto.getProgresstype())
             .festivaltype(dto.getFestivaltype())
             .build();
+    }
+
+    public static LocalDate parseToLocalDate(String dateStr) {
+        if (dateStr == null || dateStr.isBlank()) {
+            return null;
+        }
+
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+            return LocalDate.parse(dateStr, formatter);
+        }catch (DateTimeParseException e) {
+            return null;
+        }
     }
 
     public static FestivalDetailIntro toDetailIntro(DetailIntro2Dto dto) {

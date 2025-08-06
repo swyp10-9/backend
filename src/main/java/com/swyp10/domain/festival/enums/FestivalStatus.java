@@ -24,4 +24,8 @@ public enum FestivalStatus {
         }
         throw new IllegalArgumentException("Invalid FestivalStatus: " + value);
     }
+
+    public boolean isAll() {
+        return this == ALL;
+    }
 }

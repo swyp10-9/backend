@@ -32,4 +32,8 @@ public enum RegionFilter {
         }
         throw new IllegalArgumentException("Invalid RegionFilter: " + value);
     }
+
+    public boolean isAll() {
+        return this == ALL;
+    }
 }

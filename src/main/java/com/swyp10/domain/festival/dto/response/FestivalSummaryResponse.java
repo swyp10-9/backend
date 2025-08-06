@@ -1,5 +1,6 @@
 package com.swyp10.domain.festival.dto.response;
 
+import com.swyp10.domain.festival.entity.Festival;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,4 +33,25 @@ public class FestivalSummaryResponse {
 
     @Schema(description = "축제 종료일", required = false, nullable = true, example = "2025-09-03", type = "string", format = "date")
     private LocalDate endDate;
+
+    @Schema(description = "경도(X좌표)", required = false, nullable = true, example = "127.5881015063")
+    private String map_x;
+
+    @Schema(description = "위도(Y좌표)", required = false, nullable = true, example = "36.9913818048")
+    private String map_y;
+
+    public static FestivalSummaryResponse from(Festival festival) {
+        return FestivalSummaryResponse.builder()
+            .id(Long.parseLong(festival.getContentId()))
+            .thumbnail(festival.getBasicInfo().getFirstimage2())
+            .theme(festival.getTheme() != null ? festival.getTheme().getDisplayName() : null)
+            .title(festival.getBasicInfo().getTitle())
+            .bookmarked(false) // todo bookmarked 설정 필요
+            .address(festival.getBasicInfo().getAddr1())
+            .startDate(festival.getBasicInfo().getEventstartdate())
+            .endDate(festival.getBasicInfo().getEventenddate())
+            .map_x(String.valueOf(festival.getBasicInfo().getMapx()))
+            .map_y(String.valueOf(festival.getBasicInfo().getMapy()))
+            .build();
+    }
 }

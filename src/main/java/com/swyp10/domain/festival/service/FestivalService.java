@@ -1,8 +1,10 @@
 package com.swyp10.domain.festival.service;
 
 import com.swyp10.domain.festival.dto.request.*;
+import com.swyp10.domain.festival.dto.response.FestivalDailyCountResponse;
 import com.swyp10.domain.festival.dto.response.FestivalDetailResponse;
 import com.swyp10.domain.festival.dto.response.FestivalListResponse;
+import com.swyp10.domain.festival.dto.response.FestivalSummaryResponse;
 import com.swyp10.domain.festival.dto.tourapi.DetailCommon2Dto;
 import com.swyp10.domain.festival.dto.tourapi.DetailImage2Dto;
 import com.swyp10.domain.festival.dto.tourapi.DetailIntro2Dto;
@@ -13,9 +15,12 @@ import com.swyp10.domain.festival.repository.FestivalRepository;
 import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -34,15 +39,11 @@ public class FestivalService {
     ) {
         return festivalRepository.findByContentId(searchFestival2Dto.getContentid())
             .map(existing -> {
-                // overview, detailIntro update
                 existing.clearDetailImages();
-
-                // 기존 필드도 업데이트 가능하게 추가 (필요에 따라 setter 추가 권장)
                 existing.updateOverview(detailCommon2Dto.getOverview());
                 existing.updateDetailIntro(FestivalMapper.toDetailIntro(detailIntro2Dto));
                 existing.updateBasicInfo(FestivalMapper.toBasicInfo(searchFestival2Dto));
 
-                // 이미지들 다시 추가
                 detailImage2DtoList.stream()
                     .map(FestivalMapper::toFestivalImage)
                     .forEach(existing::addDetailImage);
@@ -67,20 +68,8 @@ public class FestivalService {
             .orElseThrow(() -> new ApplicationException(ErrorCode.FESTIVAL_NOT_FOUND));
     }
 
-    /**
-     * 모든 축제 리스트 조회 (페이지네이션 필요시 Pageable 파라미터 추가)
-     */
-    public List<Festival> findAllFestivals() {
-        return festivalRepository.findAll();
-    }
-
     public boolean existsByContentId(String contentId) {
         return festivalRepository.findByContentId(contentId).isPresent();
-    }
-
-    @Transactional
-    public Festival createFestival(Festival festival) {
-        return festivalRepository.save(festival);
     }
 
     @Transactional
@@ -89,19 +78,43 @@ public class FestivalService {
     }
 
     public FestivalListResponse getFestivalsForMap(FestivalMapRequest request) {
-        return null;
+        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
+        Page<FestivalSummaryResponse> result = festivalRepository.findFestivalsForMap(request, pageRequest);
+
+        return buildListResponse(result);
     }
 
     public FestivalListResponse getFestivalsForCalendar(FestivalCalendarRequest request) {
-        return null;
+        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
+        Page<FestivalSummaryResponse> result = festivalRepository.findFestivalsForCalendar(request, pageRequest);
+
+        return buildListResponse(result);
+    }
+
+    public FestivalDailyCountResponse getDailyFestivalCount(LocalDate startDate, LocalDate endDate) {
+        List<FestivalDailyCountResponse.DailyCount> dailyCounts =
+            festivalRepository.findDailyFestivalCounts(startDate, endDate);
+
+        return FestivalDailyCountResponse.builder()
+            .startDate(startDate)
+            .endDate(endDate)
+            .dailyCounts(dailyCounts)
+            .build();
     }
 
     public FestivalListResponse getFestivalsForPersonalTest(FestivalPersonalTestRequest request) {
-        return null;
+        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
+
+        Page<FestivalSummaryResponse> result = festivalRepository.findFestivalsForPersonalTest(request, pageRequest);
+
+        return buildListResponse(result);
     }
 
     public FestivalListResponse searchFestivals(FestivalSearchRequest request) {
-        return null;
+        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
+        Page<FestivalSummaryResponse> result = festivalRepository.searchFestivals(request, pageRequest);
+
+        return buildListResponse(result);
     }
 
     public FestivalListResponse getMyPageFestivals(FestivalMyPageRequest request) {
@@ -110,5 +123,18 @@ public class FestivalService {
 
     public FestivalDetailResponse getFestivalDetail(Long festivalId) {
         return null;
+    }
+
+    private FestivalListResponse buildListResponse(Page<FestivalSummaryResponse> page) {
+        return FestivalListResponse.builder()
+            .content(page.getContent())
+            .page(page.getNumber())
+            .size(page.getSize())
+            .totalElements(page.getTotalElements())
+            .totalPages(page.getTotalPages())
+            .first(page.isFirst())
+            .last(page.isLast())
+            .empty(page.isEmpty())
+            .build();
     }
 }

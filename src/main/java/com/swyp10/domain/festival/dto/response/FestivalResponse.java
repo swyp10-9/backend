@@ -60,7 +60,7 @@ public class FestivalResponse {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
         LocalDate startDate = null;
-        String eventStartDateStr = festival.getBasicInfo().getEventstartdate();
+        String eventStartDateStr = festival.getBasicInfo().getEventstartdate().toString();
         if (eventStartDateStr != null && !eventStartDateStr.isBlank()) {
             try {
                 startDate = LocalDate.parse(eventStartDateStr, formatter);
@@ -70,7 +70,7 @@ public class FestivalResponse {
         }
 
         LocalDate endDate = null;
-        String eventEndDateStr = festival.getBasicInfo().getEventenddate();
+        String eventEndDateStr = festival.getBasicInfo().getEventenddate().toString();
         if (eventEndDateStr != null && !eventEndDateStr.isBlank()) {
             try {
                 endDate = LocalDate.parse(eventEndDateStr, formatter);
