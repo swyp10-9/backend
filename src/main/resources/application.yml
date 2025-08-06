@@ -48,8 +48,8 @@ tourapi:
   batch:
     page-size: ${PAGE_SIZE:10}
     festival:
-      event-start-date: ${EVENT_START_DATE:20251201}
-      event-end-date: ${EVENT_END_DATE:20251201}
+      event-start-date: ${EVENT_START_DATE:20250101}
+      event-end-date: ${EVENT_END_DATE:20251231}
 
 springdoc:
   api-docs:
