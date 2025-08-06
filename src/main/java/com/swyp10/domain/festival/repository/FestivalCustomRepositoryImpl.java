@@ -80,10 +80,12 @@ public class FestivalCustomRepositoryImpl implements FestivalCustomRepository {
         if (request.getLatTopLeft() != null && request.getLatBottomRight() != null &&
             request.getLngTopLeft() != null && request.getLngBottomRight() != null) {
             where.and(
+                festival.basicInfo.mapy.isNotNull().and(
+                    festival.basicInfo.mapx.isNotNull()).and(
                 festival.basicInfo.mapy.castToNum(Double.class)
                     .between(request.getLatBottomRight(), request.getLatTopLeft())
                     .and(festival.basicInfo.mapx.castToNum(Double.class)
-                        .between(request.getLngTopLeft(), request.getLngBottomRight())));
+                        .between(request.getLngTopLeft(), request.getLngBottomRight()))));
 
         }
 

@@ -78,38 +78,17 @@ public class FestivalService {
     }
 
     public FestivalListResponse getFestivalsForMap(FestivalMapRequest request) {
-        int page = request.getPage();
-        int size = request.getSize();
-        PageRequest pageRequest = PageRequest.of(page, size);
-
+        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
         Page<FestivalSummaryResponse> result = festivalRepository.findFestivalsForMap(request, pageRequest);
 
-        return FestivalListResponse.builder()
-            .content(result.getContent())
-            .page(result.getNumber())
-            .size(result.getSize())
-            .totalElements(result.getTotalElements())
-            .totalPages(result.getTotalPages())
-            .first(result.isFirst())
-            .last(result.isLast())
-            .empty(result.isEmpty())
-            .build();
+        return buildListResponse(result);
     }
 
     public FestivalListResponse getFestivalsForCalendar(FestivalCalendarRequest request) {
         PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
-        Page<FestivalSummaryResponse> page = festivalRepository.findFestivalsForCalendar(request, pageRequest);
+        Page<FestivalSummaryResponse> result = festivalRepository.findFestivalsForCalendar(request, pageRequest);
 
-        return FestivalListResponse.builder()
-            .content(page.getContent())
-            .page(page.getNumber())
-            .size(page.getSize())
-            .totalElements(page.getTotalElements())
-            .totalPages(page.getTotalPages())
-            .first(page.isFirst())
-            .last(page.isLast())
-            .empty(page.isEmpty())
-            .build();
+        return buildListResponse(result);
     }
 
     public FestivalDailyCountResponse getDailyFestivalCount(LocalDate startDate, LocalDate endDate) {
@@ -126,34 +105,16 @@ public class FestivalService {
     public FestivalListResponse getFestivalsForPersonalTest(FestivalPersonalTestRequest request) {
         PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
 
-        Page<FestivalSummaryResponse> page = festivalRepository.findFestivalsForPersonalTest(request, pageRequest);
+        Page<FestivalSummaryResponse> result = festivalRepository.findFestivalsForPersonalTest(request, pageRequest);
 
-        return FestivalListResponse.builder()
-            .content(page.getContent())
-            .page(page.getNumber())
-            .size(page.getSize())
-            .totalElements(page.getTotalElements())
-            .totalPages(page.getTotalPages())
-            .first(page.isFirst())
-            .last(page.isLast())
-            .empty(page.isEmpty())
-            .build();
+        return buildListResponse(result);
     }
 
     public FestivalListResponse searchFestivals(FestivalSearchRequest request) {
         PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
-        Page<FestivalSummaryResponse> page = festivalRepository.searchFestivals(request, pageRequest);
+        Page<FestivalSummaryResponse> result = festivalRepository.searchFestivals(request, pageRequest);
 
-        return FestivalListResponse.builder()
-            .content(page.getContent())
-            .page(page.getNumber())
-            .size(page.getSize())
-            .totalElements(page.getTotalElements())
-            .totalPages(page.getTotalPages())
-            .first(page.isFirst())
-            .last(page.isLast())
-            .empty(page.isEmpty())
-            .build();
+        return buildListResponse(result);
     }
 
     public FestivalListResponse getMyPageFestivals(FestivalMyPageRequest request) {
@@ -162,5 +123,18 @@ public class FestivalService {
 
     public FestivalDetailResponse getFestivalDetail(Long festivalId) {
         return null;
+    }
+
+    private FestivalListResponse buildListResponse(Page<FestivalSummaryResponse> page) {
+        return FestivalListResponse.builder()
+            .content(page.getContent())
+            .page(page.getNumber())
+            .size(page.getSize())
+            .totalElements(page.getTotalElements())
+            .totalPages(page.getTotalPages())
+            .first(page.isFirst())
+            .last(page.isLast())
+            .empty(page.isEmpty())
+            .build();
     }
 }

@@ -48,8 +48,13 @@ public class FestivalMapper {
         if (dateStr == null || dateStr.isBlank()) {
             return null;
         }
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        return LocalDate.parse(dateStr, formatter);
+
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+            return LocalDate.parse(dateStr, formatter);
+        }catch (DateTimeParseException e) {
+            return null;
+        }
     }
 
     public static FestivalDetailIntro toDetailIntro(DetailIntro2Dto dto) {
