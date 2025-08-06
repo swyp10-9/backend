@@ -8,14 +8,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - ./mariadb-data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
-      timeout: 10s
-      retries: 10
 
   backend:
     image: ${DOCKER_USERNAME}/swyp10-9-backend:latest
@@ -30,22 +24,22 @@ services:
       DB_NAME: ${DB_NAME}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
-      
+
       # 서버 설정
       SERVER_PORT: ${SERVER_PORT}
-      
+
       # JWT 설정
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-86400}
       JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-604800}
-      
+
       # 카카오 OAuth 설정
       KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
       KAKAO_REDIRECT_PATH: ${KAKAO_REDIRECT_PATH:-/api/auth/kakao-redirect}
       KAKAO_REDIRECT_URI: ${KAKAO_REDIRECT_URI}
       KAKAO_TOKEN_URL: ${KAKAO_TOKEN_URL:-https://kauth.kakao.com/oauth/token}
       KAKAO_USER_INFO_URL: ${KAKAO_USER_INFO_URL:-https://kapi.kakao.com/v2/user/me}
-      
+
       # TourAPI 설정
       TOUR_API_KEY: ${TOUR_API_KEY}
       PAGE_SIZE: ${PAGE_SIZE:-10}
@@ -53,11 +47,4 @@ services:
       EVENT_END_DATE: ${EVENT_END_DATE:-20251201}
 
     depends_on:
-      mariadb:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      - mariadb

@@ -15,6 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -74,18 +77,32 @@ public class AuthController {
      * 요청에서 origin 추출 (scheme + host + port)
      */
     private String getOriginFromRequest(HttpServletRequest request) {
-        String scheme = request.getScheme(); // http, https
-        String serverName = request.getServerName(); // localhost, example.com
-        int serverPort = request.getServerPort(); // 8080, 443
-
-        String origin = scheme + "://" + serverName;
-
-        // 기본 포트가 아닌 경우에만 포트 추가
-        if ((scheme.equals("http") && serverPort != 80) ||
-            (scheme.equals("https") && serverPort != 443)) {
-            origin += ":" + serverPort;
+        String originHeader = request.getHeader("Origin");
+        if (originHeader != null && !originHeader.isEmpty()) {
+            return originHeader;
         }
 
-        return origin;
+        // fallback: Referer에서 추출
+        String refererHeader = request.getHeader("Referer");
+        if (refererHeader != null && !refererHeader.isEmpty()) {
+            try {
+                URI uri = new URI(refererHeader);
+                String scheme = uri.getScheme();
+                String host = uri.getHost();
+                int port = uri.getPort();
+
+                String origin = scheme + "://" + host;
+                if ((scheme.equals("http") && port != 80 && port != -1) ||
+                        (scheme.equals("https") && port != 443 && port != -1)) {
+                    origin += ":" + port;
+                }
+                return origin;
+            } catch (URISyntaxException e) {
+                // 무시하고 null 리턴
+            }
+        }
+
+        return null; // 추출 실패
     }
+
 }
