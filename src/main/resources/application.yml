@@ -46,7 +46,7 @@ oauth:
 
 # TourAPI 설정
 tourapi:
-  service-key: ${TOUR_API_KEY:NYxrwdvbgchC%2BIW35g87NwgQoz%2FoqxwkVYW1O2Ihur8r3%2BH35FIzVQBedsthKFqUOUQ9PthT4hnHxjC4Ijg2cA%3D%3D}
+  service-key: ${TOUR_API_KEY:your-tour-api-key}
   batch:
     page-size: ${PAGE_SIZE:10}
     festival:
