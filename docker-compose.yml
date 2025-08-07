@@ -11,6 +11,7 @@ services:
       # MariaDB 설정 - root 사용자로 통일
       MARIADB_ROOT_PASSWORD: ${DB_PASSWORD}
       MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_ROOT_HOST: '%'
     volumes:
       - ./mariadb-data:/var/lib/mysql
       - ./init-db:/docker-entrypoint-initdb.d:ro
