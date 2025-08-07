@@ -1,0 +1,82 @@
+# application-docker.yml (Docker 환경 전용)
+spring:
+  batch:
+    job:
+      enabled: true
+    jdbc:
+      initialize-schema: never  # Docker init 스크립트에서 이미 생성
+
+  datasource:
+    # MariaDB 설정으로 변경
+    url: jdbc:mariadb://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.mariadb.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: update  # Docker에서는 update 사용
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+        format_sql: false  # 운영환경에서는 false
+        show_sql: false    # 운영환경에서는 false
+    open-in-view: false
+
+# 액추에이터 헬스체크 활성화
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+# 로깅 레벨 조정
+logging:
+  level:
+    root: INFO
+    com.swyp10: INFO
+    org.springframework.batch: INFO
+
+server:
+  port: 8080
+
+# JWT 설정 (환경변수에서 가져옴)
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:86400}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800}
+
+# OAuth 설정
+oauth:
+  kakao:
+    client-id: ${KAKAO_CLIENT_ID}
+    redirect-path: ${KAKAO_REDIRECT_PATH:/api/auth/kakao-redirect}
+    redirect-uri: ${KAKAO_REDIRECT_URI}
+    token-url: ${KAKAO_TOKEN_URL:https://kauth.kakao.com/oauth/token}
+    user-info-url: ${KAKAO_USER_INFO_URL:https://kapi.kakao.com/v2/user/me}
+
+# TourAPI 설정
+tourapi:
+  service-key: ${TOUR_API_KEY}
+  batch:
+    page-size: ${PAGE_SIZE:10}
+    festival:
+      event-start-date: ${EVENT_START_DATE:20250101}
+      event-end-date: ${EVENT_END_DATE:20251231}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    url: /v3/api-docs
+    path: /swagger-ui.html
+  show-enum-schema: true

@@ -77,6 +77,12 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
+    // MariaDB 드라이버
+    implementation 'org.mariadb.jdbc:mariadb-java-client'
+
+    // Spring Boot Actuator (헬스체크용)
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
 }
 
 tasks.named('test') {

@@ -1,16 +1,28 @@
 services:
   mariadb:
-    image: mariadb:latest
+    image: mariadb:10.11
     container_name: mariadb
     restart: unless-stopped
     ports:
       - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
+      # MariaDB 환경 변수
+      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD}
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USERNAME}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_CHARSET: utf8mb4
+      MARIADB_COLLATION: utf8mb4_unicode_ci
     volumes:
       - ./mariadb-data:/var/lib/mysql
-      - ./init-db:/docker-entrypoint-initdb.d
+      - ./init-db:/docker-entrypoint-initdb.d:ro
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     image: ${DOCKER_USERNAME}/swyp10-9-backend:latest
@@ -19,6 +31,9 @@ services:
     ports:
       - "8080:8080"
     environment:
+      # Spring Profile 설정
+      SPRING_PROFILES_ACTIVE: docker
+
       # 데이터베이스 설정
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
@@ -48,4 +63,11 @@ services:
       EVENT_END_DATE: ${EVENT_END_DATE:-20251231}
 
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

@@ -115,9 +115,12 @@ jobs:
             echo "🚀 Docker Compose로 서비스 시작"
             docker-compose up -d
             
-            echo "⏳ 컨테이너 시작 대기"
-            sleep 15
+            echo "⏳ 컨테이너 시작 대기 (60초)"
+            sleep 60
             
             echo "✅ 배포 완료! 실행 중인 컨테이너 확인:"
             docker-compose ps
-            docker-compose logs --tail=30
+            echo "🔍 백엔드 서비스 로그:"
+            docker-compose logs --tail=50 backend
+            echo "🔍 MariaDB 서비스 로그:"
+            docker-compose logs --tail=20 mariadb
