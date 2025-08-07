@@ -7,6 +7,8 @@ import com.swyp10.domain.festival.dto.tourapi.DetailImage2Dto;
 import com.swyp10.domain.festival.dto.tourapi.DetailIntro2Dto;
 import com.swyp10.domain.festival.dto.tourapi.SearchFestival2Dto;
 import com.swyp10.domain.festival.service.FestivalService;
+import feign.FeignException;
+import feign.RetryableException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;

@@ -6,7 +6,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Map;
 
-@FeignClient(name = "tourApiClient", url = "http://apis.data.go.kr/B551011/KorService2")
+@FeignClient(name = "tourApiClient",
+    url = "http://apis.data.go.kr/B551011/KorService2",
+    configuration = TourApiFeignConfig.class,
+    fallback = TourApiClientFallback.class
+)
 public interface TourApiClient {
 
     @GetMapping("/searchFestival2")
