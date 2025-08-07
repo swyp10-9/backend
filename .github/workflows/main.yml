@@ -80,6 +80,14 @@ jobs:
 
             echo "🗑️ 기존 이미지 삭제"
             docker rmi ${{ secrets.DOCKER_USERNAME }}/swyp10-9-backend:latest || true
+            
+            echo "🧹 MariaDB 데이터 디렉토리 완전 삭제"
+            sudo rm -rf mariadb-data/ || true
+            sudo rm -rf ./mariadb-data || true
+
+            echo "🧹 Docker 시스템 정리"
+            docker system prune -f || true
+            docker volume prune -f || true
 
       - name: docker-compose.yml 파일 업로드
         uses: appleboy/scp-action@v0.1.7
@@ -154,11 +162,14 @@ jobs:
             echo "📥 최신 이미지 다운로드"
             docker-compose pull
 
-            echo "🚀 Docker Compose로 서비스 시작"
+            echo "🚀 Docker Compose로 서비스 시작 (완전 새로 시작)"
             docker-compose up -d
 
-            echo "⏳ 컨테이너 시작 대기 (60초)"
-            sleep 60
+            echo "⏳ MariaDB 완전 초기화 대기 (120초)"
+            sleep 120
+
+            echo "🔍 MariaDB 초기화 상태 확인"
+            docker exec mariadb mysql -uroot -p${{ secrets.DB_PASSWORD }} -e "SELECT User, Host FROM mysql.user WHERE User='root'; SHOW DATABASES;" || echo "DB 확인 실패 - 추가 대기 필요"
 
             echo "✅ 배포 완료! 실행 중인 컨테이너 확인:"
             docker-compose ps

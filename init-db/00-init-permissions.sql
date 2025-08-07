@@ -1,6 +1,12 @@
 -- 00-init-permissions.sql
 -- MariaDB 권한 설정 스크립트
 
+-- 현재 사용자 및 호스트 확인 (디버깅용)
+SELECT USER(), @@hostname;
+
+-- 기존 root 사용자 확인
+SELECT User, Host FROM mysql.user WHERE User = 'root';
+
 -- root 사용자에게 모든 권한 부여
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
 
