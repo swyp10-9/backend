@@ -62,7 +62,10 @@ jobs:
     needs: build-and-push
 
     steps:
-      - name: SSH 접속 및 서버의 docker-compose.yml 사용하여 배포
+      - name: GitHub 레포지토리 체크아웃 (배포용)
+        uses: actions/checkout@v4
+
+      - name: SSH 접속 및 파일 업로드 후 배포
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -71,53 +74,92 @@ jobs:
           port: 22
           script: |
             cd /root
-            
+
             echo "🗑️ 기존 컨테이너 및 네트워크 정리"
             docker-compose down --remove-orphans || true
-            
+
             echo "🗑️ 기존 이미지 삭제"
             docker rmi ${{ secrets.DOCKER_USERNAME }}/swyp10-9-backend:latest || true
-            
-            echo "🔧 환경변수 설정"
-            export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
-            
+
+      - name: docker-compose.yml 파일 업로드
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          source: "docker-compose.yml"
+          target: "/root/"
+
+      - name: init-db 폴더 업로드
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          source: "init-db/"
+          target: "/root/"
+
+      - name: 배포 실행
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          script: |
+            cd /root
+
+            echo "🔧 .env 파일 생성"
+            cat > .env << EOF
+            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+
             # 데이터베이스 설정
-            export DB_HOST=mariadb
-            export DB_PORT=3306
-            export DB_NAME="${{ secrets.DB_NAME }}"
-            export DB_USERNAME="${{ secrets.DB_USERNAME }}"
-            export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
-            
-            # JWT 설정
-            export JWT_SECRET="${{ secrets.JWT_SECRET }}"
-            export JWT_EXPIRATION="${{ secrets.JWT_EXPIRATION }}"
-            export JWT_REFRESH_EXPIRATION="${{ secrets.JWT_REFRESH_EXPIRATION }}"
-            
-            # 카카오 OAuth 설정
-            export KAKAO_CLIENT_ID="${{ secrets.KAKAO_CLIENT_ID }}"
-            export KAKAO_REDIRECT_PATH="${{ secrets.KAKAO_REDIRECT_PATH }}"
-            export KAKAO_REDIRECT_URI="${{ secrets.KAKAO_REDIRECT_URI }}"
-            export KAKAO_TOKEN_URL="${{ secrets.KAKAO_TOKEN_URL }}"
-            export KAKAO_USER_INFO_URL="${{ secrets.KAKAO_USER_INFO_URL }}"
-            
-            # TourAPI 설정
-            export TOUR_API_KEY="${{ secrets.TOUR_API_KEY }}"
-            export PAGE_SIZE="${{ secrets.PAGE_SIZE }}"
-            export EVENT_START_DATE="${{ secrets.EVENT_START_DATE }}"
-            export EVENT_END_DATE="${{ secrets.EVENT_END_DATE }}"
-            
+            DB_HOST=mariadb
+            DB_PORT=3306
+            DB_NAME=${{ secrets.DB_NAME }}
+            DB_USERNAME=${{ secrets.DB_USERNAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+
             # 서버 설정
-            export SERVER_PORT=8080
-            
+            SERVER_PORT=8080
+
+            # JWT 설정
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }}
+            JWT_REFRESH_EXPIRATION=${{ secrets.JWT_REFRESH_EXPIRATION }}
+
+            # 카카오 OAuth 설정
+            KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}
+            KAKAO_REDIRECT_PATH=${{ secrets.KAKAO_REDIRECT_PATH }}
+            KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }}
+            KAKAO_TOKEN_URL=${{ secrets.KAKAO_TOKEN_URL }}
+            KAKAO_USER_INFO_URL=${{ secrets.KAKAO_USER_INFO_URL }}
+
+            # TourAPI 설정
+            TOUR_API_KEY=${{ secrets.TOUR_API_KEY }}
+            PAGE_SIZE=${{ secrets.PAGE_SIZE }}
+            EVENT_START_DATE=${{ secrets.EVENT_START_DATE }}
+            EVENT_END_DATE=${{ secrets.EVENT_END_DATE }}
+            EOF
+
+            echo "✅ 업로드된 파일 확인:"
+            ls -la docker-compose.yml
+            ls -la init-db/
+
+            echo "🔍 환경 변수 적용 확인:"
+            docker-compose config
+
             echo "📥 최신 이미지 다운로드"
             docker-compose pull
-            
+
             echo "🚀 Docker Compose로 서비스 시작"
             docker-compose up -d
-            
+
             echo "⏳ 컨테이너 시작 대기 (60초)"
             sleep 60
-            
+
             echo "✅ 배포 완료! 실행 중인 컨테이너 확인:"
             docker-compose ps
             echo "🔍 백엔드 서비스 로그:"
