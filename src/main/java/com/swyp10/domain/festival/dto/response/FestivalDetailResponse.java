@@ -12,28 +12,39 @@ import java.util.List;
 public class FestivalDetailResponse {
     @Schema(description = "축제 ID", required = true, nullable = false, example = "1001")
     private Long id;
+
     @Schema(description = "축제명", required = true, nullable = false, example = "부산 불꽃축제")
     private String title;
+
     @Schema(description = "주소", required = false, nullable = true, example = "부산광역시 해운대구")
     private String address;
+
     @Schema(description = "테마", required = false, nullable = true, example = "음식/미식")
     private String theme;
+
     @Schema(description = "축제 시작일", required = false, nullable = true, example = "2025-09-01")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private String startDate;
+
     @Schema(description = "축제 종료일", required = false, nullable = true, example = "2025-09-03")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private String endDate;
+
     @Schema(description = "썸네일 이미지 URL", required = false, nullable = true, example = "https://...")
     private String thumbnail;
+
     @Schema(description = "경도", required = false, nullable = true, example = "127.5881015063")
     private String mapx;
+
     @Schema(description = "위도", required = false, nullable = true, example = "36.9913818048")
     private String mapy;
+
     @Schema(description = "이미지 목록", required = false, nullable = true)
     private List<ImageResponse> images;
+
     @Schema(description = "상세 내용", required = false, nullable = true)
     private ContentResponse content;
+
     @Schema(description = "추가 정보", required = false, nullable = true)
     private InfoResponse info;
 

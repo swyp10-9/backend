@@ -87,6 +87,8 @@ dependencies {
     // Spring Boot Actuator (헬스체크용)
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    // Formatting
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 }
 
 tasks.named('test') {

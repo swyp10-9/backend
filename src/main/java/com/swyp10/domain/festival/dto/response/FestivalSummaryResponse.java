@@ -1,5 +1,6 @@
 package com.swyp10.domain.festival.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.swyp10.domain.festival.entity.Festival;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -29,9 +30,11 @@ public class FestivalSummaryResponse {
     private String address;
 
     @Schema(description = "축제 시작일", required = false, nullable = true, example = "2025-09-01", type = "string", format = "date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate startDate;
 
     @Schema(description = "축제 종료일", required = false, nullable = true, example = "2025-09-03", type = "string", format = "date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
     @Schema(description = "경도(X좌표)", required = false, nullable = true, example = "127.5881015063")
