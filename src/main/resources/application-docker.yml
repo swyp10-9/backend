@@ -30,6 +30,36 @@ spring:
         show_sql: false    # 운영환경에서는 false
     open-in-view: false
 
+  cloud:
+    openfeign:
+      hystrix:
+        enabled: false  # Fallback 비활성화
+      client:
+        config:
+          default:
+            connect-timeout: 15000    # 15초
+            read-timeout: 60000       # 60초
+            logger-level: basic       # none, basic, headers, full
+          tour-api-client: # TourAPI 전용 설정
+            connect-timeout: 20000
+            read-timeout: 90000
+            logger-level: full
+      httpclient:
+        enabled: true
+        max-connections: 200
+        max-connections-per-route: 50
+        connection-timeout: 15      # Duration 형식 지원
+        connection-timer-repeat: 3
+      compression:
+        request:
+          enabled: true
+          mime-types: application/json,application/xml
+          min-request-size: 2048
+        response:
+          enabled: true
+      circuitbreaker:
+        enabled: false
+
 # 액추에이터 헬스체크 활성화
 management:
   endpoints:
@@ -46,6 +76,9 @@ logging:
     root: INFO
     com.swyp10: INFO
     org.springframework.batch: INFO
+    your.package.client: DEBUG     # Feign 클라이언트 패키지
+    feign.Logger: DEBUG
+    org.springframework.cloud.openfeign: DEBUG
 
 server:
   port: 8080

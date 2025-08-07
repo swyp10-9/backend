@@ -1,5 +1,6 @@
 package com.swyp10.domain.festival.client;
 
+import com.swyp10.config.TourApiFeignConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -8,8 +9,7 @@ import java.util.Map;
 
 @FeignClient(name = "tourApiClient",
     url = "http://apis.data.go.kr/B551011/KorService2",
-    configuration = TourApiFeignConfig.class,
-    fallback = TourApiClientFallback.class
+    configuration = TourApiFeignConfig.class
 )
 public interface TourApiClient {
 

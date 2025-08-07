@@ -2,13 +2,7 @@ package com.swyp10.domain.festival.batch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swyp10.domain.festival.client.TourApiClient;
-import com.swyp10.domain.festival.dto.tourapi.DetailCommon2Dto;
-import com.swyp10.domain.festival.dto.tourapi.DetailImage2Dto;
-import com.swyp10.domain.festival.dto.tourapi.DetailIntro2Dto;
-import com.swyp10.domain.festival.dto.tourapi.SearchFestival2Dto;
 import com.swyp10.domain.festival.service.FestivalService;
-import feign.FeignException;
-import feign.RetryableException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -26,10 +20,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 @Slf4j
 @Configuration
 @Profile("!test")
@@ -44,7 +34,7 @@ public class FestivalBatchConfig {
     private final ObjectMapper objectMapper;
 
     @Value("${tourapi.service-key}")
-    private String SERVICE_KEY;
+    private String serviceKey;
 
     @Value("${tourapi.batch.festival.event-start-date}")
     private String eventStartDate;
@@ -52,7 +42,7 @@ public class FestivalBatchConfig {
     @Value("${tourapi.batch.festival.event-end-date}")
     private String eventEndDate;
 
-    @Value("${tourapi.batch.page-size}")
+    @Value("${tourapi.batch.page-size:100}")
     private int pageSize;
 
     @Bean
@@ -65,61 +55,25 @@ public class FestivalBatchConfig {
     }
 
     @Bean
-    public Step festivalSyncStep(Tasklet festivalSyncTasklet) {
+    public Step festivalSyncStep() {
         return new StepBuilder("festivalSyncStep", jobRepository)
-            .tasklet(festivalSyncTasklet, transactionManager)
+            .tasklet(festivalSyncTasklet(), transactionManager)
             .build();
     }
 
     @Bean
     public Tasklet festivalSyncTasklet() {
+        FestivalBatchProcessor processor = new FestivalBatchProcessor(
+            tourApiClient, festivalService, objectMapper, serviceKey
+        );
+
         return (contribution, chunkContext) -> {
-            int page = 1;
-            int totalCount;
-            do {
-                Map<String, Object> response = tourApiClient.searchFestival2(
-                    SERVICE_KEY, "ETC", "swyp10", "json", pageSize, page, eventStartDate, eventEndDate
-                );
+            log.info("Festival sync started: {} ~ {}", eventStartDate, eventEndDate);
 
-                Map<String, Object> body = FestivalBatchUtils.getNestedMap(response, "response", "body");
-                totalCount = Integer.parseInt(String.valueOf(body.get("totalCount")));
+            BatchResult result = processor.processFestivalBatch(eventStartDate, eventEndDate, pageSize);
 
-                Map<String, Object> items = (Map<String, Object>) body.get("items");
-                if (items == null) break;
-
-                List<Map<String, Object>> festivalList;
-                Object itemObj = items.get("item");
-                if (itemObj instanceof List<?>) {
-                    festivalList = (List<Map<String, Object>>) itemObj;
-                } else if (itemObj instanceof Map<?,?>) {
-                    festivalList = List.of((Map<String, Object>) itemObj);
-                } else {
-                    break;
-                }
-
-                FestivalBatchUtils festivalBatchUtils = new FestivalBatchUtils(objectMapper);
-                for (Map<String, Object> item : festivalList) {
-                    SearchFestival2Dto searchDto = festivalBatchUtils.parseSearchFestival2Dto(item);
-
-                    Map<String, Object> commonResponse = tourApiClient.detailCommon2(
-                        SERVICE_KEY, "ETC", "swyp10", "json", searchDto.getContentid()
-                    );
-                    DetailCommon2Dto commonDto = festivalBatchUtils.parseDetailCommon2Dto(commonResponse);
-
-                    Map<String, Object> introResponse = tourApiClient.detailIntro2(
-                        SERVICE_KEY, "ETC", "swyp10", "json", searchDto.getContentid(), "15"
-                    );
-                    DetailIntro2Dto introDto = festivalBatchUtils.parseDetailIntro2Dto(introResponse);
-
-                    Map<String, Object> imageResponse = tourApiClient.detailImage2(
-                        SERVICE_KEY, "ETC", "swyp10", "json", searchDto.getContentid(), "Y"
-                    );
-                    List<DetailImage2Dto> images = festivalBatchUtils.parseDetailImageList2Dto(imageResponse);
-
-                    festivalService.saveOrUpdateFestival(searchDto, commonDto, introDto, images);
-                }
-                page++;
-            } while ((page - 1) * pageSize < totalCount);
+            log.info("Festival sync completed - Success: {}, Skipped: {}, Errors: {}",
+                result.getSuccessCount(), result.getSkipCount(), result.getErrorCount());
 
             return RepeatStatus.FINISHED;
         };

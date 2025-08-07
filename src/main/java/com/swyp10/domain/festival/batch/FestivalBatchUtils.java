@@ -6,9 +6,12 @@ import com.swyp10.domain.festival.dto.tourapi.DetailImage2Dto;
 import com.swyp10.domain.festival.dto.tourapi.DetailIntro2Dto;
 import com.swyp10.domain.festival.dto.tourapi.SearchFestival2Dto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 public class FestivalBatchUtils {
 
@@ -185,5 +188,43 @@ public class FestivalBatchUtils {
     private String getStr(Map<String, Object> map, String key) {
         Object val = map.get(key);
         return val == null ? null : String.valueOf(val);
+    }
+
+    public List<SearchFestival2Dto> parseFestivalList(Map<String, Object> response) {
+        try {
+            Map<String, Object> body = getNestedMap(response, "response", "body");
+            Map<String, Object> items = (Map<String, Object>) body.get("items");
+
+            if (items == null) return Collections.emptyList();
+
+            Object itemObj = items.get("item");
+            List<Map<String, Object>> festivalList;
+
+            if (itemObj instanceof List<?>) {
+                festivalList = (List<Map<String, Object>>) itemObj;
+            } else if (itemObj instanceof Map<?,?>) {
+                festivalList = List.of((Map<String, Object>) itemObj);
+            } else {
+                return Collections.emptyList();
+            }
+
+            return festivalList.stream()
+                .map(this::parseSearchFestival2Dto)
+                .collect(Collectors.toList());
+
+        } catch (Exception e) {
+            log.warn("Failed to parse festival list", e);
+            return Collections.emptyList();
+        }
+    }
+
+    public int extractTotalCount(Map<String, Object> response) {
+        try {
+            Map<String, Object> body = getNestedMap(response, "response", "body");
+            return Integer.parseInt(String.valueOf(body.get("totalCount")));
+        } catch (Exception e) {
+            log.warn("Failed to extract total count", e);
+            return 0;
+        }
     }
 }
