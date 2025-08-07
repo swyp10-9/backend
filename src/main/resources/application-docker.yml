@@ -2,10 +2,9 @@
 spring:
   batch:
     job:
-      enabled: true
+      enabled: false
     jdbc:
-      initialize-schema: always
-      table-prefix: BATCH_
+      initialize-schema: never
 
   datasource:
     # MariaDB 설정으로 변경
