@@ -4,7 +4,8 @@ spring:
     job:
       enabled: true
     jdbc:
-      initialize-schema: never  # Docker init 스크립트에서 이미 생성
+      initialize-schema: always
+      table-prefix: BATCH_
 
   datasource:
     # MariaDB 설정으로 변경
