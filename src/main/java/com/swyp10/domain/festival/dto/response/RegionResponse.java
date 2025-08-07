@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RegionResponse {
     
-    @Schema(description = "지역 코드", required = false, nullable = false, example = "1")
+    @Schema(description = "지역 코드", required = true, nullable = false, example = "1")
     private Integer regionCode;
     
-    @Schema(description = "지역명", required = false, nullable = false, example = "서울특별시")
+    @Schema(description = "지역명", required = true, nullable = false, example = "서울특별시")
     private String regionName;
     
     @Schema(description = "상위 지역 코드", required = false, nullable = true, example = "11")

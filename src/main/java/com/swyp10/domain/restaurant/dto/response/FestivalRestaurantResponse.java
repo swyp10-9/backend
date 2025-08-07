@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class FestivalRestaurantResponse {
-    @Schema(description = "식당명", required = false, nullable = false, example = "해운대 횟집")
+    @Schema(description = "식당명", required = true, nullable = false, example = "해운대 횟집")
     private String name;
     @Schema(description = "주소", required = false, nullable = true, example = "부산광역시 해운대구 해운대해변로 123")
     private String address;

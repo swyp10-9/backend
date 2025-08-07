@@ -10,9 +10,9 @@ import java.util.List;
 @Getter
 @Builder
 public class FestivalDetailResponse {
-    @Schema(description = "축제 ID", required = false, nullable = false, example = "1001")
+    @Schema(description = "축제 ID", required = true, nullable = false, example = "1001")
     private Long id;
-    @Schema(description = "축제명", required = false, nullable = false, example = "부산 불꽃축제")
+    @Schema(description = "축제명", required = true, nullable = false, example = "부산 불꽃축제")
     private String title;
     @Schema(description = "주소", required = false, nullable = true, example = "부산광역시 해운대구")
     private String address;

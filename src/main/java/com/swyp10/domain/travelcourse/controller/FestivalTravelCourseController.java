@@ -5,6 +5,7 @@ import com.swyp10.domain.travelcourse.dto.response.FestivalTravelCourseListRespo
 import com.swyp10.domain.travelcourse.service.TravelCourseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.core.annotations.ParameterObject;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,7 @@ public class FestivalTravelCourseController {
     @GetMapping("/{festivalId}/travel-courses")
     public FestivalTravelCourseListResponse getFestivalTravelCourses(
             @PathVariable Long festivalId,
-            @ModelAttribute FestivalTravelCoursePageRequest request) {
+            @ModelAttribute @ParameterObject FestivalTravelCoursePageRequest request) {
         request.setFestivalId(festivalId);
         return travelCourseService.getFestivalTravelCourses(request);
     }

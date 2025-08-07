@@ -22,28 +22,28 @@ import java.util.List;
 @Schema(description = "페이징 응답 정보")
 public class PageResponse<T> {
 
-    @Schema(description = "응답 데이터 목록")
+    @Schema(description = "응답 데이터 목록", required = true)
     private List<T> content;
 
-    @Schema(description = "현재 페이지 번호 (0부터 시작)", example = "0")
+    @Schema(description = "현재 페이지 번호 (0부터 시작)", required = true, example = "0")
     private Integer page;
 
-    @Schema(description = "페이지 크기", example = "20")
+    @Schema(description = "페이지 크기", required = true, example = "20")
     private Integer size;
 
-    @Schema(description = "전체 요소 개수", example = "100")
+    @Schema(description = "전체 요소 개수", required = true, example = "100")
     private Long totalElements;
 
-    @Schema(description = "전체 페이지 개수", example = "5")
+    @Schema(description = "전체 페이지 개수", required = true, example = "5")
     private Integer totalPages;
 
-    @Schema(description = "첫 번째 페이지 여부", example = "true")
+    @Schema(description = "첫 번째 페이지 여부", required = true, example = "true")
     private Boolean first;
 
-    @Schema(description = "마지막 페이지 여부", example = "false")
+    @Schema(description = "마지막 페이지 여부", required = true, example = "false")
     private Boolean last;
 
-    @Schema(description = "빈 페이지 여부", example = "false")
+    @Schema(description = "빈 페이지 여부", required = true, example = "false")
     private Boolean empty;
 
     /**

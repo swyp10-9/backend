@@ -5,6 +5,7 @@ import com.swyp10.domain.restaurant.dto.response.FestivalRestaurantListResponse;
 import com.swyp10.domain.restaurant.service.RestaurantService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.core.annotations.ParameterObject;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,7 @@ public class FestivalRestaurantController {
     @GetMapping("/{festivalId}/restaurants")
     public FestivalRestaurantListResponse getFestivalRestaurants(
             @PathVariable Long festivalId,
-            @ModelAttribute FestivalRestaurantPageRequest request) {
+            @ModelAttribute @ParameterObject FestivalRestaurantPageRequest request) {
         request.setFestivalId(festivalId);
         return restaurantService.getFestivalRestaurants(request);
     }

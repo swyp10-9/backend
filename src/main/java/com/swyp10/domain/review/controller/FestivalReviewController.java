@@ -7,6 +7,7 @@ import com.swyp10.global.page.PageRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.core.annotations.ParameterObject;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,7 +25,7 @@ public class FestivalReviewController {
     @GetMapping("/{festivalId}/reviews")
     public FestivalReviewListResponse getFestivalReviews(
             @PathVariable Long festivalId,
-            @ModelAttribute PageRequest pageRequest) {
+            @ModelAttribute @ParameterObject PageRequest pageRequest) {
         return reviewService.getFestivalReviews(festivalId, pageRequest);
     }
 

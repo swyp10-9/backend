@@ -19,7 +19,7 @@ public class FestivalTravelCourseListResponse {
     @Getter
     @Builder
     public static class NearbyAttractionResponse {
-        @Schema(description = "장소명", required = false, nullable = false, example = "해운대 해수욕장")
+        @Schema(description = "장소명", required = true, nullable = false, example = "해운대 해수욕장")
         private String name;
 
         @Schema(description = "썸네일 이미지 URL", required = false, nullable = true, example = "https://...")

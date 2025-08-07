@@ -8,6 +8,7 @@ import com.swyp10.global.page.PageRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.core.annotations.ParameterObject;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,7 +31,7 @@ public class MyPageController {
     @GetMapping("/reviews")
     public MyReviewListResponse getMyReviews(
             @AuthenticationPrincipal Long userId,
-            @ModelAttribute PageRequest pageRequest) {
+            @ModelAttribute @ParameterObject PageRequest pageRequest) {
         return myPageService.getMyReviews(userId, pageRequest);
     }
 
@@ -58,7 +59,7 @@ public class MyPageController {
         security = { @SecurityRequirement(name = "Bearer Authentication") }
     )
     @PatchMapping("/me")
-    public MyInfoResponse updateMyInfo(@ModelAttribute @Valid MyInfoUpdateRequest request, @AuthenticationPrincipal Long userId) {
+    public MyInfoResponse updateMyInfo(@ModelAttribute @ParameterObject @Valid MyInfoUpdateRequest request, @AuthenticationPrincipal Long userId) {
         return myPageService.updateMyInfo(userId, request);
     }
 }

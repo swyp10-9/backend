@@ -7,10 +7,10 @@ import lombok.Getter;
 @Getter
 @Builder
 public class MyInfoResponse {
-    @Schema(description = "회원 ID", required = false, nullable = false, example = "100")
+    @Schema(description = "회원 ID", required = true, nullable = false, example = "100")
     private Long userId;
 
-    @Schema(description = "닉네임", required = false, nullable = false, example = "길훈이")
+    @Schema(description = "닉네임", required = true, nullable = false, example = "길훈이")
     private String nickname;
 
     @Schema(description = "프로필 이미지 URL", required = false, nullable = true, example = "https://...")
