@@ -62,9 +62,14 @@ spring:
   jackson:
     serialization:
       write-dates-as-timestamps: false
+      fail-on-empty-beans: false
     deserialization:
-      adjust-dates-to-context-time-zone: false
+      fail-on-unknown-properties: false
+      accept-empty-string-as-null-object: true
     date-format: yyyy-MM-dd
+    time-zone: Asia/Seoul
+    modules:
+      - com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 
 # 액추에이터 헬스체크 활성화
 management:
