@@ -4,12 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swyp10.domain.restaurant.dto.tourapi.AreaBasedList2RestaurantDto;
 import com.swyp10.domain.restaurant.dto.tourapi.DetailInfo2RestaurantDto;
 import com.swyp10.domain.restaurant.dto.tourapi.DetailIntro2RestaurantDto;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+@Slf4j
 public class RestaurantBatchUtils {
 
     private final ObjectMapper objectMapper;
@@ -100,6 +103,44 @@ public class RestaurantBatchUtils {
                 .build());
         }
         return menuDtos;
+    }
+
+    public List<AreaBasedList2RestaurantDto> parseRestaurantList(Map<String, Object> response) {
+        try {
+            Map<String, Object> body = getNestedMap(response, "response", "body");
+            Map<String, Object> items = (Map<String, Object>) body.get("items");
+
+            if (items == null || items.get("item") == null) {
+                return Collections.emptyList();
+            }
+
+            Object itemObj = items.get("item");
+            List<Map<String, Object>> restaurantList;
+
+            if (itemObj instanceof List<?>) {
+                restaurantList = (List<Map<String, Object>>) itemObj;
+            } else {
+                restaurantList = List.of((Map<String, Object>) itemObj);
+            }
+
+            return restaurantList.stream()
+                .map(this::parseSearchRestaurantDto)
+                .collect(Collectors.toList());
+
+        } catch (Exception e) {
+            log.warn("Failed to parse restaurant list", e);
+            return Collections.emptyList();
+        }
+    }
+
+    public int extractTotalCount(Map<String, Object> response) {
+        try {
+            Map<String, Object> body = getNestedMap(response, "response", "body");
+            return Integer.parseInt(String.valueOf(body.get("totalCount")));
+        } catch (Exception e) {
+            log.warn("Failed to extract total count", e);
+            return 0;
+        }
     }
 
     private String getStr(Map<String, Object> map, String key) {

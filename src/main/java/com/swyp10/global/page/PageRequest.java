@@ -3,17 +3,14 @@ package com.swyp10.global.page;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 /**
  * Offset 기반 페이징 요청을 위한 글로벌 클래스
  * 페이징이 필요한 API의 Request DTO에서 상속받아 사용
  */
-@Getter
+@Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
