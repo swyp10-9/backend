@@ -64,13 +64,14 @@ public class RestaurantCustomRepositoryImpl implements RestaurantCustomRepositor
             .limit(pageable.getPageSize())
             .fetch();
 
-        long total = queryFactory
+        Long totalL = queryFactory
             .select(restaurant.count())
             .from(restaurant)
             .where(where)
             .fetchOne();
 
-        return new PageImpl<>(content, pageable, total == 0 ? 0 : total);
+        long total = (totalL != null) ? totalL : 0L;
+        return new PageImpl<>(content, pageable, total);
     }
 
     private OrderSpecifier<?> buildOrderSpecifier(String sort, QRestaurant restaurant, com.querydsl.core.types.Expression<Double> distanceExpr) {
