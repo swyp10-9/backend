@@ -30,11 +30,11 @@ public class TravelCourseMapper {
 
     public static TravelCourseDetailInfo toDetailInfo(DetailInfoCourseDto detailDto) {
         return TravelCourseDetailInfo.builder()
-            .serialnum(detailDto.getSerialnum())
-            .coursename(detailDto.getCoursename())
-            .coursedesc(detailDto.getCoursedesc())
-            .coursedist(detailDto.getCoursedist())
-            .coursestime(detailDto.getCoursestime())
+            .subnum(detailDto.getSubnum())
+            .subcontentid(detailDto.getSubcontentid())
+            .subname(detailDto.getSubname())
+            .subdetailoverview(detailDto.getSubdetailoverview())
+            .subdetailimg(detailDto.getSubdetailimg())
             .build();
     }
 

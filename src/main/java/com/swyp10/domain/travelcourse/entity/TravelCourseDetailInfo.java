@@ -20,20 +20,21 @@ public class TravelCourseDetailInfo {
     @JoinColumn(name = "travel_course_id")
     private TravelCourse travelCourse;
 
-    @Column(length = 10)
-    private String serialnum;
+    @Column
+    private String subnum;
 
-    @Column(length = 255)
-    private String coursename;
+    @Column
+    private String subcontentid;
+
+    @Column
+    private String subname;
+
+    @Lob
+    @Column
+    private String subdetailoverview;
 
     @Column(columnDefinition = "TEXT")
-    private String coursedesc;
-
-    @Column(length = 50)
-    private String coursedist;
-
-    @Column(length = 50)
-    private String coursestime;
+    private String subdetailimg;
 
     public void setTravelCourse(TravelCourse travelCourse) {
         this.travelCourse = travelCourse;

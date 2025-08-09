@@ -1,9 +1,8 @@
 package com.swyp10.domain.travelcourse.batch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.swyp10.domain.festival.batch.BatchResult;
 import com.swyp10.domain.festival.client.TourApiClient;
-import com.swyp10.domain.travelcourse.dto.tourapi.DetailInfoCourseDto;
-import com.swyp10.domain.travelcourse.dto.tourapi.SearchTravelCourseDto;
 import com.swyp10.domain.travelcourse.service.TravelCourseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,14 +14,12 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.PlatformTransactionManager;
-
-import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Configuration
@@ -33,11 +30,21 @@ public class TravelCourseBatchConfig {
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
     private final TravelCourseService travelCourseService;
+    @Qualifier("com.swyp10.domain.festival.client.TourApiClient")
     private final TourApiClient tourApiClient;
     private final ObjectMapper objectMapper;
 
     @Value("${tourapi.service-key}")
-    private String SERVICE_KEY;
+    private String serviceKey;
+
+    @Value("${tourapi.batch.travel-course.content-type-id:25}")
+    private String contentTypeId;
+
+    @Value("${tourapi.batch.travel-course.page-size:100}")
+    private int pageSize;
+
+    @Value("${tourapi.batch.travel-course.max-total-items:100}")
+    private int maxTotalItems;
 
     @Bean
     public Job travelCourseSyncJob(Step travelCourseSyncStep) {
@@ -49,53 +56,25 @@ public class TravelCourseBatchConfig {
     }
 
     @Bean
-    public Step travelCourseSyncStep(Tasklet travelCourseSyncTasklet) {
+    public Step travelCourseSyncStep() {
         return new StepBuilder("travelCourseSyncStep", jobRepository)
-            .tasklet(travelCourseSyncTasklet, transactionManager)
+            .tasklet(travelCourseSyncTasklet(), transactionManager)
             .build();
     }
 
     @Bean
     public Tasklet travelCourseSyncTasklet() {
+        TravelCourseBatchProcessor processor = new TravelCourseBatchProcessor(
+            tourApiClient, travelCourseService, objectMapper, serviceKey
+        );
+
         return (contribution, chunkContext) -> {
-            int page = 1;
-            int pageSize = 10;
-            int totalCount;
+            log.info("TravelCourse sync started - contentTypeId: {}, maxItems: {}", contentTypeId, maxTotalItems);
 
-            TravelCourseBatchUtils batchUtils = new TravelCourseBatchUtils(objectMapper);
+            BatchResult result = processor.processTravelCourseBatch(contentTypeId, pageSize, maxTotalItems);
 
-            do {
-                Map<String, Object> response = tourApiClient.areaBasedList2(
-                    SERVICE_KEY, "ETC", "swyp10", "json", "25", pageSize, page
-                );
-
-                Map<String, Object> body = batchUtils.getNestedMap(response, "response", "body");
-                totalCount = Integer.parseInt(String.valueOf(body.get("totalCount")));
-
-                Map<String, Object> items = (Map<String, Object>) body.get("items");
-                if (items == null || items.get("item") == null) break;
-
-                List<Map<String, Object>> courseList;
-                Object itemObj = items.get("item");
-                if (itemObj instanceof List<?>) {
-                    courseList = (List<Map<String, Object>>) itemObj;
-                } else {
-                    courseList = List.of((Map<String, Object>) itemObj);
-                }
-
-                for (Map<String, Object> item : courseList) {
-                    SearchTravelCourseDto searchDto = batchUtils.parseSearchTravelCourseDto(item);
-
-                    Map<String, Object> detailInfoResponse = tourApiClient.detailInfo2(
-                        SERVICE_KEY, "ETC", "swyp10", "json",
-                        searchDto.getContentid(), searchDto.getContenttypeid()
-                    );
-                    List<DetailInfoCourseDto> detailInfoDtos = batchUtils.parseDetailInfoCourseList(detailInfoResponse);
-
-                    travelCourseService.saveOrUpdateTravelCourse(searchDto, detailInfoDtos);
-                }
-                page++;
-            } while ((page - 1) * pageSize < totalCount);
+            log.info("TravelCourse sync completed - Success: {}, Skipped: {}, Errors: {}",
+                result.getSuccessCount(), result.getSkipCount(), result.getErrorCount());
 
             return RepeatStatus.FINISHED;
         };

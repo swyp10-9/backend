@@ -19,11 +19,6 @@ public class TravelCourse extends BaseTimeEntity {
     @Column(name = "course_id")
     private Long courseId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "difficulty_level")
-    @Builder.Default
-    private TravelDifficulty difficultyLevel = TravelDifficulty.NORMAL;
-
     @Column(name = "content_id", unique = true, nullable = false, length = 32)
     private String contentId;
 
@@ -33,6 +28,11 @@ public class TravelCourse extends BaseTimeEntity {
     @OneToMany(mappedBy = "travelCourse", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<TravelCourseDetailInfo> detailInfos = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "difficulty_level")
+    @Builder.Default
+    private TravelDifficulty difficultyLevel = TravelDifficulty.NORMAL;
 
     public void updateBasicInfo(TravelCourseBasicInfo basicInfo) {
         this.basicInfo = basicInfo;

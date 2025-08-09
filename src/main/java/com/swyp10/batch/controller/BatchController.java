@@ -25,6 +25,7 @@ public class BatchController {
     private final JobLauncher jobLauncher;
     private final Job festivalSyncJob;
     private final Job restaurantSyncJob;
+    private final Job travelCourseSyncJob;
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/run-festival-sync")
@@ -49,6 +50,17 @@ public class BatchController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/run-travel-course-sync")
+    public ResponseEntity<Map<String, Object>> runTravelCourseSyncJob() {
+        log.info("TravelCourse sync job requested by admin");
+
+        JobParameters params = createJobParameters();
+        JobExecution jobExecution = executeJob(travelCourseSyncJob, params, "travel course sync");
+
+        return ResponseEntity.ok(createJobResponse(jobExecution));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/run-all-sync")
     public ResponseEntity<Map<String, Object>> runAllSyncJobs() {
         log.info("All sync jobs requested by admin");
@@ -64,8 +76,13 @@ public class BatchController {
             JobParameters restaurantParams = createJobParameters("restaurant");
             JobExecution restaurantExecution = executeJob(restaurantSyncJob, restaurantParams, "restaurant sync");
 
+            // TravelCourse 배치 실행
+            JobParameters courseParams = createJobParameters("travel-course");
+            JobExecution courseExecution = executeJob(travelCourseSyncJob, courseParams, "travel course sync");
+
             response.put("festivalJob", createJobResponse(festivalExecution));
             response.put("restaurantJob", createJobResponse(restaurantExecution));
+            response.put("travelCourseJob", createJobResponse(courseExecution));
             response.put("message", "All sync jobs started successfully");
 
         } catch (Exception e) {

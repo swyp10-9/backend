@@ -22,6 +22,7 @@ public class BatchAutoRunner implements ApplicationRunner {
     private final JobLauncher jobLauncher;
     private final Job festivalSyncJob;
     private final Job restaurantSyncJob;
+    private final Job travelCourseSyncJob;
     private final DataSource dataSource;
 
     // 서버 시작시 1회 실행
@@ -84,6 +85,13 @@ public class BatchAutoRunner implements ApplicationRunner {
         runRestaurantSyncJob("scheduled-weekly");
     }
 
+    // 매주 화요일 새벽 4시 TravelCourse 배치만 실행 (추가 동기화)
+    @Scheduled(cron = "0 0 4 * * TUE")
+    public void scheduledTravelCourseSyncJob() {
+        log.info("[Batch] 스케줄러: TravelCourse 배치 작업 실행");
+        runTravelCourseSyncJob("scheduled-weekly");
+    }
+
     /**
      * 모든 배치 작업 순차 실행
      */
@@ -93,7 +101,11 @@ public class BatchAutoRunner implements ApplicationRunner {
         if (festivalSuccess) {
             // Festival 배치 성공 시에만 Restaurant 배치 실행
             log.info("[Batch] Festival 배치 완료, Restaurant 배치 시작");
-            runRestaurantSyncJob(triggerType);
+            boolean restaurantSuccess = runRestaurantSyncJob(triggerType);
+
+            if (restaurantSuccess) {
+                runTravelCourseSyncJob(triggerType);
+            }
         } else {
             log.warn("[Batch] Festival 배치 실패로 인해 Restaurant 배치를 건너뜁니다.");
         }
@@ -144,21 +156,46 @@ public class BatchAutoRunner implements ApplicationRunner {
     }
 
     /**
+     * TravelCourse 배치 실행
+     */
+    private boolean runTravelCourseSyncJob(String triggerType) {
+        JobParameters params = new JobParametersBuilder()
+            .addLong("time", System.currentTimeMillis())
+            .addString("triggerType", triggerType)
+            .addString("jobType", "travelCourse")
+            .toJobParameters();
+
+        try {
+            log.info("[Batch] {} 트리거: travelCourseSyncJob 실행 시작", triggerType);
+            jobLauncher.run(travelCourseSyncJob, params);
+            log.info("[Batch] {} 트리거: travelCourseSyncJob 실행 완료", triggerType);
+            return true;
+
+        } catch (Exception e) {
+            log.error("[Batch] {} 트리거: travelCourseSyncJob 실행 실패", triggerType, e);
+            return false;
+        }
+    }
+
+    /**
      * 병렬 실행 버전
      */
     private void runAllSyncJobsParallel(String triggerType) {
         log.info("[Batch] {} 트리거: 모든 배치 작업 병렬 실행 시작", triggerType);
 
-        // Festival과 Restaurant 배치를 동시에 실행
+        // Festival, Restaurant, TravelCourse 배치를 동시에 실행
         Thread festivalThread = new Thread(() -> runFestivalSyncJob(triggerType + "-parallel"));
         Thread restaurantThread = new Thread(() -> runRestaurantSyncJob(triggerType + "-parallel"));
+        Thread travelCourseThread = new Thread(() -> runTravelCourseSyncJob(triggerType + "-parallel"));
 
         festivalThread.start();
         restaurantThread.start();
+        travelCourseThread.start();
 
         try {
             festivalThread.join();
             restaurantThread.join();
+            travelCourseThread.join();
             log.info("[Batch] {} 트리거: 모든 배치 작업 병렬 실행 완료", triggerType);
         } catch (InterruptedException e) {
             log.error("[Batch] {} 트리거: 병렬 배치 실행 중 인터럽트 발생", triggerType, e);
