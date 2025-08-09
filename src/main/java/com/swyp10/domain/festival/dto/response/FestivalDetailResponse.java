@@ -55,8 +55,6 @@ public class FestivalDetailResponse {
         private String contentid;
         @Schema(description = "원본 이미지 URL", required = false, nullable = true, example = "http://tong.visitkorea.or.kr/cms/resource/23/3493223_image2_1.JPG")
         private String originimgurl;
-        @Schema(description = "이미지명", required = false, nullable = true, example = "2025 태백 해바라기축제 5")
-        private String imgname;
         @Schema(description = "작은 이미지 URL", required = false, nullable = true, example = "http://tong.visitkorea.or.kr/cms/resource/23/3493223_image3_1.JPG")
         private String smallimageurl;
     }
