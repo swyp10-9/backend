@@ -8,9 +8,9 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class DetailInfoCourseDto {
-    private String serialnum;
-    private String coursename;
-    private String coursedesc;
-    private String coursedist;
-    private String coursestime;
+    private String subnum;
+    private String subcontentid;
+    private String subname;
+    private String subdetailoverview;
+    private String subdetailimg;
 }

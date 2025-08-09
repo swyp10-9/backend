@@ -21,19 +21,19 @@ public class TravelCourseDetailInfo {
     private TravelCourse travelCourse;
 
     @Column(length = 10)
-    private String serialnum;
+    private String subnum;
+
+    @Column(length = 50)
+    private String subcontentid;
 
     @Column(length = 255)
-    private String coursename;
+    private String subname;
 
     @Column(columnDefinition = "TEXT")
-    private String coursedesc;
+    private String subdetailoverview;
 
-    @Column(length = 50)
-    private String coursedist;
-
-    @Column(length = 50)
-    private String coursestime;
+    @Column(columnDefinition = "TEXT")
+    private String subdetailimg;
 
     public void setTravelCourse(TravelCourse travelCourse) {
         this.travelCourse = travelCourse;

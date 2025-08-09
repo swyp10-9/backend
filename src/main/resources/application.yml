@@ -56,7 +56,10 @@ tourapi:
       content-type-id: "39"  # 음식점
       page-size: 100
       max-total-items: 100  # 최대 100개로 제한
-      enabled: true
+    travel-course:
+      content-type-id: "25"  # 여행코스
+      page-size: 100
+      max-total-items: 100   # 100개로 제한
 
 springdoc:
   api-docs:
