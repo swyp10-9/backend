@@ -12,6 +12,4 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 public class FestivalMyPageRequest extends FestivalPageRequest {
-    @Schema(description = "북마크 여부", required = false, nullable = true, example = "true")
-    private Boolean bookmarked;
 }

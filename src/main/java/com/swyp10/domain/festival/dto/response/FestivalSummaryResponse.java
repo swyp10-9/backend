@@ -5,10 +5,11 @@ import com.swyp10.domain.festival.entity.Festival;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Getter
+@Getter @Setter
 @Builder
 public class FestivalSummaryResponse {
     @Schema(description = "축제 ID", required = true, nullable = false, example = "1234")

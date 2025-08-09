@@ -1,5 +1,6 @@
 package com.swyp10.domain.festival.service;
 
+import com.swyp10.domain.bookmark.repository.UserBookmarkRepository;
 import com.swyp10.domain.festival.dto.request.*;
 import com.swyp10.domain.festival.dto.response.FestivalDailyCountResponse;
 import com.swyp10.domain.festival.dto.response.FestivalDetailResponse;
@@ -17,6 +18,8 @@ import com.swyp10.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +32,7 @@ import java.util.List;
 public class FestivalService {
 
     private final FestivalRepository festivalRepository;
+    private final UserBookmarkRepository userBookmarkRepository;
 
     @Transactional
     public Festival saveOrUpdateFestival(
@@ -126,6 +130,31 @@ public class FestivalService {
     }
 
     private FestivalListResponse buildListResponse(Page<FestivalSummaryResponse> page) {
+        return FestivalListResponse.builder()
+            .content(page.getContent())
+            .page(page.getNumber())
+            .size(page.getSize())
+            .totalElements(page.getTotalElements())
+            .totalPages(page.getTotalPages())
+            .first(page.isFirst())
+            .last(page.isLast())
+            .empty(page.isEmpty())
+            .build();
+    }
+
+    public FestivalListResponse getMyBookmarkedFestivals(Long userId, FestivalMyPageRequest request) {
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.by(request.getSort()));
+        var page = userBookmarkRepository.findBookmarkedFestivals(userId, pageable); // Page<FestivalSummaryResponse>
+
+        // 북마크 목록이므로 항상 true
+        page.forEach(f -> {
+            try {
+                var field = FestivalSummaryResponse.class.getDeclaredField("bookmarked");
+                field.setAccessible(true);
+                field.set(f, Boolean.TRUE);
+            } catch (Exception ignore) {}
+        });
+
         return FestivalListResponse.builder()
             .content(page.getContent())
             .page(page.getNumber())
