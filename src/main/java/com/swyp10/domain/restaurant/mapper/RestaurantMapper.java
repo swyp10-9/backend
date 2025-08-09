@@ -35,6 +35,14 @@ public class RestaurantMapper {
     }
 
     public static RestaurantBasicInfo toBasicInfo(AreaBasedList2RestaurantDto dto) {
+        if(dto == null) return null;
+
+        String mapxStr = dto.getMapx();
+        Double mapx = (mapxStr != null && !mapxStr.isBlank()) ? Double.parseDouble(mapxStr) : null;
+
+        String mapyStr = dto.getMapy();
+        Double mapy = (mapyStr != null && !mapyStr.isBlank()) ? Double.parseDouble(mapyStr) : null;
+
         return RestaurantBasicInfo.builder()
             .addr1(dto.getAddr1())
             .addr2(dto.getAddr2())
@@ -44,8 +52,8 @@ public class RestaurantMapper {
             .eventenddate(dto.getEventenddate())
             .firstimage(dto.getFirstimage())
             .firstimage2(dto.getFirstimage2())
-            .mapx(dto.getMapx())
-            .mapy(dto.getMapy())
+            .mapx(mapx)
+            .mapy(mapy)
             .modifiedtime(dto.getModifiedtime())
             .sigungucode(dto.getSigungucode())
             .tel(dto.getTel())

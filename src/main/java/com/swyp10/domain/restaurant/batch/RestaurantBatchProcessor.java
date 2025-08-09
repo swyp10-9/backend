@@ -5,7 +5,6 @@ import com.swyp10.domain.festival.batch.BatchResult;
 import com.swyp10.domain.festival.client.TourApiClient;
 import com.swyp10.domain.restaurant.dto.tourapi.AreaBasedList2RestaurantDto;
 import com.swyp10.domain.restaurant.service.RestaurantService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
