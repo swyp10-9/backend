@@ -43,6 +43,9 @@ public class RestaurantBatchConfig {
     @Value("${tourapi.batch.restaurant.page-size:100}")
     private int pageSize;
 
+    @Value("${tourapi.batch.restaurant.max-total-items:100}")
+    private int maxTotalItems;
+
     @Bean
     public Job restaurantSyncJob(Step restaurantSyncStep) {
         return new JobBuilder("restaurantSyncJob", jobRepository)
@@ -65,9 +68,9 @@ public class RestaurantBatchConfig {
         );
 
         return (contribution, chunkContext) -> {
-            log.info("Restaurant sync started - contentTypeId: {}", contentTypeId);
+            log.info("Restaurant sync started - contentTypeId: {}, maxItems: {}", contentTypeId, maxTotalItems);
 
-            BatchResult result = processor.processRestaurantBatch(contentTypeId, pageSize);
+            BatchResult result = processor.processRestaurantBatch(contentTypeId, pageSize, maxTotalItems);
 
             log.info("Restaurant sync completed - Success: {}, Skipped: {}, Errors: {}",
                 result.getSuccessCount(), result.getSkipCount(), result.getErrorCount());

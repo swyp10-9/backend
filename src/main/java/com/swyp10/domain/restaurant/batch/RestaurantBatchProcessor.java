@@ -33,11 +33,18 @@ public class RestaurantBatchProcessor {
     }
 
     public BatchResult processRestaurantBatch(String contentTypeId, int pageSize) {
+        return processRestaurantBatch(contentTypeId, pageSize, Integer.MAX_VALUE);
+    }
+
+    public BatchResult processRestaurantBatch(String contentTypeId, int pageSize, int maxItems) {
         BatchResult result = new BatchResult();
 
         try {
             int page = 1;
             int totalCount = 0;
+            int processedItems = 0;
+
+            log.info("Restaurant batch started - maxItems: {}", maxItems == Integer.MAX_VALUE ? "unlimited" : maxItems);
 
             do {
                 List<AreaBasedList2RestaurantDto> restaurants = fetchRestaurantPage(contentTypeId, pageSize, page);
@@ -48,15 +55,33 @@ public class RestaurantBatchProcessor {
 
                 if (page == 1) {
                     totalCount = getTotalCount(contentTypeId, pageSize);
-                    log.info("Found {} total restaurants to process", totalCount);
+                    int actualTotal = Math.min(totalCount, maxItems);
+                    log.info("Found {} total restaurants, processing {} items", totalCount, actualTotal);
+                }
+
+                // 최대 개수 제한 체크
+                if (processedItems + restaurants.size() > maxItems) {
+                    // 남은 개수만큼만 처리
+                    int remainingItems = maxItems - processedItems;
+                    restaurants = restaurants.subList(0, Math.max(0, remainingItems));
+                    log.info("Limiting to {} remaining items to reach max limit", remainingItems);
                 }
 
                 processRestaurantPage(restaurants, result);
+                processedItems += restaurants.size();
+
+                // 최대 개수에 도달하면 중단
+                if (processedItems >= maxItems) {
+                    log.info("Reached maximum item limit: {}, stopping batch", maxItems);
+                    break;
+                }
 
                 page++;
                 Thread.sleep(100); // API 부하 방지
 
             } while ((page - 1) * pageSize < totalCount);
+
+            log.info("Restaurant batch completed - processed: {}/{} items", processedItems, maxItems == Integer.MAX_VALUE ? "unlimited" : maxItems);
 
         } catch (Exception e) {
             log.error("Restaurant batch processing failed", e);

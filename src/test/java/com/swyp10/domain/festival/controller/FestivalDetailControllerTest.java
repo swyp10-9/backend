@@ -1,15 +1,15 @@
 package com.swyp10.domain.festival.controller;
 
 import com.swyp10.domain.festival.dto.response.FestivalDetailResponse;
-import com.swyp10.domain.festival.service.FestivalService;
+import com.swyp10.domain.festival.service.FestivalDetailService;
 import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -17,7 +17,8 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(FestivalDetailController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -28,7 +29,7 @@ class FestivalDetailControllerTest {
     MockMvc mockMvc;
 
     @MockitoBean
-    FestivalService festivalService;
+    FestivalDetailService festivalService;
 
     @Test
     @DisplayName("축제 상세 조회 - 성공")

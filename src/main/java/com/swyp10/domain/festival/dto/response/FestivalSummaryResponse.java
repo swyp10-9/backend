@@ -47,7 +47,7 @@ public class FestivalSummaryResponse {
         return FestivalSummaryResponse.builder()
             .id(Long.parseLong(festival.getContentId()))
             .thumbnail(festival.getBasicInfo().getFirstimage2())
-            .theme(festival.getTheme() != null ? festival.getTheme().getDisplayName() : null)
+            .theme(festival.getTheme() != null ? festival.getTheme().name() : null)
             .title(festival.getBasicInfo().getTitle())
             .bookmarked(false) // todo bookmarked 설정 필요
             .address(festival.getBasicInfo().getAddr1())
