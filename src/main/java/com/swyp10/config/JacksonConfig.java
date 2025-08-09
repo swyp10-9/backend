@@ -37,10 +37,12 @@ public class JacksonConfig implements WebMvcConfigurer {
     }
 
     @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        // 기본 JSON 메시지 컨버터를 커스텀 ObjectMapper로 교체
-        MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
-        jsonConverter.setObjectMapper(objectMapper());
-        converters.add(0, jsonConverter); // 첫 번째 위치에 추가
+    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        // 기존 컨버터들을 유지하면서 Jackson 컨버터만 수정
+        for (HttpMessageConverter<?> converter : converters) {
+            if (converter instanceof MappingJackson2HttpMessageConverter) {
+                ((MappingJackson2HttpMessageConverter) converter).setObjectMapper(objectMapper());
+            }
+        }
     }
 }
