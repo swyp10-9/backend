@@ -20,16 +20,17 @@ public class TravelCourseDetailInfo {
     @JoinColumn(name = "travel_course_id")
     private TravelCourse travelCourse;
 
-    @Column(length = 10)
+    @Column
     private String subnum;
 
-    @Column(length = 50)
+    @Column
     private String subcontentid;
 
-    @Column(length = 255)
+    @Column
     private String subname;
 
-    @Column(columnDefinition = "TEXT")
+    @Lob
+    @Column
     private String subdetailoverview;
 
     @Column(columnDefinition = "TEXT")
