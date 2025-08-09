@@ -29,9 +29,9 @@ public class RestaurantBasicInfo {
     @Column(columnDefinition = "TEXT")
     private String firstimage2;
 
-    private String mapx;
+    private Double mapx;
 
-    private String mapy;
+    private Double mapy;
 
     private String sigungucode;
 
