@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@RequiredArgsConstructor
 public class RestaurantBatchProcessor {
 
     private final TourApiClient tourApiClient;

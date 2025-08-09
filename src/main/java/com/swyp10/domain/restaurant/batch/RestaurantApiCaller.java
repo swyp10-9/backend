@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 @Slf4j
-@RequiredArgsConstructor
 public class RestaurantApiCaller {
 
     private final TourApiClient tourApiClient;

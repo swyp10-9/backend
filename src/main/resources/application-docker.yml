@@ -6,6 +6,10 @@ spring:
     jdbc:
       initialize-schema: never
       database-platform: mysql
+    task:
+      scheduling:
+        pool:
+          size: 3  # 스케줄링 스레드 풀 크기
 
   datasource:
     # MariaDB 설정으로 변경
