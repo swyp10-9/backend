@@ -77,13 +77,6 @@ public class SecurityConfig {
                         // 나머지는 인증 필요
                         .anyRequest().authenticated()
                 )
-                // 인증 실패 시도 401 에러를 반환하지 않고 계속 진행
-                .exceptionHandling(ex -> ex
-                    .authenticationEntryPoint((request, response, authException) -> {
-                        // 인증 실패 시도 에러 없이 계속 진행
-                        response.setStatus(HttpServletResponse.SC_OK);
-                    })
-                )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         
         return http.build();

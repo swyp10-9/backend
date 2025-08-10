@@ -80,7 +80,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                path.startsWith("/swagger-ui/") ||
                path.startsWith("/v3/api-docs") ||
                path.equals("/favicon.ico") ||
-               path.startsWith("/actuator/") ||
-               (path.startsWith("/api/v1/festivals/") && "GET".equals(request.getMethod()) && !path.contains("/reviews") && !path.contains("/bookmarks"));
+               path.startsWith("/actuator/");
+        // GET 요청 필터링 제거 - 모든 API 요청에서 JWT 필터 실행
     }
 }
