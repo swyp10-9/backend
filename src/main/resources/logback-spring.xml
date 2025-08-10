@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    
+    <!-- Console Appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %5level %pid --- [%15.15thread] %-40.40logger{39} : %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 배치 관련 로그 억제 -->
+    <logger name="org.springframework.batch" level="WARN"/>
+    <logger name="org.springframework.jdbc.core.JdbcTemplate" level="WARN"/>
+    <logger name="org.springframework.jdbc.core.StatementCreatorUtils" level="WARN"/>
+    <logger name="org.springframework.jdbc.datasource" level="WARN"/>
+    
+    <!-- Hibernate 로그 억제 -->
+    <logger name="org.hibernate.SQL" level="WARN"/>
+    <logger name="org.hibernate.type.descriptor.sql" level="WARN"/>
+    <logger name="org.hibernate.engine.jdbc.batch.internal.BatchingBatch" level="WARN"/>
+    <logger name="org.hibernate.engine.jdbc.spi.SqlExceptionHelper" level="WARN"/>
+    
+    <!-- HikariCP 로그 억제 -->
+    <logger name="com.zaxxer.hikari" level="WARN"/>
+    <logger name="com.zaxxer.hikari.HikariDataSource" level="WARN"/>
+    <logger name="com.zaxxer.hikari.HikariConfig" level="WARN"/>
+    
+    <!-- MySQL 드라이버 로그 억제 -->
+    <logger name="com.mysql.cj.jdbc.PreparedStatement" level="WARN"/>
+    <logger name="com.mysql.cj" level="WARN"/>
+    
+    <!-- 애플리케이션 로그는 DEBUG로 -->
+    <logger name="com.swyp10" level="INFO"/>
+    
+    <!-- JWT 필터만 DEBUG로 (임시) -->
+    <logger name="com.swyp10.config.security.JwtAuthenticationFilter" level="DEBUG"/>
+    
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

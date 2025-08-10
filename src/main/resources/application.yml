@@ -17,14 +17,28 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect   # MariaDBDialect
-        format_sql: true
+        format_sql: false  # SQL 포매팅 비활성화
+        show_sql: false    # SQL 로그 비활성화
+        jdbc:
+          batch_size: 50   # 배치 크기 설정
+          order_inserts: true
+          order_updates: true
+        logging:
+          level:
+            SQL: WARN
     open-in-view: false
     defer-datasource-initialization: true
 
 logging:
   level:
-    org.hibernate.SQL: debug
-    org.hibernate.type.descriptor.sql: trace
+    org.hibernate.SQL: warn  # debug -> warn으로 변경
+    org.hibernate.type.descriptor.sql: warn  # trace -> warn으로 변경
+    org.springframework.batch: warn  # 배치 로그 억제
+    org.springframework.jdbc.core.JdbcTemplate: warn  # JDBC 로그 억제
+    org.springframework.jdbc.core.StatementCreatorUtils: warn
+    org.springframework.jdbc.datasource: warn
+    com.zaxxer.hikari: warn  # 커넥션 풀 로그 억제
+    root: info
 
 server:
   port: ${SERVER_PORT:8080}
