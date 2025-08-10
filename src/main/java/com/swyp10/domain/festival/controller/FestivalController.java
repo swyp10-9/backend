@@ -5,10 +5,12 @@ import com.swyp10.domain.festival.dto.response.FestivalListResponse;
 import com.swyp10.domain.festival.service.FestivalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,9 +49,16 @@ public class FestivalController {
         return festivalService.searchFestivals(request);
     }
 
-    @Operation(summary = "축제 리스트 조회 - 마이페이지", description = "축제 리스트 조회 - 마이페이지")
+    @Operation(
+        summary = "축제 리스트 조회 - 마이페이지",
+        description = "내 북마크한 축제 목록(페이징)",
+        security = { @SecurityRequirement(name = "Bearer Authentication") }
+    )
     @GetMapping("/mypage")
-    public FestivalListResponse getMyPageFestivals(@ModelAttribute @ParameterObject FestivalMyPageRequest request) {
-        return festivalService.getMyPageFestivals(request);
+    public FestivalListResponse getMyPageFestivals(
+        @AuthenticationPrincipal Long userId,
+        @ModelAttribute @ParameterObject FestivalMyPageRequest request
+    ) {
+        return festivalService.getMyBookmarkedFestivals(userId, request);
     }
 }

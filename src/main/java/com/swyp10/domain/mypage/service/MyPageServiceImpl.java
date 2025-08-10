@@ -43,7 +43,7 @@ public class MyPageServiceImpl implements MyPageService {
     @Override
     @Transactional
     public void cancelBookmark(Long userId, Long festivalId) {
-        UserBookmark bookmark = bookmarkRepository.findByUser_UserIdAndFestival_FestivalId(userId, festivalId)
+        UserBookmark bookmark = bookmarkRepository.findByUser_UserIdAndFestival_ContentId(userId, String.valueOf(festivalId))
             .orElseThrow(() -> new ApplicationException(ErrorCode.BAD_REQUEST, "해당 북마크가 없습니다."));
         bookmarkRepository.delete(bookmark);
     }

@@ -42,4 +42,8 @@ public class UserBookmark {
     public void markDeleted() {
         this.deletedAt = LocalDateTime.now();
     }
+
+    public void revive() {
+        this.deletedAt = null;
+    }
 }

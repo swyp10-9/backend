@@ -1,5 +1,6 @@
 package com.swyp10.domain.festival.service;
 
+import com.swyp10.domain.bookmark.repository.UserBookmarkRepository;
 import com.swyp10.domain.festival.dto.request.*;
 import com.swyp10.domain.festival.dto.response.FestivalDailyCountResponse;
 import com.swyp10.domain.festival.dto.response.FestivalDetailResponse;
@@ -17,6 +18,8 @@ import com.swyp10.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +32,7 @@ import java.util.List;
 public class FestivalService {
 
     private final FestivalRepository festivalRepository;
+    private final UserBookmarkRepository userBookmarkRepository;
 
     @Transactional
     public Festival saveOrUpdateFestival(
@@ -121,8 +125,19 @@ public class FestivalService {
         return null;
     }
 
-    public FestivalDetailResponse getFestivalDetail(Long festivalId) {
-        return null;
+    public FestivalListResponse getMyBookmarkedFestivals(Long userId, FestivalMyPageRequest request) {
+        Sort sort = Sort.by(Sort.Order.desc("createdAt"));
+        if (request.getSort() != null && !request.getSort().isBlank()) {
+            sort = Sort.by(request.getSort());
+            }
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
+        var page = userBookmarkRepository.findBookmarkedFestivals(userId, pageable);
+
+        page.forEach(f -> {
+            f.setBookmarked(Boolean.TRUE);
+        });
+
+        return buildListResponse(page);
     }
 
     private FestivalListResponse buildListResponse(Page<FestivalSummaryResponse> page) {
