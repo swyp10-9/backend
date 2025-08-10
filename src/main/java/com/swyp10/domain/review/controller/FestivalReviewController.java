@@ -6,6 +6,7 @@ import com.swyp10.domain.review.dto.response.FestivalReviewListResponse;
 import com.swyp10.domain.review.service.UserReviewService;
 import com.swyp10.global.page.PageRequest;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.core.annotations.ParameterObject;
@@ -37,7 +38,7 @@ public class FestivalReviewController {
     @PostMapping("/{festivalId}/reviews")
     public Long createFestivalReview(
         @PathVariable Long festivalId,
-        @OptionalUserId Long userId,
+        @Parameter(hidden = true) @OptionalUserId Long userId,
         @RequestBody @Valid FestivalReviewCreateRequest request
     ) {
         return reviewService.createFestivalReview(userId, festivalId, request);

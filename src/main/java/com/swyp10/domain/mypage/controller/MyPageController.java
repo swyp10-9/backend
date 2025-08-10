@@ -7,6 +7,7 @@ import com.swyp10.domain.mypage.dto.response.MyInfoResponse;
 import com.swyp10.domain.mypage.service.MyPageService;
 import com.swyp10.global.page.PageRequest;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.core.annotations.ParameterObject;
@@ -31,7 +32,7 @@ public class MyPageController {
     )
     @GetMapping("/reviews")
     public MyReviewListResponse getMyReviews(
-            @OptionalUserId Long userId,
+            @Parameter(hidden = true) @OptionalUserId Long userId,
             @ModelAttribute @ParameterObject PageRequest pageRequest) {
         return myPageService.getMyReviews(userId, pageRequest);
     }
@@ -41,7 +42,7 @@ public class MyPageController {
         security = { @SecurityRequirement(name = "Bearer Authentication") }
     )
     @DeleteMapping("/reviews/{reviewId}")
-    public void deleteMyReview(@PathVariable Long reviewId, @OptionalUserId  Long userId) {
+    public void deleteMyReview(@PathVariable Long reviewId, @Parameter(hidden = true) @OptionalUserId  Long userId) {
         myPageService.deleteMyReview(userId, reviewId);
     }
 
@@ -51,7 +52,7 @@ public class MyPageController {
         security = { @SecurityRequirement(name = "Bearer Authentication") }
     )
     @DeleteMapping("/bookmarks/{festivalId}")
-    public void cancelBookmark(@PathVariable Long festivalId, @OptionalUserId  Long userId) {
+    public void cancelBookmark(@PathVariable Long festivalId, @Parameter(hidden = true) @OptionalUserId  Long userId) {
         myPageService.cancelBookmark(userId, festivalId);
     }
 
@@ -60,7 +61,7 @@ public class MyPageController {
         security = { @SecurityRequirement(name = "Bearer Authentication") }
     )
     @PatchMapping("/me")
-    public MyInfoResponse updateMyInfo(@ModelAttribute @ParameterObject @Valid MyInfoUpdateRequest request, @OptionalUserId  Long userId) {
+    public MyInfoResponse updateMyInfo(@ModelAttribute @ParameterObject @Valid MyInfoUpdateRequest request, @Parameter(hidden = true) @OptionalUserId  Long userId) {
         return myPageService.updateMyInfo(userId, request);
     }
 }

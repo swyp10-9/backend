@@ -5,6 +5,7 @@ import com.swyp10.domain.festival.dto.response.FestivalDetailResponse;
 import com.swyp10.domain.festival.service.FestivalDetailService;
 import com.swyp10.domain.festival.service.FestivalService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +25,7 @@ public class FestivalDetailController {
     @GetMapping("/{festivalId}")
     public FestivalDetailResponse getFestivalDetail(
         @PathVariable Long festivalId,
-        @OptionalUserId Long userId  // 새로운 커스텀 어노테이션 사용
+        @Parameter(hidden = true) @OptionalUserId Long userId  // Swagger에서 숨김
     ) {
         return festivalDetailService.getFestivalDetail(festivalId, userId);
     }

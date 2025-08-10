@@ -3,6 +3,7 @@ package com.swyp10.domain.bookmark.controller;
 import com.swyp10.config.security.OptionalUserId;
 import com.swyp10.domain.bookmark.service.UserBookmarkService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class FestivalBookmarkController {
     @PostMapping("/{festivalId}/bookmarks")
     public Long addBookmark(
         @PathVariable Long festivalId,
-        @OptionalUserId Long userId  // @AuthenticationPrincipal -> @OptionalUserId
+        @Parameter(hidden = true) @OptionalUserId Long userId  // Swagger에서 숨김
     ) {
         return bookmarkService.addBookmark(userId, festivalId);
     }
