@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.*;
 @Import(TestConfig.class)
 @Transactional
 @DisplayName("UserReviewService 통합 테스트")
-class UserReviewServiceIT {
+class UserReviewServiceTest {
 
     @Autowired UserReviewService userReviewService;
     @Autowired UserRepository userRepository;

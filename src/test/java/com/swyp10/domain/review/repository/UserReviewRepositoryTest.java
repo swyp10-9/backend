@@ -148,6 +148,67 @@ class UserReviewRepositoryTest {
         }
     }
 
+    @Nested
+    @DisplayName("마이페이지 리뷰 관련 기능 테스트")
+    class MyPageReviews {
+
+        @Test
+        @DisplayName("내 리뷰 목록 페이징 조회 - 성공")
+        void findByUser_UserIdOrderByCreatedAtDesc_success() throws Exception {
+            // given
+            User u = saveUser("a@a.com", "a");
+            Festival f1 = saveFestivalWithContentId("1111", "축제1");
+            Festival f2 = saveFestivalWithContentId("2222", "축제2");
+
+            UserReview r1 = saveReview(u, f1, "첫번째");
+            Thread.sleep(5); // createdAt 차이를 위해 살짝 대기
+            UserReview r2 = saveReview(u, f2, "두번째");
+
+            var pageable = org.springframework.data.domain.PageRequest.of(0, 10);
+            // when
+            var page = userReviewRepository.findByUser_UserIdOrderByCreatedAtDesc(u.getUserId(), pageable);
+
+            // then
+            assertThat(page.getTotalElements()).isEqualTo(2);
+            // 최신순: r2가 먼저
+            assertThat(page.getContent().get(0).getUserReviewId()).isEqualTo(r2.getUserReviewId());
+            assertThat(page.getContent().get(1).getUserReviewId()).isEqualTo(r1.getUserReviewId());
+        }
+
+        @Test
+        @DisplayName("내 리뷰 목록 페이징 조회 - 결과 없음")
+        void findByUser_empty() {
+            var pageable = org.springframework.data.domain.PageRequest.of(0, 10);
+            var page = userReviewRepository.findByUser_UserIdOrderByCreatedAtDesc(999L, pageable);
+            assertThat(page.getTotalElements()).isZero();
+            assertThat(page.getContent()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("소유자+리뷰ID로 단건 조회 - 성공/실패")
+        void findByUser_UserIdAndUserReviewId() {
+            User u = saveUser("b@b.com", "b");
+            Festival f = saveFestivalWithContentId("3333", "축제3");
+            UserReview r = saveReview(u, f, "내용");
+
+            assertThat(userReviewRepository.findByUser_UserIdAndUserReviewId(u.getUserId(), r.getUserReviewId())).isPresent();
+            assertThat(userReviewRepository.findByUser_UserIdAndUserReviewId(u.getUserId(), 9999L)).isNotPresent();
+            assertThat(userReviewRepository.findByUser_UserIdAndUserReviewId(8888L, r.getUserReviewId())).isNotPresent();
+        }
+
+        @Test
+        @DisplayName("existsByUser_UserIdAndUserReviewId - 존재/비존재")
+        void existsByUser_UserIdAndUserReviewId() {
+            User u = saveUser("c@c.com", "c");
+            Festival f = saveFestivalWithContentId("4444", "축제4");
+            UserReview r = saveReview(u, f, "내용");
+
+            assertThat(userReviewRepository.existsByUser_UserIdAndUserReviewId(u.getUserId(), r.getUserReviewId())).isTrue();
+            assertThat(userReviewRepository.existsByUser_UserIdAndUserReviewId(u.getUserId(), 999L)).isFalse();
+            assertThat(userReviewRepository.existsByUser_UserIdAndUserReviewId(0L, r.getUserReviewId())).isFalse();
+        }
+    }
+
     private User saveUser(String email, String nickname) {
         User u = User.builder()
             .email(email)
