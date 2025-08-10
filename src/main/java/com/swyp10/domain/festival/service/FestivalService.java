@@ -126,10 +126,24 @@ public class FestivalService {
     }
 
     public FestivalListResponse getMyBookmarkedFestivals(Long userId, FestivalMyPageRequest request) {
+        // userId가 null이면 빈 목록 반환
+        if (userId == null) {
+            return FestivalListResponse.builder()
+                .content(java.util.Collections.emptyList())
+                .page(request.getPage())
+                .size(request.getSize())
+                .totalElements(0L)
+                .totalPages(0)
+                .first(true)
+                .last(true)
+                .empty(true)
+                .build();
+        }
+        
         Sort sort = Sort.by(Sort.Order.desc("createdAt"));
         if (request.getSort() != null && !request.getSort().isBlank()) {
             sort = Sort.by(request.getSort());
-            }
+        }
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
         var page = userBookmarkRepository.findBookmarkedFestivals(userId, pageable);
 

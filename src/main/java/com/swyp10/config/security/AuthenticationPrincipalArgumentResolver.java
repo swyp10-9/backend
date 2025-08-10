@@ -25,11 +25,19 @@ public class AuthenticationPrincipalArgumentResolver implements HandlerMethodArg
         
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
+        System.out.println("=== ArgumentResolver Debug ===");
+        System.out.println("Authentication: " + authentication);
+        System.out.println("Is authenticated: " + (authentication != null ? authentication.isAuthenticated() : "null"));
+        System.out.println("Principal: " + (authentication != null ? authentication.getPrincipal() : "null"));
+        
         if (authentication != null && authentication.isAuthenticated() && 
             !"anonymousUser".equals(authentication.getPrincipal())) {
-            return (Long) authentication.getPrincipal();
+            Long userId = (Long) authentication.getPrincipal();
+            System.out.println("Resolved userId: " + userId);
+            return userId;
         }
         
+        System.out.println("No valid authentication found, returning null");
         return null;
     }
 }

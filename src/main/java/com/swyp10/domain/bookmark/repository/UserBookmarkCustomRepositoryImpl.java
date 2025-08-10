@@ -25,7 +25,8 @@ public class UserBookmarkCustomRepositoryImpl implements UserBookmarkCustomRepos
     public Set<Long> findBookmarkedFestivalIds(Long userId, Collection<Long> festivalIds) {
         QUserBookmark ub = QUserBookmark.userBookmark;
 
-        if (festivalIds == null || festivalIds.isEmpty()) {
+        // userId가 null이거나 festivalIds가 비어있으면 빈 Set 반환
+        if (userId == null || festivalIds == null || festivalIds.isEmpty()) {
             return java.util.Collections.emptySet();
         }
 
@@ -46,6 +47,11 @@ public class UserBookmarkCustomRepositoryImpl implements UserBookmarkCustomRepos
     public Page<FestivalSummaryResponse> findBookmarkedFestivals(Long userId, Pageable pageable) {
         QUserBookmark ub = QUserBookmark.userBookmark;
         QFestival f = QFestival.festival;
+
+        // userId가 null이면 빈 페이지 반환
+        if (userId == null) {
+            return new PageImpl<>(java.util.Collections.emptyList(), pageable, 0);
+        }
 
         BooleanBuilder where = new BooleanBuilder()
             .and(ub.user.userId.eq(userId))
