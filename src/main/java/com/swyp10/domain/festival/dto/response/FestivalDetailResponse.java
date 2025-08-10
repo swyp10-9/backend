@@ -48,6 +48,9 @@ public class FestivalDetailResponse {
     @Schema(description = "추가 정보", required = false, nullable = true)
     private InfoResponse info;
 
+    @Schema(description = "북마크 여부", required = true, nullable = false, example = "true")
+    private Boolean bookmarked;
+
     @Getter
     @Builder
     public static class ImageResponse {

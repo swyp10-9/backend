@@ -30,6 +30,10 @@ public class AuthenticationPrincipalArgumentResolver implements HandlerMethodArg
         System.out.println("Is authenticated: " + (authentication != null ? authentication.isAuthenticated() : "null"));
         System.out.println("Principal: " + (authentication != null ? authentication.getPrincipal() : "null"));
         
+        // @AuthenticationPrincipal 어노테이션의 required 속성 확인
+        AuthenticationPrincipal authPrincipal = parameter.getParameterAnnotation(AuthenticationPrincipal.class);
+        boolean required = authPrincipal != null ? authPrincipal.errorOnInvalidType() : true;
+        
         if (authentication != null && authentication.isAuthenticated() && 
             !"anonymousUser".equals(authentication.getPrincipal())) {
             Long userId = (Long) authentication.getPrincipal();

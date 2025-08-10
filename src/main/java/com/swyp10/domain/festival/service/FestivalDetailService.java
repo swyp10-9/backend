@@ -1,5 +1,6 @@
 package com.swyp10.domain.festival.service;
 
+import com.swyp10.domain.bookmark.repository.UserBookmarkRepository;
 import com.swyp10.domain.festival.dto.response.FestivalDetailResponse;
 import com.swyp10.domain.festival.entity.Festival;
 import com.swyp10.domain.festival.entity.FestivalBasicInfo;
@@ -21,18 +22,26 @@ import java.util.List;
 public class FestivalDetailService {
 
     private final FestivalRepository festivalRepository;
+    private final UserBookmarkRepository userBookmarkRepository;
 
     /**
-     * 축제 상세 조회
+     * 축제 상세 조회 (북마크 상태 포함)
      */
-    public FestivalDetailResponse getFestivalDetail(Long festivalId) {
+    public FestivalDetailResponse getFestivalDetail(Long festivalId, Long userId) {
         // festival_id(PK)로 축제 찾기
         Festival festival = festivalRepository.findById(festivalId)
             .orElseThrow(() -> new ApplicationException(ErrorCode.FESTIVAL_NOT_FOUND, "축제를 찾을 수 없습니다. id=" + festivalId));
-        return toDetailResponse(festival);
+        
+        // 북마크 상태 확인
+        boolean isBookmarked = false;
+        if (userId != null) {
+            isBookmarked = userBookmarkRepository.existsByUser_UserIdAndFestival_FestivalIdAndDeletedAtIsNull(userId, festivalId);
+        }
+        
+        return toDetailResponse(festival, isBookmarked);
     }
 
-    private FestivalDetailResponse toDetailResponse(Festival festival) {
+    private FestivalDetailResponse toDetailResponse(Festival festival, boolean isBookmarked) {
         FestivalBasicInfo basic = festival.getBasicInfo();
         FestivalDetailIntro intro = festival.getDetailIntro();
 
@@ -95,6 +104,7 @@ public class FestivalDetailService {
             .images(images)
             .content(content)
             .info(info)
+            .bookmarked(isBookmarked)  // 북마크 상태 추가
             .build();
     }
 
