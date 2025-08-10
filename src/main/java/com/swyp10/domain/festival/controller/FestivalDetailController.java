@@ -1,12 +1,12 @@
 package com.swyp10.domain.festival.controller;
 
+import com.swyp10.config.security.OptionalUserId;
 import com.swyp10.domain.festival.dto.response.FestivalDetailResponse;
 import com.swyp10.domain.festival.service.FestivalDetailService;
 import com.swyp10.domain.festival.service.FestivalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +24,7 @@ public class FestivalDetailController {
     @GetMapping("/{festivalId}")
     public FestivalDetailResponse getFestivalDetail(
         @PathVariable Long festivalId,
-        @AuthenticationPrincipal Long userId  // 선택적 인증
+        @OptionalUserId Long userId  // 새로운 커스텀 어노테이션 사용
     ) {
         return festivalDetailService.getFestivalDetail(festivalId, userId);
     }

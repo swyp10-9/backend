@@ -1,5 +1,6 @@
 package com.swyp10.domain.review.controller;
 
+import com.swyp10.config.security.OptionalUserId;
 import com.swyp10.domain.review.dto.request.FestivalReviewCreateRequest;
 import com.swyp10.domain.review.dto.response.FestivalReviewListResponse;
 import com.swyp10.domain.review.service.UserReviewService;
@@ -36,7 +37,7 @@ public class FestivalReviewController {
     @PostMapping("/{festivalId}/reviews")
     public Long createFestivalReview(
         @PathVariable Long festivalId,
-        @AuthenticationPrincipal Long userId,
+        @OptionalUserId Long userId,
         @RequestBody @Valid FestivalReviewCreateRequest request
     ) {
         return reviewService.createFestivalReview(userId, festivalId, request);

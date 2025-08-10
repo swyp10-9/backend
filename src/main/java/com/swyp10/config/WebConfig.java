@@ -1,6 +1,7 @@
 package com.swyp10.config;
 
 import com.swyp10.config.security.AuthenticationPrincipalArgumentResolver;
+import com.swyp10.config.security.OptionalUserIdArgumentResolver;
 import com.swyp10.domain.festival.enums.FestivalPeriod;
 import com.swyp10.domain.festival.enums.FestivalStatus;
 import com.swyp10.domain.festival.enums.FestivalTheme;
@@ -19,7 +20,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
-    private final AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver;
+    private final OptionalUserIdArgumentResolver optionalUserIdArgumentResolver;
+    // private final AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver;  // 비활성화
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // favicon.ico 요청 무시 (404 반환)
@@ -28,7 +30,8 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(authenticationPrincipalArgumentResolver);
+        // resolvers.add(authenticationPrincipalArgumentResolver);  // 비활성화
+        resolvers.add(optionalUserIdArgumentResolver);  // 새로운 resolver만 사용
     }
 
     @Override

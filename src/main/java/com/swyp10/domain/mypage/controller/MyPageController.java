@@ -1,5 +1,6 @@
 package com.swyp10.domain.mypage.controller;
 
+import com.swyp10.config.security.OptionalUserId;
 import com.swyp10.domain.mypage.dto.request.MyInfoUpdateRequest;
 import com.swyp10.domain.mypage.dto.response.MyReviewListResponse;
 import com.swyp10.domain.mypage.dto.response.MyInfoResponse;
@@ -30,7 +31,7 @@ public class MyPageController {
     )
     @GetMapping("/reviews")
     public MyReviewListResponse getMyReviews(
-            @AuthenticationPrincipal Long userId,
+            @OptionalUserId Long userId,
             @ModelAttribute @ParameterObject PageRequest pageRequest) {
         return myPageService.getMyReviews(userId, pageRequest);
     }
@@ -40,7 +41,7 @@ public class MyPageController {
         security = { @SecurityRequirement(name = "Bearer Authentication") }
     )
     @DeleteMapping("/reviews/{reviewId}")
-    public void deleteMyReview(@PathVariable Long reviewId, @AuthenticationPrincipal Long userId) {
+    public void deleteMyReview(@PathVariable Long reviewId, @OptionalUserId  Long userId) {
         myPageService.deleteMyReview(userId, reviewId);
     }
 
@@ -50,7 +51,7 @@ public class MyPageController {
         security = { @SecurityRequirement(name = "Bearer Authentication") }
     )
     @DeleteMapping("/bookmarks/{festivalId}")
-    public void cancelBookmark(@PathVariable Long festivalId, @AuthenticationPrincipal Long userId) {
+    public void cancelBookmark(@PathVariable Long festivalId, @OptionalUserId  Long userId) {
         myPageService.cancelBookmark(userId, festivalId);
     }
 
@@ -59,7 +60,7 @@ public class MyPageController {
         security = { @SecurityRequirement(name = "Bearer Authentication") }
     )
     @PatchMapping("/me")
-    public MyInfoResponse updateMyInfo(@ModelAttribute @ParameterObject @Valid MyInfoUpdateRequest request, @AuthenticationPrincipal Long userId) {
+    public MyInfoResponse updateMyInfo(@ModelAttribute @ParameterObject @Valid MyInfoUpdateRequest request, @OptionalUserId  Long userId) {
         return myPageService.updateMyInfo(userId, request);
     }
 }

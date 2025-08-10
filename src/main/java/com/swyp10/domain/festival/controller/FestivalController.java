@@ -1,5 +1,6 @@
 package com.swyp10.domain.festival.controller;
 
+import com.swyp10.config.security.OptionalUserId;
 import com.swyp10.domain.festival.dto.request.*;
 import com.swyp10.domain.festival.dto.response.FestivalListResponse;
 import com.swyp10.domain.festival.service.FestivalService;
@@ -10,7 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,7 +56,7 @@ public class FestivalController {
     )
     @GetMapping("/mypage")
     public FestivalListResponse getMyPageFestivals(
-        @AuthenticationPrincipal Long userId,
+        @OptionalUserId Long userId,  // @AuthenticationPrincipal -> @OptionalUserId
         @ModelAttribute @ParameterObject FestivalMyPageRequest request
     ) {
         return festivalService.getMyBookmarkedFestivals(userId, request);

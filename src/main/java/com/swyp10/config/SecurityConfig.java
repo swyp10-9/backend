@@ -68,11 +68,13 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
+                        // GET 요청들은 인증 불필요
+                        .requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll()
                         // 인증이 필요한 경로들
                         .requestMatchers(HttpMethod.POST, "/api/v1/festivals/*/reviews").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/v1/festivals/*/bookmarks").authenticated()
                         .requestMatchers("/api/v1/mypage/**").authenticated()
-                        // 나머지 모든 경로는 인증 선택적 (JWT 필터 실행됨)
+                        // 나머지는 인증 필요
                         .anyRequest().authenticated()
                 )
                 // 인증 실패 시도 401 에러를 반환하지 않고 계속 진행
