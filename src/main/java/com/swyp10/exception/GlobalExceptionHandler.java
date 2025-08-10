@@ -4,6 +4,8 @@ import com.swyp10.global.response.CommonResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -56,6 +58,26 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Spring Security 인증 예외 처리 (401 Unauthorized)
+     */
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<CommonResponse<?>> handleAuthenticationException(AuthenticationException e) {
+        log.warn("AuthenticationException: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(CommonResponse.fail("로그인이 필요한 서비스입니다.", ErrorCode.INVALID_TOKEN.getCode()));
+    }
+
+    /**
+     * Spring Security 인가 예외 처리 (403 Forbidden)
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<CommonResponse<?>> handleAccessDeniedException(AccessDeniedException e) {
+        log.warn("AccessDeniedException: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(CommonResponse.fail("접근 권한이 없습니다.", ErrorCode.INSUFFICIENT_PRIVILEGES.getCode()));
+    }
+
+    /**
      * Validation 예외 처리
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -99,11 +121,12 @@ public class GlobalExceptionHandler {
      */
     private HttpStatus getHttpStatusFromErrorCode(ErrorCode errorCode) {
         return switch (errorCode.getCode()) {
-            case 4000, 4001, 4002, 4003, 4008, 4009, 4010, 4011, 4017, 4018, 4019 -> HttpStatus.BAD_REQUEST;
+            case 4000, 4001, 4002, 4003, 4008, 4009, 4010, 4011, 4017, 4018, 4019, 4020, 4021, 4022, 4023 -> HttpStatus.BAD_REQUEST;
             case 4004, 4015, 4027, 4029, 4030, 4031, 4032 -> HttpStatus.NOT_FOUND;
             case 4005, 4014, 4016, 4028 -> HttpStatus.CONFLICT;
-            case 4006, 4007, 4012, 4013 -> HttpStatus.UNAUTHORIZED;
-            case 5000 -> HttpStatus.INTERNAL_SERVER_ERROR;
+            case 4006, 4007, 4012, 4013, 4034 -> HttpStatus.UNAUTHORIZED;
+            case 4033 -> HttpStatus.FORBIDDEN;
+            case 5000, 5001, 5002 -> HttpStatus.INTERNAL_SERVER_ERROR;
             default -> HttpStatus.BAD_REQUEST;
         };
     }

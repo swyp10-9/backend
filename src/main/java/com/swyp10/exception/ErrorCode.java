@@ -58,6 +58,10 @@ public enum ErrorCode {
     NETWORK_ERROR(5001, "네트워크 연결에 실패했습니다."),
     EXTERNAL_API_ERROR(5002, "외부 API 호출에 실패했습니다."),
 
+    // 권한 관련 에러
+    INSUFFICIENT_PRIVILEGES(4033, "접근 권한이 없습니다."),
+    AUTHENTICATION_REQUIRED(4034, "인증이 필요합니다."),
+    
     // 일반적인 에러
     INTERNAL_SERVER_ERROR(5000, "서버 내부 오류가 발생했습니다."),
     BAD_REQUEST(4000, "잘못된 요청입니다.");

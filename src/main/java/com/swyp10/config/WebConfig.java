@@ -1,21 +1,34 @@
 package com.swyp10.config;
 
+import com.swyp10.config.security.AuthenticationPrincipalArgumentResolver;
 import com.swyp10.domain.festival.enums.FestivalPeriod;
 import com.swyp10.domain.festival.enums.FestivalStatus;
 import com.swyp10.domain.festival.enums.FestivalTheme;
 import com.swyp10.domain.festival.enums.FestivalWithWhom;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.List;
+
 @Configuration
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
+
+    private final AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver;
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // favicon.ico 요청 무시 (404 반환)
         registry.addResourceHandler("/favicon.ico").addResourceLocations("classpath:/static/favicon.ico");
+    }
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        resolvers.add(authenticationPrincipalArgumentResolver);
     }
 
     @Override

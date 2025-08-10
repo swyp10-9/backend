@@ -103,6 +103,22 @@ public class TokenService {
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             log.warn("유효하지 않은 JWT 토큰: {}", e.getMessage());
+            return false; // 예외를 던지지 않고 false 반환
+        }
+    }
+
+    /**
+     * Token 유효성 검증 (예외 발생 버전)
+     */
+    public boolean validateTokenWithException(String token) {
+        try {
+            Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            log.warn("유효하지 않은 JWT 토큰: {}", e.getMessage());
             throw new ApplicationException(ErrorCode.INVALID_TOKEN, e.getMessage(), e);
         }
     }
@@ -116,7 +132,7 @@ public class TokenService {
         }
         
         String token = authHeader.replace(AuthConstants.BEARER_PREFIX, "");
-        validateToken(token); // 이미 예외를 던지므로 return
+        validateTokenWithException(token); // 예외 발생 버전 사용
         return token;
     }
     
