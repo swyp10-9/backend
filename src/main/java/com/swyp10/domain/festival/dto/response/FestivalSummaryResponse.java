@@ -46,7 +46,7 @@ public class FestivalSummaryResponse {
 
     public static FestivalSummaryResponse from(Festival festival) {
         return FestivalSummaryResponse.builder()
-            .id(Long.parseLong(festival.getContentId()))
+            .id(festival.getFestivalId()) // contentId 대신 실제 festivalId(PK) 사용
             .thumbnail(festival.getBasicInfo().getFirstimage2())
             .theme(festival.getTheme() != null ? festival.getTheme().name() : null)
             .title(festival.getBasicInfo().getTitle())

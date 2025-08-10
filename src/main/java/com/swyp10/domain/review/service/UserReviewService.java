@@ -38,21 +38,40 @@ public class UserReviewService {
      * 축제 리뷰 목록 (페이징)
      */
     public FestivalReviewListResponse getFestivalReviews(Long festivalId, PageRequest pageRequest) {
-        // 존재하지 않는 축제면 404
+        // 첫 번째 방법: contentId로 검색 시도
         String contentId = String.valueOf(festivalId);
-        festivalRepository.findByContentId(contentId)
-            .orElseThrow(() -> new ApplicationException(ErrorCode.FESTIVAL_NOT_FOUND, "존재하지 않는 축제입니다. id=" + festivalId));
-
-        Pageable pageable = toPageable(pageRequest, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        var page = userReviewRepository.findByFestival_ContentIdOrderByCreatedAtDesc(contentId, pageable);
-
-        return FestivalReviewListResponse.builder()
-            .totalElements(page.getTotalElements())
-            .content(page.getContent().stream()
-                .map(this::toDto)
-                .collect(Collectors.toList()))
-            .build();
+        var festivalByContentId = festivalRepository.findByContentId(contentId);
+        
+        if (festivalByContentId.isPresent()) {
+            // contentId로 찾았으면 그것을 사용
+            Pageable pageable = toPageable(pageRequest, Sort.by(Sort.Direction.DESC, "createdAt"));
+            var page = userReviewRepository.findByFestival_ContentIdOrderByCreatedAtDesc(contentId, pageable);
+            
+            return FestivalReviewListResponse.builder()
+                .totalElements(page.getTotalElements())
+                .content(page.getContent().stream()
+                    .map(this::toDto)
+                    .collect(Collectors.toList()))
+                .build();
+        }
+        
+        // 두 번째 방법: festivalId(PK)로 검색 시도
+        var festivalById = festivalRepository.findById(festivalId);
+        if (festivalById.isPresent()) {
+            Festival festival = festivalById.get();
+            Pageable pageable = toPageable(pageRequest, Sort.by(Sort.Direction.DESC, "createdAt"));
+            var page = userReviewRepository.findByFestival_ContentIdOrderByCreatedAtDesc(festival.getContentId(), pageable);
+            
+            return FestivalReviewListResponse.builder()
+                .totalElements(page.getTotalElements())
+                .content(page.getContent().stream()
+                    .map(this::toDto)
+                    .collect(Collectors.toList()))
+                .build();
+        }
+        
+        // 둘 다 실패하면 404
+        throw new ApplicationException(ErrorCode.FESTIVAL_NOT_FOUND, "존재하지 않는 축제입니다. id=" + festivalId);
     }
 
     /**
