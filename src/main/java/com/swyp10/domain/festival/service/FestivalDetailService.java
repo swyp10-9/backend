@@ -25,9 +25,10 @@ public class FestivalDetailService {
     /**
      * 축제 상세 조회
      */
-    public FestivalDetailResponse getFestivalDetail(Long contentId) {
-        Festival festival = festivalRepository.findByContentId(String.valueOf(contentId))
-            .orElseThrow(() -> new ApplicationException(ErrorCode.FESTIVAL_NOT_FOUND, "축제를 찾을 수 없습니다. id=" + contentId));
+    public FestivalDetailResponse getFestivalDetail(Long festivalId) {
+        // festival_id(PK)로 축제 찾기
+        Festival festival = festivalRepository.findById(festivalId)
+            .orElseThrow(() -> new ApplicationException(ErrorCode.FESTIVAL_NOT_FOUND, "축제를 찾을 수 없습니다. id=" + festivalId));
         return toDetailResponse(festival);
     }
 
@@ -82,7 +83,7 @@ public class FestivalDetailService {
             .build();
 
         return FestivalDetailResponse.builder()
-            .id(Long.parseLong(festival.getContentId()))
+            .id(festival.getFestivalId()) // festival_id(PK) 사용
             .title(basic != null ? basic.getTitle() : null)
             .address(basic != null ? basic.getAddr1() : null)
             .theme(theme)

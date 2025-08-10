@@ -35,13 +35,14 @@ public class UserBookmarkService {
             throw new ApplicationException(ErrorCode.USER_NOT_FOUND, "로그인이 필요합니다.");
         }
 
-        Festival festival = festivalRepository.findByContentId(String.valueOf(festivalId))
+        // festival_id(PK)로 축제 찾기
+        Festival festival = festivalRepository.findById(festivalId)
             .orElseThrow(() -> new ApplicationException(ErrorCode.FESTIVAL_NOT_FOUND, "존재하지 않는 축제입니다. id=" + festivalId));
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_FOUND, "존재하지 않는 사용자입니다. id=" + userId));
 
-        // 기존 북마크 유무 확인 (soft 포함)
-        Optional<UserBookmark> existingOpt = bookmarkRepository.findByUser_UserIdAndFestival_ContentId(userId, String.valueOf(festivalId));
+        // 기존 북마크 유무 확인 (festival_id로 검색)
+        Optional<UserBookmark> existingOpt = bookmarkRepository.findByUser_UserIdAndFestival_FestivalId(userId, festivalId);
 
         if (existingOpt.isPresent()) {
             UserBookmark existing = existingOpt.get();
@@ -92,7 +93,7 @@ public class UserBookmarkService {
 
     @Transactional
     public void cancelBookmark(Long userId, Long festivalId) {
-        UserBookmark ub = bookmarkRepository.findByUser_UserIdAndFestival_ContentId(userId, String.valueOf(festivalId))
+        UserBookmark ub = bookmarkRepository.findByUser_UserIdAndFestival_FestivalId(userId, festivalId)
             .orElseThrow(() -> new ApplicationException(ErrorCode.BOOKMARK_NOT_FOUND));
         if (ub.getDeletedAt() != null) return; // 이미 취소됨
         ub.markDeleted();

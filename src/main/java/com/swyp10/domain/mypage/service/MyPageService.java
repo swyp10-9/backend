@@ -41,7 +41,7 @@ public class MyPageService {
             throw new ApplicationException(ErrorCode.USER_NOT_FOUND, "로그인이 필요합니다.");
         }
         UserBookmark bookmark = userBookmarkRepository
-            .findByUser_UserIdAndFestival_ContentIdAndDeletedAtIsNull(userId, String.valueOf(festivalId))
+            .findByUser_UserIdAndFestival_FestivalIdAndDeletedAtIsNull(userId, festivalId)
             .orElseThrow(() -> new ApplicationException(ErrorCode.BOOKMARK_NOT_FOUND, "활성 상태의 북마크가 없습니다."));
 
         // soft delete
