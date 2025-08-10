@@ -24,7 +24,7 @@ public class FestivalDetailController {
     @GetMapping("/{festivalId}")
     public FestivalDetailResponse getFestivalDetail(
         @PathVariable Long festivalId,
-        @AuthenticationPrincipal(required = false) Long userId  // 선택적 인증
+        @AuthenticationPrincipal Long userId  // 선택적 인증
     ) {
         return festivalDetailService.getFestivalDetail(festivalId, userId);
     }
