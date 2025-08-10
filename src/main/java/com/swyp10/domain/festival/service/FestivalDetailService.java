@@ -28,6 +28,9 @@ public class FestivalDetailService {
      * 축제 상세 조회 (북마크 상태 포함)
      */
     public FestivalDetailResponse getFestivalDetail(Long festivalId, Long userId) {
+        System.out.println("=== 축제 상세 조회 시작 ===");
+        System.out.println("festivalId: " + festivalId + ", userId: " + userId);
+        
         // festival_id(PK)로 축제 찾기
         Festival festival = festivalRepository.findById(festivalId)
             .orElseThrow(() -> new ApplicationException(ErrorCode.FESTIVAL_NOT_FOUND, "축제를 찾을 수 없습니다. id=" + festivalId));
@@ -36,6 +39,9 @@ public class FestivalDetailService {
         boolean isBookmarked = false;
         if (userId != null) {
             isBookmarked = userBookmarkRepository.existsByUser_UserIdAndFestival_FestivalIdAndDeletedAtIsNull(userId, festivalId);
+            System.out.println("북마크 상태 확인: userId=" + userId + ", festivalId=" + festivalId + ", isBookmarked=" + isBookmarked);
+        } else {
+            System.out.println("로그인 안됨, bookmarked=false");
         }
         
         return toDetailResponse(festival, isBookmarked);

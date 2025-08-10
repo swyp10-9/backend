@@ -35,22 +35,29 @@ public class UserBookmarkService {
             throw new ApplicationException(ErrorCode.USER_NOT_FOUND, "로그인이 필요합니다.");
         }
 
+        System.out.println("=== 북마크 저장 시작 ===");
+        System.out.println("userId: " + userId + ", festivalId: " + festivalId);
+
         // festival_id(PK)로 축제 찾기
         Festival festival = festivalRepository.findById(festivalId)
             .orElseThrow(() -> new ApplicationException(ErrorCode.FESTIVAL_NOT_FOUND, "존재하지 않는 축제입니다. id=" + festivalId));
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_FOUND, "존재하지 않는 사용자입니다. id=" + userId));
 
+        System.out.println("찾은 festival: " + festival.getFestivalId() + ", user: " + user.getUserId());
+
         // 기존 북마크 유무 확인 (festival_id로 검색)
         Optional<UserBookmark> existingOpt = bookmarkRepository.findByUser_UserIdAndFestival_FestivalId(userId, festivalId);
 
         if (existingOpt.isPresent()) {
             UserBookmark existing = existingOpt.get();
+            System.out.println("기존 북마크 존재, deletedAt: " + existing.getDeletedAt());
             if (existing.getDeletedAt() == null) {
                 throw new ApplicationException(ErrorCode.BOOKMARK_ALREADY_EXISTS);
             }
             // soft-delete 상태면 복구
             reviveBookmark(existing);
+            System.out.println("북마크 복구 완료: " + existing.getBookmarkId());
             return existing.getBookmarkId();
         }
 
@@ -60,6 +67,7 @@ public class UserBookmarkService {
             .user(user)
             .build();
         UserBookmark saved = bookmarkRepository.save(created);
+        System.out.println("신규 북마크 생성 완료: " + saved.getBookmarkId());
         return saved.getBookmarkId();
     }
 

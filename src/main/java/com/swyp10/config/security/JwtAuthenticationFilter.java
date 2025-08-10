@@ -35,6 +35,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
         String authHeader = request.getHeader("Authorization");
         
+        // 강제 로그 - 필터 실행 확인용
+        System.out.println("[JWT FILTER EXECUTED] URI: " + requestURI);
+        System.out.println("[JWT FILTER EXECUTED] Auth Header: " + (authHeader != null ? "Bearer ***" : "null"));
+        
         log.debug("=== JWT Filter Processing ====");
         log.debug("Request URI: {}", requestURI);
         log.debug("Authorization Header: {}", authHeader != null ? "Bearer ***" : "null");
@@ -53,6 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         // USER 토큰인 경우
                         Long userId = tokenService.getUserIdFromToken(token);
                         log.info("JWT 인증 성공: userId={}", userId);
+                        System.out.println("[JWT FILTER SUCCESS] userId: " + userId);
                         
                         // Authentication 객체 생성 (userId를 principal로 설정)
                         Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -65,18 +70,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         log.debug("SecurityContext에 인증 정보 설정 완료");
                     } else {
                         log.warn("USER 토큰이 아님: tokenType={}", tokenType);
+                        System.out.println("[JWT FILTER WARNING] Not USER token: " + tokenType);
                     }
                 } else {
                     log.warn("토큰 검증 실패");
+                    System.out.println("[JWT FILTER WARNING] Token validation failed");
                 }
             } catch (ApplicationException e) {
                 log.warn("JWT 토큰 처리 실패: {}", e.getMessage());
+                System.out.println("[JWT FILTER ERROR] " + e.getMessage());
                 // 토큰이 유효하지 않으면 인증 정보를 설정하지 않고 계속 진행
             } catch (Exception e) {
                 log.error("JWT 필터에서 예상치 못한 오류 발생", e);
+                System.out.println("[JWT FILTER ERROR] Unexpected error: " + e.getMessage());
             }
         } else {
             log.debug("Authorization 헤더 없음 또는 Bearer가 아님");
+            System.out.println("[JWT FILTER] No Authorization header or not Bearer");
         }
 
         filterChain.doFilter(request, response);

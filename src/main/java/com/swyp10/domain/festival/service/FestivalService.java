@@ -126,8 +126,12 @@ public class FestivalService {
     }
 
     public FestivalListResponse getMyBookmarkedFestivals(Long userId, FestivalMyPageRequest request) {
+        System.out.println("=== 마이페이지 북마크 조회 시작 ===");
+        System.out.println("userId: " + userId);
+        
         // userId가 null이면 빈 목록 반환
         if (userId == null) {
+            System.out.println("userId가 null이므로 빈 목록 반환");
             return FestivalListResponse.builder()
                 .content(java.util.Collections.emptyList())
                 .page(request.getPage())
@@ -146,7 +150,9 @@ public class FestivalService {
         }
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
         var page = userBookmarkRepository.findBookmarkedFestivals(userId, pageable);
-
+        
+        System.out.println("북마크된 축제 수: " + page.getTotalElements());
+        
         page.forEach(f -> {
             f.setBookmarked(Boolean.TRUE);
         });

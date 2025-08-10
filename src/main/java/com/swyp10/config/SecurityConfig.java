@@ -1,6 +1,7 @@
 package com.swyp10.config;
 
 import com.swyp10.config.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
@@ -67,17 +68,19 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
-                        // 축제 조회 (GET)는 인증 불필요
-                        .requestMatchers(HttpMethod.GET, "/api/v1/festivals/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/regions/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/search/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/recommendations/**").permitAll()
-                        // 리뷰 작성, 북마크 등은 인증 필요
+                        // 인증이 필요한 경로들
                         .requestMatchers(HttpMethod.POST, "/api/v1/festivals/*/reviews").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/v1/festivals/*/bookmarks").authenticated()
                         .requestMatchers("/api/v1/mypage/**").authenticated()
-                        // 나머지는 인증 필요
+                        // 나머지 모든 경로는 인증 선택적 (JWT 필터 실행됨)
                         .anyRequest().authenticated()
+                )
+                // 인증 실패 시도 401 에러를 반환하지 않고 계속 진행
+                .exceptionHandling(ex -> ex
+                    .authenticationEntryPoint((request, response, authException) -> {
+                        // 인증 실패 시도 에러 없이 계속 진행
+                        response.setStatus(HttpServletResponse.SC_OK);
+                    })
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         

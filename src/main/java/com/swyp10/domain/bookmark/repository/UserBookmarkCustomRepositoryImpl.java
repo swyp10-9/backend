@@ -48,8 +48,12 @@ public class UserBookmarkCustomRepositoryImpl implements UserBookmarkCustomRepos
         QUserBookmark ub = QUserBookmark.userBookmark;
         QFestival f = QFestival.festival;
 
+        System.out.println("=== Repository: 북마크 조회 ===");
+        System.out.println("userId: " + userId);
+        
         // userId가 null이면 빈 페이지 반환
         if (userId == null) {
+            System.out.println("userId null, 빈 페이지 반환");
             return new PageImpl<>(java.util.Collections.emptyList(), pageable, 0);
         }
 
@@ -74,6 +78,8 @@ public class UserBookmarkCustomRepositoryImpl implements UserBookmarkCustomRepos
             .from(ub)
             .where(where)
             .fetchOne();
+        
+        System.out.println("조회된 축제 수: " + content.size() + ", 전체: " + total);
 
         List<FestivalSummaryResponse> dtos = content.stream()
             .map(FestivalSummaryResponse::from)
