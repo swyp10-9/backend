@@ -29,8 +29,7 @@ public class TravelCourseDetailInfo {
     @Column
     private String subname;
 
-    @Lob
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String subdetailoverview;
 
     @Column(columnDefinition = "TEXT")
