@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -62,7 +63,7 @@ class FestivalControllerTest {
             .empty(false)
             .build();
 
-        when(festivalService.getFestivalsForMap(any(FestivalMapRequest.class)))
+        when(festivalService.getFestivalsForMap(any(Long.class), any(FestivalMapRequest.class)))
             .thenReturn(mockResponse);
 
         // when & then
@@ -92,7 +93,7 @@ class FestivalControllerTest {
             .empty(true)
             .build();
 
-        when(festivalService.getFestivalsForCalendar(any(FestivalCalendarRequest.class)))
+        when(festivalService.getFestivalsForCalendar(any(Long.class), any(FestivalCalendarRequest.class)))
             .thenReturn(mockResponse);
 
         // when & then
@@ -130,7 +131,7 @@ class FestivalControllerTest {
             .empty(false)
             .build();
 
-        when(festivalService.getFestivalsForPersonalTest(any(FestivalPersonalTestRequest.class)))
+        when(festivalService.getFestivalsForPersonalTest(any(Long.class), any(FestivalPersonalTestRequest.class)))
             .thenReturn(mockResponse);
 
         // when & then
@@ -171,7 +172,7 @@ class FestivalControllerTest {
             .empty(false)
             .build();
 
-        when(festivalService.searchFestivals(any(FestivalSearchRequest.class)))
+        when(festivalService.searchFestivals(any(Long.class), any(FestivalSearchRequest.class)))
             .thenReturn(mockResponse);
 
         // when & then
@@ -216,7 +217,7 @@ class FestivalControllerTest {
             .empty(false)
             .build();
 
-        when(festivalService.getMyPageFestivals(any(FestivalMyPageRequest.class)))
+        when(festivalService.getMyBookmarkedFestivals(eq(1L), any(FestivalMyPageRequest.class)))
             .thenReturn(mockResponse);
 
         // when & then
@@ -247,7 +248,7 @@ class FestivalControllerTest {
             .empty(true)
             .build();
 
-        when(festivalService.searchFestivals(any(FestivalSearchRequest.class)))
+        when(festivalService.searchFestivals(any(Long.class), any(FestivalSearchRequest.class)))
             .thenReturn(mockResponse);
 
         // when & then

@@ -275,7 +275,7 @@ class FestivalServiceTest {
             req.setLngBottomRight(128.0);
 
             // when
-            FestivalListResponse res = festivalService.getFestivalsForMap(req);
+            FestivalListResponse res = festivalService.getFestivalsForMap(null, req);
 
             // then
             assertThat(res.getContent()).isNotEmpty();
@@ -294,7 +294,7 @@ class FestivalServiceTest {
             req.setLngBottomRight(128.0);
 
             // when
-            FestivalListResponse res = festivalService.getFestivalsForMap(req);
+            FestivalListResponse res = festivalService.getFestivalsForMap(null, req);
 
             // then
             assertThat(res.getContent()).isEmpty();
@@ -326,7 +326,7 @@ class FestivalServiceTest {
             request.setDate(baseDate);
 
             // when
-            FestivalListResponse result = festivalService.getFestivalsForCalendar(request);
+            FestivalListResponse result = festivalService.getFestivalsForCalendar(null, request);
 
             // then
             assertThat(result.getContent()).isNotEmpty();
@@ -341,7 +341,7 @@ class FestivalServiceTest {
             request.setDate(LocalDate.of(2099, 1, 1)); // 먼 미래에 데이터 없음
 
             // when
-            FestivalListResponse result = festivalService.getFestivalsForCalendar(request);
+            FestivalListResponse result = festivalService.getFestivalsForCalendar(null, request);
 
             // then
             assertThat(result.getContent()).isEmpty();
@@ -424,7 +424,7 @@ class FestivalServiceTest {
             request.setPersonalityType(FestivalPersonalityType.ENERGIZER);
 
             // when
-            FestivalListResponse result = festivalService.getFestivalsForPersonalTest(request);
+            FestivalListResponse result = festivalService.getFestivalsForPersonalTest(null, request);
 
             // then
             assertThat(result.getContent()).isNotEmpty();
@@ -439,7 +439,7 @@ class FestivalServiceTest {
             request.setPersonalityType(FestivalPersonalityType.ENERGIZER);
 
             // when
-            FestivalListResponse result = festivalService.getFestivalsForPersonalTest(request);
+            FestivalListResponse result = festivalService.getFestivalsForPersonalTest(null, request);
 
             // then
             assertThat(result.getContent()).isEmpty();
@@ -470,7 +470,7 @@ class FestivalServiceTest {
             req.setSearchParam("여름");
 
             // when
-            FestivalListResponse response = festivalService.searchFestivals(req);
+            FestivalListResponse response = festivalService.searchFestivals(null, req);
 
             // then
             assertThat(response.getContent()).isNotEmpty();
@@ -485,7 +485,7 @@ class FestivalServiceTest {
             req.setSearchParam("이상한검색어");
 
             // when
-            FestivalListResponse response = festivalService.searchFestivals(req);
+            FestivalListResponse response = festivalService.searchFestivals(null, req);
 
             // then
             assertThat(response.getContent()).isEmpty();

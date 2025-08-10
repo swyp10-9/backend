@@ -3,7 +3,6 @@ package com.swyp10.domain.festival.service;
 import com.swyp10.domain.bookmark.repository.UserBookmarkRepository;
 import com.swyp10.domain.festival.dto.request.*;
 import com.swyp10.domain.festival.dto.response.FestivalDailyCountResponse;
-import com.swyp10.domain.festival.dto.response.FestivalDetailResponse;
 import com.swyp10.domain.festival.dto.response.FestivalListResponse;
 import com.swyp10.domain.festival.dto.response.FestivalSummaryResponse;
 import com.swyp10.domain.festival.dto.tourapi.DetailCommon2Dto;
@@ -25,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -81,18 +81,18 @@ public class FestivalService {
         festivalRepository.deleteById(festivalId);
     }
 
-    public FestivalListResponse getFestivalsForMap(FestivalMapRequest request) {
+    public FestivalListResponse getFestivalsForMap(Long userId, FestivalMapRequest request) {
         PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
         Page<FestivalSummaryResponse> result = festivalRepository.findFestivalsForMap(request, pageRequest);
 
-        return buildListResponse(result);
+        return buildListResponseWithBookmarks(userId, result);
     }
 
-    public FestivalListResponse getFestivalsForCalendar(FestivalCalendarRequest request) {
+    public FestivalListResponse getFestivalsForCalendar(Long userId, FestivalCalendarRequest request) {
         PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
         Page<FestivalSummaryResponse> result = festivalRepository.findFestivalsForCalendar(request, pageRequest);
 
-        return buildListResponse(result);
+        return buildListResponseWithBookmarks(userId, result);
     }
 
     public FestivalDailyCountResponse getDailyFestivalCount(LocalDate startDate, LocalDate endDate) {
@@ -106,61 +106,52 @@ public class FestivalService {
             .build();
     }
 
-    public FestivalListResponse getFestivalsForPersonalTest(FestivalPersonalTestRequest request) {
+    public FestivalListResponse getFestivalsForPersonalTest(Long userId, FestivalPersonalTestRequest request) {
         PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
 
         Page<FestivalSummaryResponse> result = festivalRepository.findFestivalsForPersonalTest(request, pageRequest);
 
-        return buildListResponse(result);
+        return buildListResponseWithBookmarks(userId, result);
     }
 
-    public FestivalListResponse searchFestivals(FestivalSearchRequest request) {
+    public FestivalListResponse searchFestivals(Long userId, FestivalSearchRequest request) {
         PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
         Page<FestivalSummaryResponse> result = festivalRepository.searchFestivals(request, pageRequest);
 
-        return buildListResponse(result);
-    }
-
-    public FestivalListResponse getMyPageFestivals(FestivalMyPageRequest request) {
-        return null;
+        return buildListResponseWithBookmarks(userId, result);
     }
 
     public FestivalListResponse getMyBookmarkedFestivals(Long userId, FestivalMyPageRequest request) {
-        System.out.println("=== 마이페이지 북마크 조회 시작 ===");
-        System.out.println("userId: " + userId);
-        
-        // userId가 null이면 빈 목록 반환
-        if (userId == null) {
-            System.out.println("userId가 null이므로 빈 목록 반환");
-            return FestivalListResponse.builder()
-                .content(java.util.Collections.emptyList())
-                .page(request.getPage())
-                .size(request.getSize())
-                .totalElements(0L)
-                .totalPages(0)
-                .first(true)
-                .last(true)
-                .empty(true)
-                .build();
-        }
-        
+
         Sort sort = Sort.by(Sort.Order.desc("createdAt"));
         if (request.getSort() != null && !request.getSort().isBlank()) {
             sort = Sort.by(request.getSort());
         }
+        
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
-        var page = userBookmarkRepository.findBookmarkedFestivals(userId, pageable);
+        Page<FestivalSummaryResponse> page = userBookmarkRepository.findBookmarkedFestivals(userId, pageable);
         
-        System.out.println("북마크된 축제 수: " + page.getTotalElements());
-        
-        page.forEach(f -> {
-            f.setBookmarked(Boolean.TRUE);
-        });
-
-        return buildListResponse(page);
+        return buildListResponseWithBookmarks(userId, page);
     }
 
-    private FestivalListResponse buildListResponse(Page<FestivalSummaryResponse> page) {
+    private FestivalListResponse buildListResponseWithBookmarks(Long userId, Page<FestivalSummaryResponse> page) {
+        // 북마크 상태 설정
+        if (userId != null && !page.getContent().isEmpty()) {
+            List<Long> festivalIds = page.getContent().stream()
+                .map(FestivalSummaryResponse::getId)
+                .toList();
+
+            Set<Long> bookmarkedIds = userBookmarkRepository.findBookmarkedFestivalIds(userId, festivalIds);
+
+            page.getContent().forEach(festival -> {
+                boolean isBookmarked = bookmarkedIds.contains(festival.getId());
+                festival.setBookmarked(isBookmarked);
+            });
+        } else {
+            // userId가 null이면 모든 북마크를 false로 설정
+            page.getContent().forEach(festival -> festival.setBookmarked(false));
+        }
+
         return FestivalListResponse.builder()
             .content(page.getContent())
             .page(page.getNumber())
