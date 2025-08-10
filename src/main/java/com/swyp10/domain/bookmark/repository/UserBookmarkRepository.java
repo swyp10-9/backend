@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserBookmarkRepository extends JpaRepository<UserBookmark, Long>, UserBookmarkCustomRepository {
-    Optional<UserBookmark> findByUser_UserIdAndFestival_ContentId(Long userId, String festivalId);
+    Optional<UserBookmark> findByUser_UserIdAndFestival_ContentId(Long userId, String contentId);
 
-    boolean existsByUser_UserIdAndFestival_ContentIdAndDeletedAtIsNull(Long userId, String festivalId);
+    boolean existsByUser_UserIdAndFestival_ContentIdAndDeletedAtIsNull(Long userId, String contentId);
 
     Page<UserBookmark> findByUser_UserIdAndDeletedAtIsNull(Long userId, Pageable pageable);
 

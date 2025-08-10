@@ -61,7 +61,7 @@ public class FestivalDetailService {
         // content 블록
         FestivalDetailResponse.ContentResponse content = FestivalDetailResponse.ContentResponse.builder()
             .title(basic != null ? basic.getTitle() : null)
-            .homepage(basic != null ? intro.getEventhomepage() : null)
+            .homepage(intro != null ? intro.getEventhomepage() : null)
             .addr1(basic != null ? basic.getAddr1() : null)
             .addr2(basic != null ? basic.getAddr1() : null)
             .overview(festival.getOverview())
