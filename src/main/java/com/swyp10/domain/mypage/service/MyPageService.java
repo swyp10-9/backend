@@ -30,19 +30,35 @@ public class MyPageService {
 
     private final UserReviewRepository userReviewRepository;
     private final UserRepository userRepository;
-    private final UserBookmarkRepository bookmarkRepository;
+    private final UserBookmarkRepository userBookmarkRepository;
 
+    /**
+     * 북마크 취소(Soft Delete)
+     */
     @Transactional
     public void cancelBookmark(Long userId, Long festivalId) {
-        UserBookmark bookmark = bookmarkRepository.findByUser_UserIdAndFestival_ContentId(userId, String.valueOf(festivalId))
-            .orElseThrow(() -> new ApplicationException(ErrorCode.BAD_REQUEST, "해당 북마크가 없습니다."));
-        bookmarkRepository.delete(bookmark);
+        if (userId == null) {
+            throw new ApplicationException(ErrorCode.USER_NOT_FOUND, "로그인이 필요합니다.");
+        }
+        UserBookmark bookmark = userBookmarkRepository
+            .findByUser_UserIdAndFestival_ContentIdAndDeletedAtIsNull(userId, String.valueOf(festivalId))
+            .orElseThrow(() -> new ApplicationException(ErrorCode.BOOKMARK_NOT_FOUND, "활성 상태의 북마크가 없습니다."));
+
+        // soft delete
+        bookmark.markDeleted();
     }
 
+    /**
+     * 내 정보 변경 (닉네임)
+     */
     @Transactional
     public MyInfoResponse updateMyInfo(Long userId, MyInfoUpdateRequest request) {
+        if (userId == null) {
+            throw new ApplicationException(ErrorCode.USER_NOT_FOUND, "로그인이 필요합니다.");
+        }
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ApplicationException(ErrorCode.BAD_REQUEST, "유저를 찾을 수 없습니다."));
+            .orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_FOUND, "존재하지 않는 사용자입니다. id=" + userId));
+
         user.updateProfile(request.getNickname());
 
         return MyInfoResponse.builder()
@@ -93,6 +109,8 @@ public class MyPageService {
 
         userReviewRepository.delete(review);
     }
+
+
 
     // ====== mapper ======
     private MyReviewResponse toMyReviewResponse(UserReview r) {

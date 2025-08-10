@@ -3,9 +3,13 @@ package com.swyp10.domain.mypage.service;
 import com.swyp10.config.TestConfig;
 import com.swyp10.domain.auth.entity.User;
 import com.swyp10.domain.auth.repository.UserRepository;
+import com.swyp10.domain.bookmark.entity.UserBookmark;
+import com.swyp10.domain.bookmark.repository.UserBookmarkRepository;
 import com.swyp10.domain.festival.entity.Festival;
 import com.swyp10.domain.festival.entity.FestivalBasicInfo;
 import com.swyp10.domain.festival.repository.FestivalRepository;
+import com.swyp10.domain.mypage.dto.request.MyInfoUpdateRequest;
+import com.swyp10.domain.mypage.dto.response.MyInfoResponse;
 import com.swyp10.domain.mypage.dto.response.MyReviewListResponse;
 import com.swyp10.domain.review.entity.UserReview;
 import com.swyp10.domain.review.repository.UserReviewRepository;
@@ -13,6 +17,7 @@ import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
 import com.swyp10.global.page.PageRequest;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,6 +45,9 @@ class MyPageServiceTest {
 
     @Autowired
     private UserReviewRepository userReviewRepository;
+
+    @Autowired
+    private UserBookmarkRepository userBookmarkRepository;
 
     // ====== 유틸 ======
     private User saveUser(String email, String nick) {
@@ -71,6 +79,15 @@ class MyPageServiceTest {
                 .festival(f)
                 .rating(0)
                 .content(content)
+                .build()
+        );
+    }
+
+    private UserBookmark saveBookmark(User u, Festival f) {
+        return userBookmarkRepository.save(
+            UserBookmark.builder()
+                .user(u)
+                .festival(f)
                 .build()
         );
     }
@@ -181,5 +198,114 @@ class MyPageServiceTest {
                 assertThat(((ApplicationException) ex).getErrorCode())
                     .isEqualTo(ErrorCode.REVIEW_NOT_FOUND)
             );
+    }
+
+    // ===== cancelBookmark =====
+    @Nested
+    @DisplayName("cancelBookmark")
+    class CancelBookmarkTests {
+
+        @Test
+        @DisplayName("성공 - 활성 북마크가 soft delete 된다")
+        void cancelBookmark_success() {
+            User user = saveUser("a@test.com", "A");
+            Festival festival = saveFestival("1111", "축제1");
+            UserBookmark ub = saveBookmark(user, festival);
+
+            myPageService.cancelBookmark(user.getUserId(), Long.parseLong(festival.getContentId()));
+
+            var refreshed = userBookmarkRepository.findById(ub.getBookmarkId()).orElseThrow();
+            assertThat(refreshed.getDeletedAt()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("실패 - 로그인 안함 -> USER_NOT_FOUND")
+        void cancelBookmark_noLogin_fail() {
+            User user = saveUser("a@test.com", "A");
+            Festival festival = saveFestival("1111", "축제1");
+            saveBookmark(user, festival);
+
+            assertThatThrownBy(() -> myPageService.cancelBookmark(null, Long.parseLong(festival.getContentId())))
+                .isInstanceOf(ApplicationException.class)
+                .satisfies(ex ->
+                    assertThat(((ApplicationException) ex).getErrorCode()).isEqualTo(ErrorCode.USER_NOT_FOUND)
+                );
+        }
+
+        @Test
+        @DisplayName("실패 - 활성 북마크가 없음 -> BOOKMARK_NOT_FOUND")
+        void cancelBookmark_notFound_fail() {
+            User user = saveUser("a@test.com", "A");
+            Festival festival = saveFestival("1111", "축제1");
+            // 북마크 없음
+
+            assertThatThrownBy(() -> myPageService.cancelBookmark(user.getUserId(), Long.parseLong(festival.getContentId())))
+                .isInstanceOf(ApplicationException.class)
+                .satisfies(ex ->
+                    assertThat(((ApplicationException) ex).getErrorCode()).isEqualTo(ErrorCode.BOOKMARK_NOT_FOUND)
+                );
+        }
+    }
+
+    // ===== updateMyInfo =====
+    @Nested
+    @DisplayName("updateMyInfo")
+    class UpdateMyInfoTests {
+
+        @Test
+        @DisplayName("성공 - 닉네임 변경")
+        void updateMyInfo_success() {
+            User user = saveUser("b@test.com", "OLD");
+
+            MyInfoUpdateRequest req = new MyInfoUpdateRequest();
+            req.setNickname("NEW");
+
+            MyInfoResponse res = myPageService.updateMyInfo(user.getUserId(), req);
+
+            assertThat(res.getUserId()).isEqualTo(user.getUserId());
+            assertThat(res.getNickname()).isEqualTo("NEW");
+            // 영속 엔티티도 변경되었는지 확인
+            User refreshed = userRepository.findById(user.getUserId()).orElseThrow();
+            assertThat(refreshed.getNickname()).isEqualTo("NEW");
+        }
+
+        @Test
+        @DisplayName("실패 - 로그인 안함 -> USER_NOT_FOUND")
+        void updateMyInfo_noLogin_fail() {
+            MyInfoUpdateRequest req = new MyInfoUpdateRequest();
+            req.setNickname("NEW");
+
+            assertThatThrownBy(() -> myPageService.updateMyInfo(null, req))
+                .isInstanceOf(ApplicationException.class)
+                .satisfies(ex ->
+                    assertThat(((ApplicationException) ex).getErrorCode()).isEqualTo(ErrorCode.USER_NOT_FOUND)
+                );
+        }
+
+        @Test
+        @DisplayName("실패 - 사용자 없음 -> USER_NOT_FOUND")
+        void updateMyInfo_userMissing_fail() {
+            MyInfoUpdateRequest req = new MyInfoUpdateRequest();
+            req.setNickname("NEW");
+
+            assertThatThrownBy(() -> myPageService.updateMyInfo(999_999L, req))
+                .isInstanceOf(ApplicationException.class)
+                .satisfies(ex ->
+                    assertThat(((ApplicationException) ex).getErrorCode()).isEqualTo(ErrorCode.USER_NOT_FOUND)
+                );
+        }
+
+        @Test
+        @DisplayName("엣지 - 공백 닉네임 -> 엔티티 도메인 유효성 예외")
+        void updateMyInfo_blankNickname_edge() {
+            User user = saveUser("c@test.com", "OLD");
+
+            MyInfoUpdateRequest req = new MyInfoUpdateRequest();
+            req.setNickname("   "); // 공백
+
+            assertThatThrownBy(() -> myPageService.updateMyInfo(user.getUserId(), req))
+                .isInstanceOf(IllegalArgumentException.class) // user.updateProfile에서 throw
+                .hasMessageContaining("Nickname cannot be null or empty");
+        }
     }
 }

@@ -13,6 +13,9 @@ import java.util.Optional;
 public interface UserBookmarkRepository extends JpaRepository<UserBookmark, Long>, UserBookmarkCustomRepository {
     Optional<UserBookmark> findByUser_UserIdAndFestival_ContentId(Long userId, String contentId);
 
+    // 유저+축제에 대한 현재 활성(soft delete 되지 않은) 북마크 조회
+    Optional<UserBookmark> findByUser_UserIdAndFestival_ContentIdAndDeletedAtIsNull(Long userId, String contentId);
+
     boolean existsByUser_UserIdAndFestival_ContentIdAndDeletedAtIsNull(Long userId, String contentId);
 
     Page<UserBookmark> findByUser_UserIdAndDeletedAtIsNull(Long userId, Pageable pageable);

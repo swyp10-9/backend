@@ -1,10 +1,12 @@
 package com.swyp10.domain.bookmark.repository;
 
+import com.swyp10.domain.bookmark.entity.UserBookmark;
 import com.swyp10.domain.festival.dto.response.FestivalSummaryResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 public interface UserBookmarkCustomRepository {
