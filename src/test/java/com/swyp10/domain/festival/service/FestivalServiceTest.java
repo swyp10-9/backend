@@ -1,12 +1,11 @@
 package com.swyp10.domain.festival.service;
 
 import com.swyp10.config.TestConfig;
-import com.swyp10.domain.festival.dto.request.FestivalCalendarRequest;
-import com.swyp10.domain.festival.dto.request.FestivalMapRequest;
-import com.swyp10.domain.festival.dto.request.FestivalPersonalTestRequest;
-import com.swyp10.domain.festival.dto.request.FestivalSearchRequest;
+import com.swyp10.domain.bookmark.repository.UserBookmarkRepository;
+import com.swyp10.domain.festival.dto.request.*;
 import com.swyp10.domain.festival.dto.response.FestivalDailyCountResponse;
 import com.swyp10.domain.festival.dto.response.FestivalListResponse;
+import com.swyp10.domain.festival.dto.response.FestivalSummaryResponse;
 import com.swyp10.domain.festival.dto.tourapi.DetailCommon2Dto;
 import com.swyp10.domain.festival.dto.tourapi.DetailImage2Dto;
 import com.swyp10.domain.festival.dto.tourapi.DetailIntro2Dto;
@@ -17,6 +16,7 @@ import com.swyp10.domain.festival.enums.FestivalPersonalityType;
 import com.swyp10.domain.festival.enums.FestivalStatus;
 import com.swyp10.domain.festival.repository.FestivalRepository;
 import com.swyp10.exception.ApplicationException;
+import com.swyp10.global.page.PageRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +34,10 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -45,6 +51,9 @@ class FestivalServiceTest {
 
     @Autowired
     FestivalRepository festivalRepository;
+
+    @Autowired
+    UserBookmarkRepository userBookmarkRepository;
 
     @BeforeEach
     void cleanUp() {
@@ -367,6 +376,8 @@ class FestivalServiceTest {
     @Nested
     @DisplayName("축제 검색 Service 테스트")
     class FestivalSearchTest {
+
+    }
         @Test
         @DisplayName("축제 리스트 조회(검색 페이지) - 성공")
         void searchFestivals_success() {
@@ -406,6 +417,59 @@ class FestivalServiceTest {
             // then
             assertThat(response.getContent()).isEmpty();
             assertThat(response.getTotalElements()).isEqualTo(0);
+        }
+
+    @Nested
+    @DisplayName("getMyBookmarkedFestivals")
+    class GetMyBookmarks {
+
+        @Test
+        @DisplayName("북마크 목록 조회 - 성공")
+        void list_success() {
+            Long userId = 10L;
+
+            FestivalSummaryResponse dto = FestivalSummaryResponse.builder()
+                .id(1L)
+                .title("부산 불꽃축제")
+                .startDate(LocalDate.now())
+                .endDate(LocalDate.now().plusDays(1))
+                .build();
+
+            Page<FestivalSummaryResponse> page = new PageImpl<>(
+                List.of(dto), org.springframework.data.domain.PageRequest.of(0, 10), 1
+            );
+
+            when(userBookmarkRepository.findBookmarkedFestivals(eq(userId), any())).thenReturn(page);
+
+            FestivalMyPageRequest req = FestivalMyPageRequest.builder().page(0).size(10).build();
+            FestivalListResponse res = festivalService.getMyBookmarkedFestivals(userId, req);
+
+            assertThat(res.getContent()).hasSize(1);
+            assertThat(res.getContent().get(0).getTitle()).isEqualTo("부산 불꽃축제");
+            assertThat(res.getTotalElements()).isEqualTo(1);
+            assertThat(res.getPage()).isEqualTo(0);
+            assertThat(res.getSize()).isEqualTo(10);
+
+            verify(userBookmarkRepository, times(1)).findBookmarkedFestivals(eq(userId), any());
+        }
+
+        @Test
+        @DisplayName("북마크 목록 조회 - 빈 결과")
+        void list_empty() {
+            Long userId = 10L;
+            Page<FestivalSummaryResponse> empty = new PageImpl<>(
+                List.of(), org.springframework.data.domain.PageRequest.of(0, 10), 0
+            );
+            when(userBookmarkRepository.findBookmarkedFestivals(eq(userId), any())).thenReturn(empty);
+
+            FestivalMyPageRequest req = FestivalMyPageRequest.builder().page(0).size(10).build();
+            FestivalListResponse res = festivalService.getMyBookmarkedFestivals(userId, req);
+
+            assertThat(res.getContent()).isEmpty();
+            assertThat(res.getTotalElements()).isEqualTo(0);
+            assertThat(res.getEmpty()).isTrue();
+
+            verify(userBookmarkRepository, times(1)).findBookmarkedFestivals(eq(userId), any());
         }
     }
 }
