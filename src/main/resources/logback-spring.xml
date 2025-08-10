@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-    
     <!-- Console Appender -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %5level %pid --- [%15.15thread] %-40.40logger{39} : %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %5level --- [%15.15thread] %-40.40logger{39} : %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -30,7 +28,7 @@
     <logger name="com.mysql.cj.jdbc.PreparedStatement" level="WARN"/>
     <logger name="com.mysql.cj" level="WARN"/>
     
-    <!-- 애플리케이션 로그는 DEBUG로 -->
+    <!-- 애플리케이션 로그는 INFO로 -->
     <logger name="com.swyp10" level="INFO"/>
     
     <!-- JWT 필터만 DEBUG로 (임시) -->
