@@ -20,6 +20,7 @@ public enum ErrorCode {
     RESTAURANT_NOT_FOUND(4029, "식당을 찾을 수 없습니다."),
     TRAVEL_COURSE_NOT_FOUND(4030, "여행코스를 찾을 수 없습니다."),
     BOOKMARK_NOT_FOUND(4031, "북마크를 찾을 수 없습니다."),
+    REVIEW_NOT_FOUND(4032, "리뷰를 찾을 수 없습니다."),
     
     // JWT 관련 에러
     INVALID_TOKEN(4006, "유효하지 않은 토큰입니다."),
