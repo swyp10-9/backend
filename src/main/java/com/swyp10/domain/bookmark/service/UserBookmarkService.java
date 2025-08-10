@@ -64,52 +64,7 @@ public class UserBookmarkService {
 
     @Transactional
     protected void reviveBookmark(UserBookmark bookmark) {
-        // 단순히 deletedAt null 처리(복구)
-        // 엔터티에 revive 메서드가 없다면 setter 또는 직접 null 세팅
-        try {
-            var field = UserBookmark.class.getDeclaredField("deletedAt");
-            field.setAccessible(true);
-            field.set(bookmark, null);
-        } catch (Exception e) {
-            throw new ApplicationException(ErrorCode.INTERNAL_SERVER_ERROR, "북마크 복구 중 오류가 발생했습니다.");
-        }
-    }
-
-    /**
-     * 마이페이지 - 내 북마크 목록 (간단 DTO) 페이지 조회
-     */
-    public MyBookmarkPageResponse getMyBookmarks(Long userId, int page, int size) {
-        if (userId == null) {
-            throw new ApplicationException(ErrorCode.USER_NOT_FOUND, "로그인이 필요합니다.");
-        }
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<UserBookmark> pageEntity = bookmarkRepository.findByUser_UserIdAndDeletedAtIsNull(userId, pageable);
-
-        List<MyBookmarkItem> items = pageEntity.getContent().stream()
-            .map(this::toBookmarkItem)
-            .toList();
-
-        return new MyBookmarkPageResponse(
-            items,
-            pageEntity.getNumber(),
-            pageEntity.getSize(),
-            pageEntity.getTotalElements(),
-            pageEntity.getTotalPages(),
-            pageEntity.isFirst(),
-            pageEntity.isLast(),
-            pageEntity.isEmpty()
-        );
-    }
-
-    private MyBookmarkItem toBookmarkItem(UserBookmark ub) {
-        Festival f = ub.getFestival();
-        return new MyBookmarkItem(
-            ub.getBookmarkId(),
-            f.getFestivalId(),
-            f.getBasicInfo() != null ? f.getBasicInfo().getTitle() : null,
-            f.getBasicInfo() != null ? f.getBasicInfo().getFirstimage2() : null,
-            ub.getCreatedAt()
-        );
+        bookmark.revive();
     }
 
     /**
@@ -131,17 +86,8 @@ public class UserBookmarkService {
 
         summaries.forEach(s -> {
             boolean isBookmarked = s.getId() != null && bookmarkedIds.contains(s.getId());
-            setBookmarkedField(s, isBookmarked);
+            s.setBookmarked(isBookmarked);
         });
-    }
-
-    private void setBookmarkedField(FestivalSummaryResponse s, boolean value) {
-        try {
-            var f = FestivalSummaryResponse.class.getDeclaredField("bookmarked");
-            f.setAccessible(true);
-            f.set(s, value);
-        } catch (Exception ignore) {
-        }
     }
 
     @Transactional
@@ -151,24 +97,4 @@ public class UserBookmarkService {
         if (ub.getDeletedAt() != null) return; // 이미 취소됨
         ub.markDeleted();
     }
-
-    // ====== 마이페이지 응답 DTO(간단) ======
-    public record MyBookmarkPageResponse(
-        List<MyBookmarkItem> content,
-        int page,
-        int size,
-        long totalElements,
-        int totalPages,
-        boolean first,
-        boolean last,
-        boolean empty
-    ) {}
-
-    public record MyBookmarkItem(
-        Long bookmarkId,
-        Long festivalId,
-        String festivalTitle,
-        String festivalThumbnail,
-        LocalDateTime bookmarkedAt
-    ) {}
 }

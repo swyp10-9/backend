@@ -1,6 +1,10 @@
 package com.swyp10.domain.festival.service;
 
+import com.swyp10.config.QueryDslConfig;
 import com.swyp10.config.TestConfig;
+import com.swyp10.domain.auth.entity.User;
+import com.swyp10.domain.auth.repository.UserRepository;
+import com.swyp10.domain.bookmark.entity.UserBookmark;
 import com.swyp10.domain.bookmark.repository.UserBookmarkRepository;
 import com.swyp10.domain.festival.dto.request.*;
 import com.swyp10.domain.festival.dto.response.FestivalDailyCountResponse;
@@ -17,6 +21,7 @@ import com.swyp10.domain.festival.enums.FestivalStatus;
 import com.swyp10.domain.festival.repository.FestivalRepository;
 import com.swyp10.exception.ApplicationException;
 import com.swyp10.global.page.PageRequest;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -26,10 +31,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +48,7 @@ import static org.mockito.Mockito.times;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Import(TestConfig.class)
+@Import({TestConfig.class, QueryDslConfig.class})
 @Transactional
 @DisplayName("FestivalService 테스트")
 class FestivalServiceTest {
@@ -53,11 +60,78 @@ class FestivalServiceTest {
     FestivalRepository festivalRepository;
 
     @Autowired
+    UserRepository userRepository;
+
+    @Autowired
     UserBookmarkRepository userBookmarkRepository;
+
+    @Autowired
+    EntityManager em;
 
     @BeforeEach
     void cleanUp() {
         festivalRepository.deleteAll();
+    }
+
+    private User saveUser(String email, String nickname) {
+        User u = User.builder()
+            .email(email)
+            .password("pw")
+            .nickname(nickname)
+            .signupCompleted(true)
+            .build();
+        return userRepository.save(u);
+    }
+
+    private Festival saveFestival(String contentId, String title, double mapx, double mapy) {
+        FestivalBasicInfo basic = FestivalBasicInfo.builder()
+            .title(title)
+            .eventstartdate(LocalDate.now())
+            .eventenddate(LocalDate.now().plusDays(2))
+            .firstimage2("https://thumb.test/" + contentId + ".jpg")
+            .addr1("서울시 어딘가")
+            .mapx(mapx)
+            .mapy(mapy)
+            .build();
+
+        Festival f = Festival.builder()
+            .contentId(contentId)
+            .basicInfo(basic)
+            .build();
+
+        return festivalRepository.save(f);
+    }
+
+    private UserBookmark saveBookmark(User user, Festival festival, LocalDateTime createdAt, boolean softDeleted) {
+        UserBookmark ub = UserBookmark.builder()
+            .user(user)
+            .festival(festival)
+            .build();
+        // 생성 시각/삭제 시각 제어
+        // createdAt은 @PrePersist로 now가 들어가지만 통합 테스트에서 순서 구분을 위해 직접 세팅
+        userBookmarkRepository.saveAndFlush(ub);
+        em.flush();
+        em.clear();
+
+        // createdAt & deletedAt 직접 세팅
+        UserBookmark managed = userBookmarkRepository.findByUser_UserIdAndFestival_ContentId(
+            user.getUserId(), festival.getContentId()
+        ).orElseThrow();
+
+        // createdAt 강제 세팅
+        try {
+            var createdField = UserBookmark.class.getDeclaredField("createdAt");
+            createdField.setAccessible(true);
+            createdField.set(managed, createdAt);
+        } catch (Exception ignore) {}
+
+        if (softDeleted) {
+            managed.markDeleted();
+        }
+        em.flush();
+        em.clear();
+
+        return managed;
     }
 
     // ========== 성공 케이스 ==========
@@ -377,7 +451,6 @@ class FestivalServiceTest {
     @DisplayName("축제 검색 Service 테스트")
     class FestivalSearchTest {
 
-    }
         @Test
         @DisplayName("축제 리스트 조회(검색 페이지) - 성공")
         void searchFestivals_success() {
@@ -419,57 +492,83 @@ class FestivalServiceTest {
             assertThat(response.getTotalElements()).isEqualTo(0);
         }
 
+    }
+
     @Nested
-    @DisplayName("getMyBookmarkedFestivals")
-    class GetMyBookmarks {
+    @DisplayName("getMyBookmarkedFestivals 통합 테스트")
+    class BookmarkedFestivals {
 
         @Test
-        @DisplayName("북마크 목록 조회 - 성공")
-        void list_success() {
-            Long userId = 10L;
+        @DisplayName("북마크 2건 존재 → 최신순(createdAt DESC)으로 반환, bookmarked=true 세팅")
+        void list_success_sorted_desc() {
+            // given
+            User user = saveUser("user1@test.com", "유저1");
+            Festival f1 = saveFestival("111", "축제-오래된", 127.01, 37.51);
+            Festival f2 = saveFestival("222", "축제-최신", 127.02, 37.52);
 
-            FestivalSummaryResponse dto = FestivalSummaryResponse.builder()
-                .id(1L)
-                .title("부산 불꽃축제")
-                .startDate(LocalDate.now())
-                .endDate(LocalDate.now().plusDays(1))
+            // 오래된 → 최신 순서로 createdAt 세팅
+            saveBookmark(user, f1, LocalDateTime.now().minusDays(1), false);
+            saveBookmark(user, f2, LocalDateTime.now(), false);
+
+            FestivalMyPageRequest req = FestivalMyPageRequest.builder()
+                .page(0).size(10)
                 .build();
 
-            Page<FestivalSummaryResponse> page = new PageImpl<>(
-                List.of(dto), org.springframework.data.domain.PageRequest.of(0, 10), 1
-            );
+            // when
+            FestivalListResponse res = festivalService.getMyBookmarkedFestivals(user.getUserId(), req);
 
-            when(userBookmarkRepository.findBookmarkedFestivals(eq(userId), any())).thenReturn(page);
-
-            FestivalMyPageRequest req = FestivalMyPageRequest.builder().page(0).size(10).build();
-            FestivalListResponse res = festivalService.getMyBookmarkedFestivals(userId, req);
-
-            assertThat(res.getContent()).hasSize(1);
-            assertThat(res.getContent().get(0).getTitle()).isEqualTo("부산 불꽃축제");
-            assertThat(res.getTotalElements()).isEqualTo(1);
+            // then
+            assertThat(res.getContent()).hasSize(2);
+            // 최신이 먼저
+            assertThat(res.getContent().get(0).getTitle()).isEqualTo("축제-최신");
+            assertThat(res.getContent().get(1).getTitle()).isEqualTo("축제-오래된");
+            // 서비스에서 bookmarked = true 로 마킹
+            assertThat(res.getContent().get(0).getBookmarked()).isTrue();
+            assertThat(res.getContent().get(1).getBookmarked()).isTrue();
+            assertThat(res.getTotalElements()).isEqualTo(2);
             assertThat(res.getPage()).isEqualTo(0);
             assertThat(res.getSize()).isEqualTo(10);
-
-            verify(userBookmarkRepository, times(1)).findBookmarkedFestivals(eq(userId), any());
         }
 
         @Test
-        @DisplayName("북마크 목록 조회 - 빈 결과")
+        @DisplayName("soft-deleted 북마크는 제외된다")
+        void list_excludes_soft_deleted() {
+            // given
+            User user = saveUser("user2@test.com", "유저2");
+            Festival active = saveFestival("111", "보여야함", 126.9, 37.6);
+            Festival deleted = saveFestival("222", "보이면안됨", 126.8, 37.5);
+
+            saveBookmark(user, active, LocalDateTime.now(), false);      // 정상
+            saveBookmark(user, deleted, LocalDateTime.now(), true);      // soft-deleted
+
+            FestivalMyPageRequest req = FestivalMyPageRequest.builder()
+                .page(0).size(10)
+                .build();
+
+            // when
+            FestivalListResponse res = festivalService.getMyBookmarkedFestivals(user.getUserId(), req);
+
+            // then
+            assertThat(res.getContent()).hasSize(1);
+            assertThat(res.getContent().get(0).getTitle()).isEqualTo("보여야함");
+            assertThat(res.getTotalElements()).isEqualTo(1);
+        }
+
+        @Test
+        @DisplayName("북마크가 하나도 없으면 빈 페이지")
         void list_empty() {
-            Long userId = 10L;
-            Page<FestivalSummaryResponse> empty = new PageImpl<>(
-                List.of(), org.springframework.data.domain.PageRequest.of(0, 10), 0
-            );
-            when(userBookmarkRepository.findBookmarkedFestivals(eq(userId), any())).thenReturn(empty);
+            // given
+            User user = saveUser("user3@test.com", "유저3");
+            FestivalMyPageRequest req = FestivalMyPageRequest.builder()
+                .page(0).size(10)
+                .build();
 
-            FestivalMyPageRequest req = FestivalMyPageRequest.builder().page(0).size(10).build();
-            FestivalListResponse res = festivalService.getMyBookmarkedFestivals(userId, req);
+            // when
+            FestivalListResponse res = festivalService.getMyBookmarkedFestivals(user.getUserId(), req);
 
+            // then
             assertThat(res.getContent()).isEmpty();
-            assertThat(res.getTotalElements()).isEqualTo(0);
-            assertThat(res.getEmpty()).isTrue();
-
-            verify(userBookmarkRepository, times(1)).findBookmarkedFestivals(eq(userId), any());
+            assertThat(res.getTotalElements()).isZero();
         }
     }
 }

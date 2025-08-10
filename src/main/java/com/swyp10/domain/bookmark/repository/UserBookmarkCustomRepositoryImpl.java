@@ -25,6 +25,10 @@ public class UserBookmarkCustomRepositoryImpl implements UserBookmarkCustomRepos
     public Set<Long> findBookmarkedFestivalIds(Long userId, Collection<Long> festivalIds) {
         QUserBookmark ub = QUserBookmark.userBookmark;
 
+        if (festivalIds == null || festivalIds.isEmpty()) {
+            return java.util.Collections.emptySet();
+        }
+
         return queryFactory
             .select(ub.festival.festivalId)
             .from(ub)
