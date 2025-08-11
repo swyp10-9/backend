@@ -8,6 +8,8 @@ import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +19,7 @@ import java.sql.Connection;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class BatchAutoRunner implements ApplicationRunner {
+public class BatchAutoRunner  {
 
     private final JobLauncher jobLauncher;
     private final Job festivalSyncJob;
@@ -26,8 +28,8 @@ public class BatchAutoRunner implements ApplicationRunner {
     private final DataSource dataSource;
 
     // 서버 시작시 1회 실행
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
+    @EventListener(ApplicationReadyEvent.class)
+    public void runAfterStartup() throws Exception {
         if (waitForBatchSchemaReady()) {
             log.info("[Batch] 서버 시작 시 모든 배치 작업 실행");
             runAllSyncJobs("startup");

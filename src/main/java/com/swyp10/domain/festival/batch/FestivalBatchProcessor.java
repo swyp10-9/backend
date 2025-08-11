@@ -93,7 +93,11 @@ public class FestivalBatchProcessor {
     }
 
     private void processFestivalPage(List<SearchFestival2Dto> festivals, BatchResult result) {
-        for (SearchFestival2Dto festival : festivals) {
+        // 최대 2개까지만 처리
+        int limit = Math.min(festivals.size(), 2);
+
+        for (int i = 0; i < limit; i++) {
+            SearchFestival2Dto festival = festivals.get(i);
             try {
                 processSingleFestival(festival);
                 result.incrementSuccess();
@@ -108,6 +112,7 @@ public class FestivalBatchProcessor {
             }
         }
     }
+
 
     private void processSingleFestival(SearchFestival2Dto searchDto) {
         String contentId = searchDto.getContentid();

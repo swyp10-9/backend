@@ -3,7 +3,7 @@ spring:
     job:
       enabled: true
     jdbc:
-      initialize-schema: never
+      initialize-schema: always
       isolation-level-for-create: read_committed
   datasource:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:swyp10}?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
@@ -27,7 +27,8 @@ spring:
           level:
             SQL: WARN
     open-in-view: false
-    defer-datasource-initialization: true
+    defer-datasource-initialization: false
+
 
 logging:
   level:
@@ -64,8 +65,8 @@ tourapi:
   batch:
     page-size: ${PAGE_SIZE:10}
     festival:
-      event-start-date: ${EVENT_START_DATE:20251201}
-      event-end-date: ${EVENT_END_DATE:20251201}
+      event-start-date: ${EVENT_START_DATE:20250801}  # 2025년 8월 1일
+      event-end-date: ${EVENT_END_DATE:20251231}      # 2025년 12월 31일
     restaurant:
       content-type-id: "39"  # 음식점
       page-size: 100
