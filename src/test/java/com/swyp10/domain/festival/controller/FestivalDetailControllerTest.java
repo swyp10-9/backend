@@ -47,7 +47,7 @@ class FestivalDetailControllerTest {
             .info(null)
             .build();
 
-        when(festivalService.getFestivalDetail(anyLong()))
+        when(festivalService.getFestivalDetail(anyLong(), anyLong()))
             .thenReturn(mockResponse);
 
         // expected
@@ -65,7 +65,7 @@ class FestivalDetailControllerTest {
     @DisplayName("존재하지 않는 축제 상세 조회시 404 반환 - 실패")
     void getFestivalDetail_notFound() throws Exception {
         // given
-        when(festivalService.getFestivalDetail(anyLong()))
+        when(festivalService.getFestivalDetail(anyLong(), anyLong()))
             .thenThrow(new ApplicationException(ErrorCode.FESTIVAL_NOT_FOUND, "축제를 찾을 수 없습니다."));
 
         // expected
