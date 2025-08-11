@@ -104,6 +104,7 @@ public class FestivalMapper {
         return FestivalBasicInfo.builder()
             .addr1(addr1)
             .areacode(areacode)
+            .areacodeName(null)  // DTO에서 제공되지 않음, 별도 로직 필요
             .contenttypeid(contenttypeid)
             .createdtime(createdtime)
             .eventstartdate(parseToLocalDate(eventstartdate))
@@ -118,6 +119,8 @@ public class FestivalMapper {
             .title(title)
             .lDongRegnCd(lDongRegnCd)
             .lDongSignguCd(lDongSignguCd)
+            .lDongRegnName(null)  // DTO에서 제공되지 않음, 별도 로직 필요
+            .lDongSignguName(null)  // DTO에서 제공되지 않음, 별도 로직 필요
             .lclsSystm1(lclsSystm1)
             .progresstype(progresstype)
             .festivaltype(festivaltype)
