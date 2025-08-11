@@ -66,16 +66,7 @@ public class RestaurantCustomRepositoryImpl implements RestaurantCustomRepositor
                 System.out.println("areaCode: " + areaCode);
             }
         }
-
-        // 3. 카테고리 필터링 구현
-        if (category != null && !category.isBlank()) {
-            // 음식점 카테고리 매핑
-            String categoryFilter = mapCategoryToFilter(category);
-            if (categoryFilter != null) {
-                where.and(restaurant.basicInfo.contenttypeid.eq(categoryFilter));
-            }
-        }
-
+        
         // distance 계산 (정렬용)
         var distanceExpr = (centerLat != null && centerLng != null)
             ? Expressions.numberTemplate(Double.class,
@@ -113,17 +104,6 @@ public class RestaurantCustomRepositoryImpl implements RestaurantCustomRepositor
     /**
      * 카테고리를 contenttypeid로 매핑
      */
-    private String mapCategoryToFilter(String category) {
-        return switch (category.toLowerCase()) {
-            case "korean", "한식" -> "39"; // 한식
-            case "chinese", "중식" -> "39"; // 중식도 39에 포함
-            case "western", "양식" -> "39"; // 양식도 39에 포함  
-            case "japanese", "일식" -> "39"; // 일식도 39에 포함
-            case "cafe", "카페" -> "39"; // 카페도 39에 포함
-            case "restaurant", "음식점" -> "39"; // 음식점 전체
-            default -> "39"; // 기본값: 음식점
-        };
-    }
 
     private OrderSpecifier<?> buildOrderSpecifier(String sort, QRestaurant restaurant, com.querydsl.core.types.Expression<Double> distanceExpr) {
         // 기본 정렬: distance ASC (거리순)
