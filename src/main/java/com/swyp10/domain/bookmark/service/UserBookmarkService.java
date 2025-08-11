@@ -35,38 +35,6 @@ public class UserBookmarkService {
             throw new ApplicationException(ErrorCode.USER_NOT_FOUND, "로그인이 필요합니다.");
         }
 
-    /**
-     * 북마크 삭제 (soft delete)
-     */
-    @Transactional
-    public void removeBookmark(Long userId, Long festivalId) {
-        if (userId == null) {
-            throw new ApplicationException(ErrorCode.USER_NOT_FOUND, "로그인이 필요합니다.");
-        }
-
-        System.out.println("=== 북마크 삭제 시작 ===");
-        System.out.println("userId: " + userId + ", festivalId: " + festivalId);
-
-        // 기존 북마크 찾기
-        UserBookmark bookmark = bookmarkRepository.findByUser_UserIdAndFestival_FestivalIdAndDeletedAtIsNull(userId, festivalId)
-            .orElseThrow(() -> new ApplicationException(ErrorCode.BOOKMARK_NOT_FOUND, "북마크를 찾을 수 없습니다."));
-
-        // soft delete
-        bookmark.delete();
-        System.out.println("북마크 삭제 완료: " + bookmark.getBookmarkId());
-    }
-
-    /**
-     * 북마크 상태 확인
-     */
-    public boolean isBookmarked(Long userId, Long festivalId) {
-        if (userId == null) {
-            return false;
-        }
-        
-        return bookmarkRepository.existsByUser_UserIdAndFestival_FestivalIdAndDeletedAtIsNull(userId, festivalId);
-    }
-
         System.out.println("=== 북마크 저장 시작 ===");
         System.out.println("userId: " + userId + ", festivalId: " + festivalId);
 
@@ -105,69 +73,6 @@ public class UserBookmarkService {
 
     @Transactional
     protected void reviveBookmark(UserBookmark bookmark) {
-        bookmark.revive();
-    }
-
-    /**
-     * 축제 리스트 응답에 'bookmarked' 플래그 셋팅.
-     * - 유저가 없으면 그대로 리턴
-     * - 유저가 있으면 IN 조회로 최적화
-     */
-    public void markBookmarkedFlags(Long userId, List<FestivalSummaryResponse> summaries) {
-        if (userId == null || summaries == null || summaries.isEmpty()) return;
-
-        List<Long> ids = summaries.stream()
-            .map(FestivalSummaryResponse::getId)
-            .filter(Objects::nonNull)
-            .toList();
-
-        if (ids.isEmpty()) return;
-
-        Set<Long> bookmarkedIds = bookmarkRepository.findBookmarkedFestivalIds(userId, ids);
-
-        summaries.forEach(s -> {
-            boolean isBookmarked = s.getId() != null && bookmarkedIds.contains(s.getId());
-            s.setBookmarked(isBookmarked);
-        });
-    }
-
-    /**
-     * 북마크 삭제 (soft delete) - 사용자 친화적 메서드
-     */
-    @Transactional
-    public void removeBookmark(Long userId, Long festivalId) {
-        if (userId == null) {
-            throw new ApplicationException(ErrorCode.USER_NOT_FOUND, "로그인이 필요합니다.");
-        }
-
-        System.out.println("=== 북마크 삭제 시작 ===");
-        System.out.println("userId: " + userId + ", festivalId: " + festivalId);
-
-        // 기존 북마크 찾기
-        UserBookmark bookmark = bookmarkRepository.findByUser_UserIdAndFestival_FestivalIdAndDeletedAtIsNull(userId, festivalId)
-            .orElseThrow(() -> new ApplicationException(ErrorCode.BOOKMARK_NOT_FOUND, "북마크를 찾을 수 없습니다."));
-
-        // soft delete
-        bookmark.markDeleted();
-        System.out.println("북마크 삭제 완료: " + bookmark.getBookmarkId());
-    }
-
-    /**
-     * 북마크 상태 확인
-     */
-    public boolean isBookmarked(Long userId, Long festivalId) {
-        if (userId == null) {
-            return false;
-        }
-        
-        return bookmarkRepository.existsByUser_UserIdAndFestival_FestivalIdAndDeletedAtIsNull(userId, festivalId);
-    }
-
-    @Transactional
-    public void cancelBookmark(Long userId, Long festivalId) {
-        UserBookmark ub = bookmarkRepository.findByUser_UserIdAndFestival_FestivalId(userId, festivalId)
-            .orElseThrow(() -> new ApplicationException(ErrorCode.BOOKMARK_NOT_FOUND));
-        if (ub.getDeletedAt() != null) return; // 이미 취소됨
-        ub.markDeleted();
+        bookmark.revive(); // UserBookmark 엔티티에 revive() 메서드가 있는지 확인 필요
     }
 }
