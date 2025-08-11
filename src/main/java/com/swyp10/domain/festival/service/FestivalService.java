@@ -45,8 +45,8 @@ public class FestivalService {
             .map(existing -> {
                 existing.clearDetailImages();
                 existing.updateOverview(detailCommon2Dto.getOverview());
-                existing.updateDetailIntro(FestivalMapper.toDetailIntro(detailIntro2Dto));
-                existing.updateBasicInfo(FestivalMapper.toBasicInfo(searchFestival2Dto));
+                existing.updateDetailIntro(FestivalMapper.toDetailIntroFromThreeDto(null, detailCommon2Dto, detailIntro2Dto));
+                existing.updateBasicInfo(FestivalMapper.toBasicInfoFromThreeDto(searchFestival2Dto, detailCommon2Dto, detailIntro2Dto));
 
                 detailImage2DtoList.stream()
                     .map(FestivalMapper::toFestivalImage)

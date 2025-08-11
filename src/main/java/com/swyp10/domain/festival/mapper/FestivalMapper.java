@@ -12,36 +12,203 @@ import java.util.stream.Collectors;
 
 public class FestivalMapper {
 
+    // 기존 메서드들 (하위 호환성을 위해 유지)
     public static FestivalBasicInfo toBasicInfo(SearchFestival2Dto dto) {
-        if(dto == null) return null;
-
-        String mapxStr = dto.getMapx();
-        Double mapx = (mapxStr != null && !mapxStr.isBlank()) ? Double.parseDouble(mapxStr) : null;
-
-        String mapyStr = dto.getMapy();
-        Double mapy = (mapyStr != null && !mapyStr.isBlank()) ? Double.parseDouble(mapyStr) : null;
-
+        return toBasicInfoFromThreeDto(dto, null, null);
+    }
+    
+    public static FestivalDetailIntro toDetailIntro(DetailIntro2Dto dto) {
+        return toDetailIntroFromThreeDto(null, null, dto);
+    }
+    
+    // 새로운 3개 DTO 버전 메서드들
+    public static FestivalBasicInfo toBasicInfoFromThreeDto(
+            SearchFestival2Dto searchDto,
+            DetailCommon2Dto detailDto,
+            DetailIntro2Dto introDto) {
+        
+        // SearchFestival2Dto를 우선으로 하되, null이면 다른 DTO에서 값을 가져옴
+        String addr1 = getValue(searchDto != null ? searchDto.getAddr1() : null,
+                               detailDto != null ? detailDto.getAddr1() : null,
+                               null);
+        
+        String areacode = getValue(searchDto != null ? searchDto.getAreacode() : null,
+                                  detailDto != null ? detailDto.getAreacode() : null,
+                                  null);
+        
+        String contenttypeid = getValue(searchDto != null ? searchDto.getContenttypeid() : null,
+                                       detailDto != null ? detailDto.getContenttypeid() : null,
+                                       null);
+        
+        String createdtime = getValue(searchDto != null ? searchDto.getCreatedtime() : null,
+                                     detailDto != null ? detailDto.getCreatedtime() : null,
+                                     null);
+        
+        String eventstartdate = getValue(searchDto != null ? searchDto.getEventstartdate() : null,
+                                        introDto != null ? introDto.getEventstartdate() : null,
+                                        null);
+        
+        String eventenddate = getValue(searchDto != null ? searchDto.getEventenddate() : null,
+                                      introDto != null ? introDto.getEventenddate() : null,
+                                      null);
+        
+        String firstimage = getValue(searchDto != null ? searchDto.getFirstimage() : null,
+                                    detailDto != null ? detailDto.getFirstimage() : null,
+                                    null);
+        
+        String firstimage2 = getValue(searchDto != null ? searchDto.getFirstimage2() : null,
+                                     detailDto != null ? detailDto.getFirstimage2() : null,
+                                     null);
+        
+        String mapxStr = getValue(searchDto != null ? searchDto.getMapx() : null,
+                                 detailDto != null ? detailDto.getMapx() : null,
+                                 null);
+        Double mapx = (mapxStr != null && !mapxStr.isBlank()) ? parseDouble(mapxStr) : null;
+        
+        String mapyStr = getValue(searchDto != null ? searchDto.getMapy() : null,
+                                 detailDto != null ? detailDto.getMapy() : null,
+                                 null);
+        Double mapy = (mapyStr != null && !mapyStr.isBlank()) ? parseDouble(mapyStr) : null;
+        
+        String modifiedtime = getValue(searchDto != null ? searchDto.getModifiedtime() : null,
+                                      detailDto != null ? detailDto.getModifiedtime() : null,
+                                      null);
+        
+        String sigungucode = getValue(searchDto != null ? searchDto.getSigungucode() : null,
+                                     detailDto != null ? detailDto.getSigungucode() : null,
+                                     null);
+        
+        String tel = getValue(searchDto != null ? searchDto.getTel() : null,
+                             detailDto != null ? detailDto.getTel() : null,
+                             null);
+        
+        String title = getValue(searchDto != null ? searchDto.getTitle() : null,
+                               detailDto != null ? detailDto.getTitle() : null,
+                               null);
+        
+        String lDongRegnCd = getValue(searchDto != null ? searchDto.getLDongRegnCd() : null,
+                                     detailDto != null ? detailDto.getLDongRegnCd() : null,
+                                     null);
+        
+        String lDongSignguCd = getValue(searchDto != null ? searchDto.getLDongSignguCd() : null,
+                                       detailDto != null ? detailDto.getLDongSignguCd() : null,
+                                       null);
+        
+        String lclsSystm1 = getValue(searchDto != null ? searchDto.getLclsSystm1() : null,
+                                    detailDto != null ? detailDto.getLclsSystm1() : null,
+                                    null);
+        
+        String progresstype = searchDto != null ? searchDto.getProgresstype() : null;
+        String festivaltype = searchDto != null ? searchDto.getFestivaltype() : null;
+        
         return FestivalBasicInfo.builder()
-            .addr1(dto.getAddr1())
-            .areacode(dto.getAreacode())
-            .contenttypeid(dto.getContenttypeid())
-            .createdtime(dto.getCreatedtime())
-            .eventstartdate(parseToLocalDate(dto.getEventstartdate()))
-            .eventenddate(parseToLocalDate(dto.getEventenddate()))
-            .firstimage(dto.getFirstimage())
-            .firstimage2(dto.getFirstimage2())
+            .addr1(addr1)
+            .areacode(areacode)
+            .contenttypeid(contenttypeid)
+            .createdtime(createdtime)
+            .eventstartdate(parseToLocalDate(eventstartdate))
+            .eventenddate(parseToLocalDate(eventenddate))
+            .firstimage(firstimage)
+            .firstimage2(firstimage2)
             .mapx(mapx)
             .mapy(mapy)
-            .modifiedtime(dto.getModifiedtime())
-            .sigungucode(dto.getSigungucode())
-            .tel(dto.getTel())
-            .title(dto.getTitle())
-            .lDongRegnCd(dto.getLDongRegnCd())
-            .lDongSignguCd(dto.getLDongSignguCd())
-            .lclsSystm1(dto.getLclsSystm1())
-            .progresstype(dto.getProgresstype())
-            .festivaltype(dto.getFestivaltype())
+            .modifiedtime(modifiedtime)
+            .sigungucode(sigungucode)
+            .tel(tel)
+            .title(title)
+            .lDongRegnCd(lDongRegnCd)
+            .lDongSignguCd(lDongSignguCd)
+            .lclsSystm1(lclsSystm1)
+            .progresstype(progresstype)
+            .festivaltype(festivaltype)
             .build();
+    }
+
+    public static FestivalDetailIntro toDetailIntroFromThreeDto(
+            SearchFestival2Dto searchDto,
+            DetailCommon2Dto detailDto,
+            DetailIntro2Dto introDto) {
+        
+        // eventhomepage는 homepage 값을 우선적으로 사용
+        String eventhomepage = getValue(detailDto != null ? detailDto.getHomepage() : null,
+                                       introDto != null ? introDto.getEventhomepage() : null,
+                                       null);
+        
+        String agelimit = introDto != null ? introDto.getAgelimit() : null;
+        String bookingplace = introDto != null ? introDto.getBookingplace() : null;
+        String discountinfofestival = introDto != null ? introDto.getDiscountinfofestival() : null;
+        String eventplace = introDto != null ? introDto.getEventplace() : null;
+        String festivalgrade = introDto != null ? introDto.getFestivalgrade() : null;
+        String placeinfo = introDto != null ? introDto.getPlaceinfo() : null;
+        String playtime = introDto != null ? introDto.getPlaytime() : null;
+        String program = introDto != null ? introDto.getProgram() : null;
+        String spendtimefestival = introDto != null ? introDto.getSpendtimefestival() : null;
+        String sponsor1 = introDto != null ? introDto.getSponsor1() : null;
+        String sponsor1tel = introDto != null ? introDto.getSponsor1tel() : null;
+        String sponsor2 = introDto != null ? introDto.getSponsor2() : null;
+        String sponsor2tel = introDto != null ? introDto.getSponsor2tel() : null;
+        String subevent = introDto != null ? introDto.getSubevent() : null;
+        String usetimefestival = introDto != null ? introDto.getUsetimefestival() : null;
+        
+        return FestivalDetailIntro.builder()
+            .agelimit(agelimit)
+            .bookingplace(bookingplace)
+            .discountinfofestival(discountinfofestival)
+            .eventhomepage(eventhomepage)  // homepage 값을 우선 사용
+            .eventplace(eventplace)
+            .festivalgrade(festivalgrade)
+            .placeinfo(placeinfo)
+            .playtime(playtime)
+            .program(program)
+            .spendtimefestival(spendtimefestival)
+            .sponsor1(sponsor1)
+            .sponsor1tel(sponsor1tel)
+            .sponsor2(sponsor2)
+            .sponsor2tel(sponsor2tel)
+            .subevent(subevent)
+            .usetimefestival(usetimefestival)
+            .build();
+    }
+
+    // 3개 값 중 null이 아닌 첫 번째 값을 반환하는 헬퍼 메서드
+    private static String getValue(String first, String second, String third) {
+        if (first != null && !first.trim().isEmpty()) {
+            return first;
+        }
+        if (second != null && !second.trim().isEmpty()) {
+            return second;
+        }
+        if (third != null && !third.trim().isEmpty()) {
+            return third;
+        }
+        return null;
+    }
+    
+    // Double 파싱 헬퍼 메서드
+    private static Double parseDouble(String value) {
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+    
+    // overview 값을 가져오는 메서드
+    public static String getOverview(
+            SearchFestival2Dto searchDto,
+            DetailCommon2Dto detailDto,
+            DetailIntro2Dto introDto) {
+        return detailDto != null ? detailDto.getOverview() : null;
+    }
+    
+    // contentId를 가져오는 메서드
+    public static String getContentId(
+            SearchFestival2Dto searchDto,
+            DetailCommon2Dto detailDto,
+            DetailIntro2Dto introDto) {
+        return getValue(searchDto != null ? searchDto.getContentid() : null,
+                       detailDto != null ? detailDto.getContentid() : null,
+                       introDto != null ? introDto.getContentid() : null);
     }
 
     public static LocalDate parseToLocalDate(String dateStr) {
@@ -55,28 +222,6 @@ public class FestivalMapper {
         }catch (DateTimeParseException e) {
             return null;
         }
-    }
-
-    public static FestivalDetailIntro toDetailIntro(DetailIntro2Dto dto) {
-        if(dto == null) return null;
-        return FestivalDetailIntro.builder()
-            .agelimit(dto.getAgelimit())
-            .bookingplace(dto.getBookingplace())
-            .discountinfofestival(dto.getDiscountinfofestival())
-            .eventhomepage(dto.getEventhomepage())
-            .eventplace(dto.getEventplace())
-            .festivalgrade(dto.getFestivalgrade())
-            .placeinfo(dto.getPlaceinfo())
-            .playtime(dto.getPlaytime())
-            .program(dto.getProgram())
-            .spendtimefestival(dto.getSpendtimefestival())
-            .sponsor1(dto.getSponsor1())
-            .sponsor1tel(dto.getSponsor1tel())
-            .sponsor2(dto.getSponsor2())
-            .sponsor2tel(dto.getSponsor2tel())
-            .subevent(dto.getSubevent())
-            .usetimefestival(dto.getUsetimefestival())
-            .build();
     }
 
     public static FestivalImage toFestivalImage(DetailImage2Dto dto) {
@@ -216,31 +361,65 @@ public class FestivalMapper {
         }
     }
 
+    // 새로운 Entity 생성 메서드 - 3개 DTO를 모두 받아서 처리
     public static Festival toEntity(
         SearchFestival2Dto searchFestival2Dto,
         DetailCommon2Dto detailCommon2Dto,
         DetailIntro2Dto detailIntro2Dto,
         List<DetailImage2Dto> detailImage2DtoList
     ) {
-        LocalDate startDate = parseDate(searchFestival2Dto.getEventstartdate());
-        LocalDate endDate = parseDate(searchFestival2Dto.getEventenddate());
+        // contentId 가져오기
+        String contentId = getContentId(searchFestival2Dto, detailCommon2Dto, detailIntro2Dto);
+        
+        // overview 가져오기
+        String overview = getOverview(searchFestival2Dto, detailCommon2Dto, detailIntro2Dto);
+        
+        // 날짜 정보 가져오기
+        String eventstartdateStr = getValue(
+            searchFestival2Dto != null ? searchFestival2Dto.getEventstartdate() : null,
+            detailIntro2Dto != null ? detailIntro2Dto.getEventstartdate() : null,
+            null
+        );
+        String eventenddateStr = getValue(
+            searchFestival2Dto != null ? searchFestival2Dto.getEventenddate() : null,
+            detailIntro2Dto != null ? detailIntro2Dto.getEventenddate() : null,
+            null
+        );
+        
+        LocalDate startDate = parseDate(eventstartdateStr);
+        LocalDate endDate = parseDate(eventenddateStr);
 
-        FestivalBasicInfo basicInfo = toBasicInfo(searchFestival2Dto);
-        FestivalDetailIntro detailIntro = toDetailIntro(detailIntro2Dto);
-        List<FestivalImage> images = detailImage2DtoList.stream()
-            .map(FestivalMapper::toFestivalImage)
-            .collect(Collectors.toList());
+        // title 가져오기
+        String title = getValue(
+            searchFestival2Dto != null ? searchFestival2Dto.getTitle() : null,
+            detailCommon2Dto != null ? detailCommon2Dto.getTitle() : null,
+            null
+        );
+        
+        // areacode 가져오기
+        String areacode = getValue(
+            searchFestival2Dto != null ? searchFestival2Dto.getAreacode() : null,
+            detailCommon2Dto != null ? detailCommon2Dto.getAreacode() : null,
+            null
+        );
+
+        FestivalBasicInfo basicInfo = toBasicInfoFromThreeDto(searchFestival2Dto, detailCommon2Dto, detailIntro2Dto);
+        FestivalDetailIntro detailIntro = toDetailIntroFromThreeDto(searchFestival2Dto, detailCommon2Dto, detailIntro2Dto);
+        List<FestivalImage> images = detailImage2DtoList != null ? 
+            detailImage2DtoList.stream()
+                .map(FestivalMapper::toFestivalImage)
+                .collect(Collectors.toList()) : List.of();
 
         Festival festival = Festival.builder()
-            .contentId(searchFestival2Dto.getContentid())
+            .contentId(contentId)
             .basicInfo(basicInfo)
-            .overview(detailCommon2Dto.getOverview())
+            .overview(overview)
             .detailIntro(detailIntro)
-            .personalityType(mapPersonalTypeByName(searchFestival2Dto.getTitle()))
+            .personalityType(mapPersonalTypeByName(title))
             .status(calculateStatus(startDate, endDate))
-            .theme(mapThemeByText(searchFestival2Dto.getTitle(), detailCommon2Dto.getOverview()))
-            .withWhom(mapWithWhomByText(searchFestival2Dto.getTitle(), detailCommon2Dto.getOverview()))
-            .regionFilter(mapRegionFilterByAreaCode(searchFestival2Dto.getAreacode()))
+            .theme(mapThemeByText(title, overview))
+            .withWhom(mapWithWhomByText(title, overview))
+            .regionFilter(mapRegionFilterByAreaCode(areacode))
             .detailImages(images)
             .build();
 
