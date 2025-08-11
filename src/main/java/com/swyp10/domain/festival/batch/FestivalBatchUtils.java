@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -16,6 +18,16 @@ import java.util.stream.Collectors;
 public class FestivalBatchUtils {
 
     private final ObjectMapper objectMapper;
+
+    public String extractUrlFromAnchor(String html) {
+        if (html == null) return null;
+        Pattern pattern = Pattern.compile("href=\"([^\"]+)\"");
+        Matcher matcher = pattern.matcher(html);
+        if (matcher.find()) {
+            return matcher.group(1);  // 첫 번째 그룹, 즉 href 안의 URL
+        }
+        return null;
+    }
 
     /**
      * 중첩된 Map 구조에서 안전하게 특정 key 경로의 Map을 얻는다.
@@ -91,8 +103,35 @@ public class FestivalBatchUtils {
         }
 
         return DetailCommon2Dto.builder()
-            .overview(getStr(firstItem, "overview"))
-            .build();
+                .overview(getStr(firstItem, "overview"))
+                .contentid(getStr(firstItem, "contentid"))
+                .sigungucode(getStr(firstItem, "sigungucode"))
+                .cat1(getStr(firstItem, "cat1"))
+                .cat2(getStr(firstItem, "cat2"))
+                .cat3(getStr(firstItem, "cat3"))
+                .addr1(getStr(firstItem, "addr1"))
+                .addr2(getStr(firstItem, "addr2"))
+                .zipcode(getStr(firstItem, "zipcode"))
+                .mapx(getStr(firstItem, "mapx"))
+                .mapy(getStr(firstItem, "mapy"))
+                .mlevel(getStr(firstItem, "mlevel"))
+                .cpyrhtDivCd(getStr(firstItem, "cpyrhtDivCd"))
+                .contenttypeid(getStr(firstItem, "contenttypeid"))
+                .createdtime(getStr(firstItem, "createdtime"))
+                .homepage(extractUrlFromAnchor(getStr(firstItem, "homepage")))
+                .modifiedtime(getStr(firstItem, "modifiedtime"))
+                .tel(getStr(firstItem, "tel"))
+                .telname(getStr(firstItem, "telname"))
+                .title(getStr(firstItem, "title"))
+                .firstimage(getStr(firstItem, "firstimage"))
+                .firstimage2(getStr(firstItem, "firstimage2"))
+                .areacode(getStr(firstItem, "areacode"))
+                .lDongRegnCd(getStr(firstItem, "lDongRegnCd"))
+                .lDongSignguCd(getStr(firstItem, "lDongSignguCd"))
+                .lclsSystm1(getStr(firstItem, "lclsSystm1"))
+                .lclsSystm2(getStr(firstItem, "lclsSystm2"))
+                .lclsSystm3(getStr(firstItem, "lclsSystm3"))
+                .build();
     }
 
     /**
@@ -121,23 +160,132 @@ public class FestivalBatchUtils {
         }
 
         return DetailIntro2Dto.builder()
-            .agelimit(getStr(firstItem, "agelimit"))
-            .bookingplace(getStr(firstItem, "bookingplace"))
-            .discountinfofestival(getStr(firstItem, "discountinfofestival"))
-            .eventhomepage(getStr(firstItem, "eventhomepage"))
-            .eventplace(getStr(firstItem, "eventplace"))
-            .festivalgrade(getStr(firstItem, "festivalgrade"))
-            .placeinfo(getStr(firstItem, "placeinfo"))
-            .playtime(getStr(firstItem, "playtime"))
-            .program(getStr(firstItem, "program"))
-            .spendtimefestival(getStr(firstItem, "spendtimefestival"))
-            .sponsor1(getStr(firstItem, "sponsor1"))
-            .sponsor1tel(getStr(firstItem, "sponsor1tel"))
-            .sponsor2(getStr(firstItem, "sponsor2"))
-            .sponsor2tel(getStr(firstItem, "sponsor2tel"))
-            .subevent(getStr(firstItem, "subevent"))
-            .usetimefestival(getStr(firstItem, "usetimefestival"))
-            .build();
+                .chkpetculture(getStr(firstItem, "chkpetculture"))
+                .eventhomepage(getStr(firstItem, "eventhomepage"))
+                .eventplace(getStr(firstItem, "eventplace"))
+                .parkingleports(getStr(firstItem, "parkingleports"))
+                .reservation(getStr(firstItem, "reservation"))
+                .restdateleports(getStr(firstItem, "restdateleports"))
+                .eventstartdate(getStr(firstItem, "eventstartdate"))
+                .festivalgrade(getStr(firstItem, "festivalgrade"))
+                .karaoke(getStr(firstItem, "karaoke"))
+                .discountinfofood(getStr(firstItem, "discountinfofood"))
+                .firstmenu(getStr(firstItem, "firstmenu"))
+                .infocenterfood(getStr(firstItem, "infocenterfood"))
+                .kidsfacility(getStr(firstItem, "kidsfacility"))
+                .opendatefood(getStr(firstItem, "opendatefood"))
+                .opentimefood(getStr(firstItem, "opentimefood"))
+                .packing(getStr(firstItem, "packing"))
+                .parkingfood(getStr(firstItem, "parkingfood"))
+                .reservationfood(getStr(firstItem, "reservationfood"))
+                .chkcreditcardculture(getStr(firstItem, "chkcreditcardculture"))
+                .scaleleports(getStr(firstItem, "scaleleports"))
+                .usefeeleports(getStr(firstItem, "usefeeleports"))
+                .discountinfofestival(getStr(firstItem, "discountinfofestival"))
+                .chkcreditcardfood(getStr(firstItem, "chkcreditcardfood"))
+                .eventenddate(getStr(firstItem, "eventenddate"))
+                .playtime(getStr(firstItem, "playtime"))
+                .chkbabycarriageculture(getStr(firstItem, "chkbabycarriageculture"))
+                .roomcount(getStr(firstItem, "roomcount"))
+                .reservationlodging(getStr(firstItem, "reservationlodging"))
+                .reservationurl(getStr(firstItem, "reservationurl"))
+                .roomtype(getStr(firstItem, "roomtype"))
+                .scalelodging(getStr(firstItem, "scalelodging"))
+                .subfacility(getStr(firstItem, "subfacility"))
+                .barbecue(getStr(firstItem, "barbecue"))
+                .beauty(getStr(firstItem, "beauty"))
+                .beverage(getStr(firstItem, "beverage"))
+                .bicycle(getStr(firstItem, "bicycle"))
+                .campfire(getStr(firstItem, "campfire"))
+                .fitness(getStr(firstItem, "fitness"))
+                .placeinfo(getStr(firstItem, "placeinfo"))
+                .parkinglodging(getStr(firstItem, "parkinglodging"))
+                .pickup(getStr(firstItem, "pickup"))
+                .publicbath(getStr(firstItem, "publicbath"))
+                .opendate(getStr(firstItem, "opendate"))
+                .parking(getStr(firstItem, "parking"))
+                .restdate(getStr(firstItem, "restdate"))
+                .usetimeleports(getStr(firstItem, "usetimeleports"))
+                .foodplace(getStr(firstItem, "foodplace"))
+                .infocenterlodging(getStr(firstItem, "infocenterlodging"))
+                .restdatefood(getStr(firstItem, "restdatefood"))
+                .scalefood(getStr(firstItem, "scalefood"))
+                .seat(getStr(firstItem, "seat"))
+                .smoking(getStr(firstItem, "smoking"))
+                .treatmenu(getStr(firstItem, "treatmenu"))
+                .lcnsno(getStr(firstItem, "lcnsno"))
+                .contentid(getStr(firstItem, "contentid"))
+                .contenttypeid(getStr(firstItem, "contenttypeid"))
+                .accomcount(getStr(firstItem, "accomcount"))
+                .chkbabycarriage(getStr(firstItem, "chkbabycarriage"))
+                .chkcreditcard(getStr(firstItem, "chkcreditcard"))
+                .chkpet(getStr(firstItem, "chkpet"))
+                .expagerange(getStr(firstItem, "expagerange"))
+                .expguide(getStr(firstItem, "expguide"))
+                .heritage1(getStr(firstItem, "heritage1"))
+                .heritage2(getStr(firstItem, "heritage2"))
+                .heritage3(getStr(firstItem, "heritage3"))
+                .infocenter(getStr(firstItem, "infocenter"))
+                .taketime(getStr(firstItem, "taketime"))
+                .theme(getStr(firstItem, "theme"))
+                .accomcountleports(getStr(firstItem, "accomcountleports"))
+                .chkbabycarriageleports(getStr(firstItem, "chkbabycarriageleports"))
+                .chkcreditcardleports(getStr(firstItem, "chkcreditcardleports"))
+                .chkpetleports(getStr(firstItem, "chkpetleports"))
+                .expagerangeleports(getStr(firstItem, "expagerangeleports"))
+                .infocenterleports(getStr(firstItem, "infocenterleports"))
+                .openperiod(getStr(firstItem, "openperiod"))
+                .parkingfeeleports(getStr(firstItem, "parkingfeeleports"))
+                .program(getStr(firstItem, "program"))
+                .spendtimefestival(getStr(firstItem, "spendtimefestival"))
+                .sponsor1(getStr(firstItem, "sponsor1"))
+                .sponsor1tel(getStr(firstItem, "sponsor1tel"))
+                .discountinfo(getStr(firstItem, "discountinfo"))
+                .infocenterculture(getStr(firstItem, "infocenterculture"))
+                .parkingculture(getStr(firstItem, "parkingculture"))
+                .parkingfee(getStr(firstItem, "parkingfee"))
+                .restdateculture(getStr(firstItem, "restdateculture"))
+                .usefee(getStr(firstItem, "usefee"))
+                .usetimeculture(getStr(firstItem, "usetimeculture"))
+                .scale(getStr(firstItem, "scale"))
+                .spendtime(getStr(firstItem, "spendtime"))
+                .agelimit(getStr(firstItem, "agelimit"))
+                .bookingplace(getStr(firstItem, "bookingplace"))
+                .useseason(getStr(firstItem, "useseason"))
+                .usetime(getStr(firstItem, "usetime"))
+                .accomcountculture(getStr(firstItem, "accomcountculture"))
+                .sponsor2(getStr(firstItem, "sponsor2"))
+                .sponsor2tel(getStr(firstItem, "sponsor2tel"))
+                .subevent(getStr(firstItem, "subevent"))
+                .usetimefestival(getStr(firstItem, "usetimefestival"))
+                .distance(getStr(firstItem, "distance"))
+                .infocentertourcourse(getStr(firstItem, "infocentertourcourse"))
+                .schedule(getStr(firstItem, "schedule"))
+                .publicpc(getStr(firstItem, "publicpc"))
+                .sauna(getStr(firstItem, "sauna"))
+                .seminar(getStr(firstItem, "seminar"))
+                .sports(getStr(firstItem, "sports"))
+                .refundregulation(getStr(firstItem, "refundregulation"))
+                .chkbabycarriageshopping(getStr(firstItem, "chkbabycarriageshopping"))
+                .chkcreditcardshopping(getStr(firstItem, "chkcreditcardshopping"))
+                .chkpetshopping(getStr(firstItem, "chkpetshopping"))
+                .culturecenter(getStr(firstItem, "culturecenter"))
+                .fairday(getStr(firstItem, "fairday"))
+                .infocentershopping(getStr(firstItem, "infocentershopping"))
+                .opendateshopping(getStr(firstItem, "opendateshopping"))
+                .opentime(getStr(firstItem, "opentime"))
+                .parkingshopping(getStr(firstItem, "parkingshopping"))
+                .restdateshopping(getStr(firstItem, "restdateshopping"))
+                .restroom(getStr(firstItem, "restroom"))
+                .saleitem(getStr(firstItem, "saleitem"))
+                .saleitemcost(getStr(firstItem, "saleitemcost"))
+                .scaleshopping(getStr(firstItem, "scaleshopping"))
+                .shopguide(getStr(firstItem, "shopguide"))
+                .checkintime(getStr(firstItem, "checkintime"))
+                .checkouttime(getStr(firstItem, "checkouttime"))
+                .chkcooking(getStr(firstItem, "chkcooking"))
+                .accomcountlodging(getStr(firstItem, "accomcountlodging"))
+                .build();
     }
 
     /**
