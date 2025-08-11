@@ -18,6 +18,11 @@ import java.util.List;
 public class RestaurantCustomRepositoryImpl implements RestaurantCustomRepository {
 
     private final JPAQueryFactory queryFactory;
+    
+    // 기본 반경 5km로 설정
+    private static final int DEFAULT_RADIUS_METERS = 5000;
+    // 최대 반경 50km로 제한
+    private static final int MAX_RADIUS_METERS = 50000;
 
     @Override
     public Page<Restaurant> findByAreaWithFilters(
@@ -32,30 +37,56 @@ public class RestaurantCustomRepositoryImpl implements RestaurantCustomRepositor
         QRestaurant restaurant = QRestaurant.restaurant;
 
         BooleanBuilder where = new BooleanBuilder();
-        if (areaCode != null) {
-            where.and(restaurant.basicInfo.areacode.eq(areaCode));
-        }
-        if (category != null && !category.isBlank()) {
-            // todo
+        
+        // 1. 좌표 기반 거리 필터링 우선 적용
+        if (centerLat != null && centerLng != null) {
+            // 반경 설정: 요청값이 없거나 0이면 기본값 5km, 최대 50km로 제한
+            int actualRadius = DEFAULT_RADIUS_METERS;
+            if (radiusMeters != null && radiusMeters > 0) {
+                actualRadius = Math.min(radiusMeters, MAX_RADIUS_METERS);
+            }
+            
+            // Haversine 거리 계산식
+            var distanceExpr = Expressions.numberTemplate(Double.class,
+                "6371000 * acos(least(1.0, cos(radians({0})) * cos(radians({1})) * cos(radians({2}) - radians({3})) + sin(radians({0})) * sin(radians({1}))))",
+                centerLat, restaurant.basicInfo.mapy, restaurant.basicInfo.mapx, centerLng);
+            
+            // 거리 필터 적용
+            where.and(distanceExpr.loe(actualRadius));
+            
+            System.out.println("=== 거리 필터 적용 ===");
+            System.out.println("중심좌표: " + centerLat + ", " + centerLng);
+            System.out.println("반경: " + actualRadius + "m (" + (actualRadius/1000.0) + "km)");
+            
+        } else {
+            // 2. 좌표가 없으면 areacode 필터링 (백업)
+            if (areaCode != null) {
+                where.and(restaurant.basicInfo.areacode.eq(areaCode));
+                System.out.println("=== areacode 필터 적용 (좌표 없음) ===");
+                System.out.println("areaCode: " + areaCode);
+            }
         }
 
-        // distance 계산(미터): Haversine
-        // 6371000 * acos( least(1.0, cos(radians(lat1))*cos(radians(lat2))*cos(radians(lng2)-radians(lng1)) + sin(radians(lat1))*sin(radians(lat2))) )
+        // 3. 카테고리 필터링 구현
+        if (category != null && !category.isBlank()) {
+            // 음식점 카테고리 매핑
+            String categoryFilter = mapCategoryToFilter(category);
+            if (categoryFilter != null) {
+                where.and(restaurant.basicInfo.contenttypeid.eq(categoryFilter));
+            }
+        }
+
+        // distance 계산 (정렬용)
         var distanceExpr = (centerLat != null && centerLng != null)
             ? Expressions.numberTemplate(Double.class,
             "6371000 * acos(least(1.0, cos(radians({0})) * cos(radians({1})) * cos(radians({2}) - radians({3})) + sin(radians({0})) * sin(radians({1}))))",
             centerLat, restaurant.basicInfo.mapy, restaurant.basicInfo.mapx, centerLng)
             : null;
 
-        // 반경 필터
-        if (radiusMeters != null && radiusMeters > 0 && distanceExpr != null) {
-            where.and(distanceExpr.loe(radiusMeters.doubleValue()));
-        }
-
         // 정렬 파싱
         OrderSpecifier<?> orderSpecifier = buildOrderSpecifier(sort, restaurant, distanceExpr);
 
-        // content
+        // content 조회
         List<Restaurant> content = queryFactory
             .selectFrom(restaurant)
             .where(where)
@@ -64,6 +95,7 @@ public class RestaurantCustomRepositoryImpl implements RestaurantCustomRepositor
             .limit(pageable.getPageSize())
             .fetch();
 
+        // 총 개수
         Long totalL = queryFactory
             .select(restaurant.count())
             .from(restaurant)
@@ -71,12 +103,34 @@ public class RestaurantCustomRepositoryImpl implements RestaurantCustomRepositor
             .fetchOne();
 
         long total = (totalL != null) ? totalL : 0L;
+        
+        System.out.println("=== 조회 결과 ===");
+        System.out.println("총 " + total + "개 음식점 중 " + content.size() + "개 조회");
+        
         return new PageImpl<>(content, pageable, total);
+    }
+    
+    /**
+     * 카테고리를 contenttypeid로 매핑
+     */
+    private String mapCategoryToFilter(String category) {
+        return switch (category.toLowerCase()) {
+            case "korean", "한식" -> "39"; // 한식
+            case "chinese", "중식" -> "39"; // 중식도 39에 포함
+            case "western", "양식" -> "39"; // 양식도 39에 포함  
+            case "japanese", "일식" -> "39"; // 일식도 39에 포함
+            case "cafe", "카페" -> "39"; // 카페도 39에 포함
+            case "restaurant", "음식점" -> "39"; // 음식점 전체
+            default -> "39"; // 기본값: 음식점
+        };
     }
 
     private OrderSpecifier<?> buildOrderSpecifier(String sort, QRestaurant restaurant, com.querydsl.core.types.Expression<Double> distanceExpr) {
-        // 기본 정렬: name ASC
+        // 기본 정렬: distance ASC (거리순)
         if (sort == null || sort.isBlank()) {
+            if (distanceExpr != null) {
+                return new OrderSpecifier<>(Order.ASC, distanceExpr);
+            }
             return new OrderSpecifier<>(Order.ASC, restaurant.basicInfo.title);
         }
 
@@ -91,7 +145,12 @@ public class RestaurantCustomRepositoryImpl implements RestaurantCustomRepositor
                 if (distanceExpr == null) yield new OrderSpecifier<>(Order.ASC, restaurant.basicInfo.title);
                 yield new OrderSpecifier<>(order, distanceExpr);
             }
-            default -> new OrderSpecifier<>(Order.ASC, restaurant.basicInfo.title);
+            case "name", "title" -> new OrderSpecifier<>(order, restaurant.basicInfo.title);
+            default -> {
+                // 기본값: 거리순 정렬
+                if (distanceExpr != null) yield new OrderSpecifier<>(Order.ASC, distanceExpr);
+                yield new OrderSpecifier<>(Order.ASC, restaurant.basicInfo.title);
+            }
         };
     }
 }

@@ -92,6 +92,35 @@ public class RestaurantService {
         Double centerLat = (basic != null) ? basic.getMapy() : null;
         Double centerLng = (basic != null) ? basic.getMapx() : null;
 
+        // 디버깅 로그
+        System.out.println("=== 축제 정보 ===");
+        System.out.println("축제 ID: " + request.getFestivalId());
+        System.out.println("축제명: " + (basic != null ? basic.getTitle() : "N/A"));
+        System.out.println("주소: " + (basic != null ? basic.getAddr1() : "N/A"));
+        System.out.println("지역코드: " + areaCode);
+        System.out.println("DB 원본 좌표 - mapx(경도): " + (basic != null ? basic.getMapx() : "N/A") + ", mapy(위도): " + (basic != null ? basic.getMapy() : "N/A"));
+        System.out.println("사용 좌표 - centerLng(경도): " + centerLng + ", centerLat(위도): " + centerLat);
+        System.out.println("요청 반경: " + request.getRadius() + "m");
+        System.out.println("요청 카테고리: " + request.getCategory());
+        
+        // 좌표 검증
+        if (centerLat == null || centerLng == null) {
+            System.out.println("⚠️ 경고: 축제 좌표가 없어서 areacode 기반 조회로 fallback");
+        } else if (centerLat == 0.0 || centerLng == 0.0) {
+            System.out.println("⚠️ 경고: 축제 좌표가 (0,0)이므로 부정확할 수 있음");
+        } else {
+            // 한국 좌표 범위 검증
+            if (centerLat < 33.0 || centerLat > 43.0) {
+                System.out.println("⚠️ 경고: 위도가 한국 범위를 벗어남 (33~43도): " + centerLat);
+            }
+            if (centerLng < 124.0 || centerLng > 132.0) {
+                System.out.println("⚠️ 경고: 경도가 한국 범위를 벗어남 (124~132도): " + centerLng);
+            }
+            if (centerLat >= 124.0 && centerLng <= 43.0) {
+                System.out.println("🚨 오류: 위도/경도가 뒤바뀌었을 가능성! lat=" + centerLat + ", lng=" + centerLng);
+            }
+        }
+
         // 2) 페이지/정렬
         PageRequest pageable = PageRequest.of(request.getPage(), request.getSize());
 
