@@ -37,6 +37,12 @@ public class FestivalBatchConfig {
     private final TourApiClient tourApiClient;
     private final ObjectMapper objectMapper;
 
+    @Value("${tourapi.batch.festival.skip-if-data-exists:true}")
+    private boolean skipIfDataExists;
+
+    @Value("${tourapi.batch.festival.min-data-threshold:1}")
+    private int minDataThreshold;
+
     @Value("${tourapi.service-key}")
     private String serviceKey;
 
@@ -46,7 +52,7 @@ public class FestivalBatchConfig {
     @Value("${tourapi.batch.festival.event-end-date}")
     private String eventEndDate;
 
-    @Value("${tourapi.batch.festival.incremental-mode:false}")
+    @Value("${tourapi.batch.festival.incremental-mode:true}")
     private boolean incrementalMode;
 
     @Value("${tourapi.batch.festival.incremental-days:30}")
@@ -81,9 +87,26 @@ public class FestivalBatchConfig {
         );
 
         return (contribution, chunkContext) -> {
-            log.info("Festival sync started: {} ~ {}", eventStartDate, eventEndDate);
+            // Job Parameter에서 triggerType 확인
+            String triggerType = chunkContext.getStepContext().getJobParameters().get("triggerType").toString();
+            boolean isStartup = triggerType.equals("startup");
+            
+            // 데이터 존재 여부 확인 (startup만)
+            if (isStartup && skipIfDataExists && shouldSkipBatch()) {
+                log.info("[Festival Batch] Skipping startup batch - sufficient data already exists (count >= {})", minDataThreshold);
+                return RepeatStatus.FINISHED;
+            }
 
-            BatchResult result = processor.processFestivalBatch(eventStartDate, eventEndDate, pageSize);
+            // 무조건 증분 모드로 날짜 계산
+            LocalDate now = LocalDate.now();
+            LocalDate incrementalStart = now.minusDays(incrementalDays);
+            String startDate = incrementalStart.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+            String endDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+            
+            log.info("[Festival Batch] Incremental mode: Processing festivals from {} to {} ({} days)", 
+                startDate, endDate, incrementalDays);
+
+            BatchResult result = processor.processFestivalBatch(startDate, endDate, pageSize);
 
             log.info("Festival sync completed - Success: {}, Skipped: {}, Errors: {}",
                 result.getSuccessCount(), result.getSkipCount(), result.getErrorCount());
@@ -92,21 +115,31 @@ public class FestivalBatchConfig {
         };
     }
 
+    /**
+     * 배치를 건너뛸지 여부 판단
+     */
+    private boolean shouldSkipBatch() {
+        try {
+            long existingDataCount = festivalService.getTotalFestivalCount();
+            log.info("[Festival Batch] Current data count: {}, threshold: {}", existingDataCount, minDataThreshold);
+            return existingDataCount >= minDataThreshold;
+        } catch (Exception e) {
+            log.warn("[Festival Batch] Failed to check existing data count, proceeding with batch: {}", e.getMessage());
+            return false;
+        }
+    }
+
     // 메모리 최적화된 새로운 방식
     @Bean
     public FestivalItemReader festivalItemReader() {
-        // 증분 모드일 때 날짜 계산
-        String startDate = eventStartDate;
-        String endDate = eventEndDate;
+        // 무조건 증분 모드로 날짜 계산
+        LocalDate now = LocalDate.now();
+        LocalDate incrementalStart = now.minusDays(incrementalDays);
+        String startDate = incrementalStart.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String endDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         
-        if (incrementalMode) {
-            LocalDate now = LocalDate.now();
-            LocalDate incrementalStart = now.minusDays(incrementalDays);
-            startDate = incrementalStart.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-            endDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-            log.info("[Incremental Mode] Processing festivals from {} to {} ({} days)", 
-                startDate, endDate, incrementalDays);
-        }
+        log.info("[Festival Batch] Incremental mode: Processing festivals from {} to {} ({} days)", 
+            startDate, endDate, incrementalDays);
         
         return new FestivalItemReader(tourApiClient, serviceKey, startDate, endDate, pageSize);
     }

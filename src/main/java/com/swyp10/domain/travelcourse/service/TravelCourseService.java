@@ -36,6 +36,13 @@ public class TravelCourseService {
             .orElseGet(() -> travelCourseRepository.save(TravelCourseMapper.toEntity(searchDto, detailInfoDtos)));
     }
 
+    /**
+     * 전체 여행코스 데이터 개수 조회 (배치용)
+     */
+    public long getTotalTravelCourseCount() {
+        return travelCourseRepository.count();
+    }
+
     private TravelCourse updateExistingTravelCourse(TravelCourse existing,
                                                     SearchTravelCourseDto searchDto,
                                                     List<DetailInfoCourseDto> detailInfoDtos) {

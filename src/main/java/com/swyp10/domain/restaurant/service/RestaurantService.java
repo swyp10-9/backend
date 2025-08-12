@@ -47,6 +47,17 @@ public class RestaurantService {
                                                 List<DetailInfo2RestaurantDto> menuDtoList) {
         // 기본정보 업데이트
         existing.updateBasicInfo(RestaurantMapper.toBasicInfo(restaurantDto));
+        
+        // 더 많은 업데이트 로직...
+        return existing;
+    }
+
+    /**
+     * 전체 레스토랑 데이터 개수 조회 (배치용)
+     */
+    public long getTotalRestaurantCount() {
+        return restaurantRepository.count();
+    }
 
         // 상세정보 업데이트
         existing.updateDetailInfo(RestaurantMapper.toDetailInfo(introDto));

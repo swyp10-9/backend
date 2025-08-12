@@ -34,6 +34,12 @@ public class TravelCourseBatchConfig {
     private final TourApiClient tourApiClient;
     private final ObjectMapper objectMapper;
 
+    @Value("${tourapi.batch.travel-course.skip-if-data-exists:true}")
+    private boolean skipIfDataExists;
+
+    @Value("${tourapi.batch.travel-course.min-data-threshold:1}")
+    private int minDataThreshold;
+
     @Value("${tourapi.service-key}")
     private String serviceKey;
 
@@ -64,6 +70,45 @@ public class TravelCourseBatchConfig {
             .build();
     }
 
+    // 기존 Tasklet 방식 (백업용)
+    @Bean
+    public Tasklet travelCourseSyncTasklet() {
+        TravelCourseBatchProcessor processor = new TravelCourseBatchProcessor(
+            tourApiClient, travelCourseService, objectMapper, serviceKey
+        );
+
+        return (contribution, chunkContext) -> {
+            // 데이터 존재 여부 확인
+            if (skipIfDataExists && shouldSkipBatch()) {
+                log.info("[TravelCourse Batch] Skipping batch - sufficient data already exists (count >= {})", minDataThreshold);
+                return RepeatStatus.FINISHED;
+            }
+
+            log.info("TravelCourse sync started - contentTypeId: {}, maxItems: {}", contentTypeId, maxTotalItems);
+
+            BatchResult result = processor.processTravelCourseBatch(contentTypeId, pageSize, maxTotalItems);
+
+            log.info("TravelCourse sync completed - Success: {}, Skipped: {}, Errors: {}",
+                result.getSuccessCount(), result.getSkipCount(), result.getErrorCount());
+
+            return RepeatStatus.FINISHED;
+        };
+    }
+
+    /**
+     * 배치를 건너뛸지 여부 판단
+     */
+    private boolean shouldSkipBatch() {
+        try {
+            long existingDataCount = travelCourseService.getTotalTravelCourseCount();
+            log.info("[TravelCourse Batch] Current data count: {}, threshold: {}", existingDataCount, minDataThreshold);
+            return existingDataCount >= minDataThreshold;
+        } catch (Exception e) {
+            log.warn("[TravelCourse Batch] Failed to check existing data count, proceeding with batch: {}", e.getMessage());
+            return false;
+        }
+    }
+
     // 메모리 최적화된 새로운 방식
     @Bean
     public TravelCourseItemReader travelCourseItemReader() {
@@ -72,7 +117,7 @@ public class TravelCourseBatchConfig {
 
     @Bean
     public TravelCourseItemProcessor travelCourseItemProcessor() {
-        return new TravelCourseItemProcessor(tourApiClient, serviceKey, contentTypeId, objectMapper);  // contentTypeId 추가
+        return new TravelCourseItemProcessor(tourApiClient, serviceKey, contentTypeId, objectMapper);
     }
 
     @Bean

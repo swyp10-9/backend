@@ -25,11 +25,11 @@ public class BatchAutoRunner implements ApplicationRunner {
     private final Job travelCourseSyncJob;
     private final DataSource dataSource;
 
-    // 서버 시작시 1회 실행
+    // 서버 시작시 1회 실행 - 조건부 실행 (데이터 없으면 실행)
     @Override
     public void run(ApplicationArguments args) throws Exception {
         if (waitForBatchSchemaReady()) {
-            log.info("[Batch] 서버 시작 시 모든 배치 작업 실행");
+            log.info("[Batch] 서버 시작 시 배치 조건 확인 중...");
             runAllSyncJobs("startup");
         } else {
             log.error("[Batch] Batch 스키마가 준비되지 않아 startup 배치를 건너뜁니다.");
@@ -64,11 +64,11 @@ public class BatchAutoRunner implements ApplicationRunner {
         return false;
     }
 
-    // 매일 새벽 3시 자동 실행 - 모든 배치 작업
+    // 매일 새벽 3시 자동 실행 - 모든 배치 작업 (증분 모드)
     @Scheduled(cron = "0 0 3 * * *")
     public void scheduledAllSyncJobs() {
-        log.info("[Batch] 스케줄러: 모든 배치 작업 실행 시작");
-        runAllSyncJobs("scheduled");
+        log.info("[Batch] 스케줄러: 모든 배치 작업 실행 시작 (증분 모드)");
+        runAllSyncJobs("scheduled-incremental");
     }
 
     // 매주 일요일 새벽 4시 Festival 배치만 실행 (추가 동기화)
@@ -96,6 +96,7 @@ public class BatchAutoRunner implements ApplicationRunner {
      * 모든 배치 작업 순차 실행
      */
     private void runAllSyncJobs(String triggerType) {
+        log.info("[Batch] 배치 시작");
         boolean festivalSuccess = runFestivalSyncJob(triggerType);
 
         if (festivalSuccess) {

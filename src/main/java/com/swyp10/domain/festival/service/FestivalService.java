@@ -76,6 +76,13 @@ public class FestivalService {
         return festivalRepository.findByContentId(contentId).isPresent();
     }
 
+    /**
+     * 전체 축제 데이터 개수 조회 (배치용)
+     */
+    public long getTotalFestivalCount() {
+        return festivalRepository.count();
+    }
+
     @Transactional
     public void deleteByFestivalId(Long festivalId) {
         festivalRepository.deleteById(festivalId);

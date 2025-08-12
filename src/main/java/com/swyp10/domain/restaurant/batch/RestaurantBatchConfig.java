@@ -34,6 +34,12 @@ public class RestaurantBatchConfig {
     private final TourApiClient tourApiClient;
     private final ObjectMapper objectMapper;
 
+    @Value("${tourapi.batch.restaurant.skip-if-data-exists:true}")
+    private boolean skipIfDataExists;
+
+    @Value("${tourapi.batch.restaurant.min-data-threshold:1}")
+    private int minDataThreshold;
+
     @Value("${tourapi.service-key}")
     private String serviceKey;
 
@@ -72,6 +78,12 @@ public class RestaurantBatchConfig {
         );
 
         return (contribution, chunkContext) -> {
+            // 데이터 존재 여부 확인
+            if (skipIfDataExists && shouldSkipBatch()) {
+                log.info("[Restaurant Batch] Skipping batch - sufficient data already exists (count >= {})", minDataThreshold);
+                return RepeatStatus.FINISHED;
+            }
+
             log.info("Restaurant sync started - contentTypeId: {}, maxItems: {}", contentTypeId, maxTotalItems);
 
             BatchResult result = processor.processRestaurantBatch(contentTypeId, pageSize, maxTotalItems);
@@ -83,6 +95,20 @@ public class RestaurantBatchConfig {
         };
     }
 
+    /**
+     * 배치를 건너뛸지 여부 판단
+     */
+    private boolean shouldSkipBatch() {
+        try {
+            long existingDataCount = restaurantService.getTotalRestaurantCount();
+            log.info("[Restaurant Batch] Current data count: {}, threshold: {}", existingDataCount, minDataThreshold);
+            return existingDataCount >= minDataThreshold;
+        } catch (Exception e) {
+            log.warn("[Restaurant Batch] Failed to check existing data count, proceeding with batch: {}", e.getMessage());
+            return false;
+        }
+    }
+
     // 메모리 최적화된 새로운 방식
     @Bean
     public RestaurantItemReader restaurantItemReader() {
@@ -91,7 +117,7 @@ public class RestaurantBatchConfig {
 
     @Bean
     public RestaurantItemProcessor restaurantItemProcessor() {
-        return new RestaurantItemProcessor(tourApiClient, serviceKey, contentTypeId, objectMapper);  // contentTypeId 추가
+        return new RestaurantItemProcessor(tourApiClient, serviceKey, contentTypeId, objectMapper);
     }
 
     @Bean
