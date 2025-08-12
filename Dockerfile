@@ -18,5 +18,5 @@ USER spring
 # Expose the port that the app will run on
 EXPOSE 8080
 
-# Run the Spring Boot application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Run the Spring Boot application with docker profile
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=docker", "app.jar"]
