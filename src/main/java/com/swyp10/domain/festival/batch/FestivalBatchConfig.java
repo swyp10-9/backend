@@ -21,6 +21,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 @Slf4j
 @Configuration
 @Profile("!test")
@@ -42,6 +45,12 @@ public class FestivalBatchConfig {
 
     @Value("${tourapi.batch.festival.event-end-date}")
     private String eventEndDate;
+
+    @Value("${tourapi.batch.festival.incremental-mode:false}")
+    private boolean incrementalMode;
+
+    @Value("${tourapi.batch.festival.incremental-days:30}")
+    private int incrementalDays;
 
     @Value("${tourapi.batch.page-size:100}")
     private int pageSize;
@@ -86,7 +95,20 @@ public class FestivalBatchConfig {
     // 메모리 최적화된 새로운 방식
     @Bean
     public FestivalItemReader festivalItemReader() {
-        return new FestivalItemReader(tourApiClient, serviceKey, eventStartDate, eventEndDate, pageSize);
+        // 증분 모드일 때 날짜 계산
+        String startDate = eventStartDate;
+        String endDate = eventEndDate;
+        
+        if (incrementalMode) {
+            LocalDate now = LocalDate.now();
+            LocalDate incrementalStart = now.minusDays(incrementalDays);
+            startDate = incrementalStart.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+            endDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+            log.info("[Incremental Mode] Processing festivals from {} to {} ({} days)", 
+                startDate, endDate, incrementalDays);
+        }
+        
+        return new FestivalItemReader(tourApiClient, serviceKey, startDate, endDate, pageSize);
     }
 
     @Bean
