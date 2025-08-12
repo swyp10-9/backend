@@ -28,12 +28,12 @@ public class BatchAutoRunner implements ApplicationRunner {
     // 서버 시작시 1회 실행
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        if (waitForBatchSchemaReady()) {
-            log.info("[Batch] 서버 시작 시 모든 배치 작업 실행");
-            runAllSyncJobs("startup");
-        } else {
-            log.error("[Batch] Batch 스키마가 준비되지 않아 startup 배치를 건너뜁니다.");
-        }
+//        if (waitForBatchSchemaReady()) {
+//            log.info("[Batch] 서버 시작 시 모든 배치 작업 실행");
+//            runAllSyncJobs("startup");
+//        } else {
+//            log.error("[Batch] Batch 스키마가 준비되지 않아 startup 배치를 건너뜁니다.");
+//        }
     }
 
     private boolean waitForBatchSchemaReady() {
