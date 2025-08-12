@@ -49,8 +49,7 @@ public class RestaurantItemReader implements ItemReader<Object> {
             log.info("Loading restaurant page {} (pageSize: {})", currentPage, pageSize);
 
             Map<String, Object> response = tourApiClient.areaBasedList2(
-                serviceKey, "ETC", "swyp10", "json", pageSize, currentPage, 
-                contentTypeId, null, null, null, null
+                serviceKey, "ETC", "swyp10", "json", contentTypeId, pageSize, currentPage
             );
 
             RestaurantBatchUtils batchUtils = new RestaurantBatchUtils(null);

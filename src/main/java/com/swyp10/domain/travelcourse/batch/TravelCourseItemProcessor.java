@@ -13,17 +13,15 @@ public class TravelCourseItemProcessor implements ItemProcessor<Object, TravelCo
 
     private final TourApiClient tourApiClient;
     private final String serviceKey;
-    private final String contentTypeId;  // 추가
     private final ObjectMapper objectMapper;
 
     private final TravelCourseApiCaller apiCaller;
 
-    public TravelCourseItemProcessor(TourApiClient tourApiClient, String serviceKey, String contentTypeId, ObjectMapper objectMapper) {
+    public TravelCourseItemProcessor(TourApiClient tourApiClient, String serviceKey, ObjectMapper objectMapper) {
         this.tourApiClient = tourApiClient;
         this.serviceKey = serviceKey;
-        this.contentTypeId = contentTypeId;  // 추가
         this.objectMapper = objectMapper;
-        this.apiCaller = new TravelCourseApiCaller(tourApiClient, serviceKey, contentTypeId);  // contentTypeId 전달
+        this.apiCaller = new TravelCourseApiCaller(tourApiClient, serviceKey);
     }
 
     @Override

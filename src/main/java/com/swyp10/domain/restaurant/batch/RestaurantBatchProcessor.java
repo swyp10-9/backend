@@ -136,10 +136,9 @@ public class RestaurantBatchProcessor {
 
     private void processSingleRestaurant(AreaBasedList2RestaurantDto restaurantDto) {
         String contentId = restaurantDto.getContentId();
-        String contentTypeId = restaurantDto.getContentTypeId();
 
-        var introDto = apiCaller.fetchDetailIntro(contentId, contentTypeId);
-        var infoDto = apiCaller.fetchDetailInfo(contentId, contentTypeId);
+        var introDto = apiCaller.fetchDetailIntro(contentId);
+        var infoDto = apiCaller.fetchDetailInfo(contentId);
 
         restaurantService.saveOrUpdateRestaurant(restaurantDto, introDto, infoDto);
     }

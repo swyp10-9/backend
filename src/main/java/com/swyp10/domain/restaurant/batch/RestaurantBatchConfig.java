@@ -117,7 +117,7 @@ public class RestaurantBatchConfig {
 
     @Bean
     public RestaurantItemProcessor restaurantItemProcessor() {
-        return new RestaurantItemProcessor(tourApiClient, serviceKey, contentTypeId, objectMapper);
+        return new RestaurantItemProcessor(tourApiClient, serviceKey, objectMapper);
     }
 
     @Bean

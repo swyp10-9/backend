@@ -136,9 +136,8 @@ public class TravelCourseBatchProcessor {
 
     private void processSingleTravelCourse(SearchTravelCourseDto searchDto) {
         String contentId = searchDto.getContentid();
-        String contentTypeId = searchDto.getContenttypeid();
 
-        var detailInfoDtos = apiCaller.fetchDetailInfo(contentId, contentTypeId);
+        var detailInfoDtos = apiCaller.fetchDetailInfo(contentId);
 
         travelCourseService.saveOrUpdateTravelCourse(searchDto, detailInfoDtos);
     }

@@ -21,12 +21,12 @@ public class RestaurantItemWriter implements ItemWriter<RestaurantProcessedData>
                 try {
                     restaurantService.saveOrUpdateRestaurant(
                         data.getAreaBasedDto(),
-                        data.getDetailInfo(),
-                        data.getDetailIntro()
+                        data.getDetailIntro(),
+                        data.getDetailInfo()
                     );
                 } catch (Exception e) {
                     log.error("Failed to save restaurant {}: {}", 
-                        data.getAreaBasedDto().getContentid(), e.getMessage());
+                        data.getAreaBasedDto().getContentId(), e.getMessage());
                 }
             }
         }

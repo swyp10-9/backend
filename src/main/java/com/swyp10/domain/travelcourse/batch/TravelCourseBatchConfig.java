@@ -117,7 +117,7 @@ public class TravelCourseBatchConfig {
 
     @Bean
     public TravelCourseItemProcessor travelCourseItemProcessor() {
-        return new TravelCourseItemProcessor(tourApiClient, serviceKey, contentTypeId, objectMapper);
+        return new TravelCourseItemProcessor(tourApiClient, serviceKey, objectMapper);
     }
 
     @Bean

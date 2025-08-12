@@ -21,10 +21,10 @@ public class TravelCourseApiCaller {
     private final String contentTypeId;  // 추가
     private final TravelCourseBatchUtils batchUtils;
 
-    public TravelCourseApiCaller(TourApiClient tourApiClient, String serviceKey, String contentTypeId) {
+    public TravelCourseApiCaller(TourApiClient tourApiClient, String serviceKey) {
         this.tourApiClient = tourApiClient;
         this.serviceKey = serviceKey;
-        this.contentTypeId = contentTypeId;  // 추가
+        this.contentTypeId = "25";  // 여행코스 기본값
         this.batchUtils = new TravelCourseBatchUtils(new ObjectMapper());
     }
 

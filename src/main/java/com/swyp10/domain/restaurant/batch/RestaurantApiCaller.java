@@ -22,10 +22,10 @@ public class RestaurantApiCaller {
     private final String contentTypeId;  // 추가
     private final RestaurantBatchUtils batchUtils;
 
-    public RestaurantApiCaller(TourApiClient tourApiClient, String serviceKey, String contentTypeId) {
+    public RestaurantApiCaller(TourApiClient tourApiClient, String serviceKey) {
         this.tourApiClient = tourApiClient;
         this.serviceKey = serviceKey;
-        this.contentTypeId = contentTypeId;  // 추가
+        this.contentTypeId = "39";  // 레스토랑 기본값
         this.batchUtils = new RestaurantBatchUtils(new ObjectMapper());
     }
 
