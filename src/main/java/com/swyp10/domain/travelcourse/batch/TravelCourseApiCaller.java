@@ -18,11 +18,13 @@ public class TravelCourseApiCaller {
 
     private final TourApiClient tourApiClient;
     private final String serviceKey;
+    private final String contentTypeId;  // 추가
     private final TravelCourseBatchUtils batchUtils;
 
-    public TravelCourseApiCaller(TourApiClient tourApiClient, String serviceKey) {
+    public TravelCourseApiCaller(TourApiClient tourApiClient, String serviceKey, String contentTypeId) {
         this.tourApiClient = tourApiClient;
         this.serviceKey = serviceKey;
+        this.contentTypeId = contentTypeId;  // 추가
         this.batchUtils = new TravelCourseBatchUtils(new ObjectMapper());
     }
 
@@ -51,9 +53,9 @@ public class TravelCourseApiCaller {
         return safeCall(apiCall, null);
     }
 
-    public List<DetailInfoCourseDto> fetchDetailInfo(String contentId, String contentTypeId) {
+    public List<DetailInfoCourseDto> fetchDetailInfo(String contentId) {
         Map<String, Object> response = safeCall(() ->
-            tourApiClient.detailInfo2(serviceKey, "ETC", "swyp10", "json", contentId, contentTypeId));
+            tourApiClient.detailInfo2(serviceKey, "ETC", "swyp10", "json", contentId, contentTypeId));  // 변수 사용
 
         return response != null ? batchUtils.parseDetailInfoCourseList(response) : Collections.emptyList();
     }

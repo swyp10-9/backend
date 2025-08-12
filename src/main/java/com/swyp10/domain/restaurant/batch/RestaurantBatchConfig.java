@@ -57,10 +57,14 @@ public class RestaurantBatchConfig {
     @Bean
     public Step restaurantSyncStep() {
         return new StepBuilder("restaurantSyncStep", jobRepository)
-            .tasklet(restaurantSyncTasklet(), transactionManager)
+            .<Object, RestaurantProcessedData>chunk(10, transactionManager)  // 10개씩 처리
+            .reader(restaurantItemReader())
+            .processor(restaurantItemProcessor())
+            .writer(restaurantItemWriter())
             .build();
     }
 
+    // 기존 Tasklet 방식 (백업용)
     @Bean
     public Tasklet restaurantSyncTasklet() {
         RestaurantBatchProcessor processor = new RestaurantBatchProcessor(
@@ -77,5 +81,21 @@ public class RestaurantBatchConfig {
 
             return RepeatStatus.FINISHED;
         };
+    }
+
+    // 메모리 최적화된 새로운 방식
+    @Bean
+    public RestaurantItemReader restaurantItemReader() {
+        return new RestaurantItemReader(tourApiClient, serviceKey, contentTypeId, pageSize, maxTotalItems);
+    }
+
+    @Bean
+    public RestaurantItemProcessor restaurantItemProcessor() {
+        return new RestaurantItemProcessor(tourApiClient, serviceKey, contentTypeId, objectMapper);  // contentTypeId 추가
+    }
+
+    @Bean
+    public RestaurantItemWriter restaurantItemWriter() {
+        return new RestaurantItemWriter(restaurantService);
     }
 }

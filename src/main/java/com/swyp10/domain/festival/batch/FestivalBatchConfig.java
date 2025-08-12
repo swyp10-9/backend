@@ -2,6 +2,7 @@ package com.swyp10.domain.festival.batch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swyp10.domain.festival.client.TourApiClient;
+import com.swyp10.domain.festival.dto.tourapi.SearchFestival2Dto;
 import com.swyp10.domain.festival.service.FestivalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +58,10 @@ public class FestivalBatchConfig {
     @Bean
     public Step festivalSyncStep() {
         return new StepBuilder("festivalSyncStep", jobRepository)
-            .tasklet(festivalSyncTasklet(), transactionManager)
+            .<SearchFestival2Dto, FestivalProcessedData>chunk(10, transactionManager)  // 10개씩 처리
+            .reader(festivalItemReader())
+            .processor(festivalItemProcessor())
+            .writer(festivalItemWriter())
             .build();
     }
 
@@ -77,5 +81,21 @@ public class FestivalBatchConfig {
 
             return RepeatStatus.FINISHED;
         };
+    }
+
+    // 메모리 최적화된 새로운 방식
+    @Bean
+    public FestivalItemReader festivalItemReader() {
+        return new FestivalItemReader(tourApiClient, serviceKey, eventStartDate, eventEndDate, pageSize);
+    }
+
+    @Bean
+    public FestivalItemProcessor festivalItemProcessor() {
+        return new FestivalItemProcessor(tourApiClient, serviceKey, objectMapper);
+    }
+
+    @Bean
+    public FestivalItemWriter festivalItemWriter() {
+        return new FestivalItemWriter(festivalService);
     }
 }

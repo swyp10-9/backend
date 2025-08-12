@@ -19,11 +19,13 @@ public class RestaurantApiCaller {
 
     private final TourApiClient tourApiClient;
     private final String serviceKey;
+    private final String contentTypeId;  // 추가
     private final RestaurantBatchUtils batchUtils;
 
-    public RestaurantApiCaller(TourApiClient tourApiClient, String serviceKey) {
+    public RestaurantApiCaller(TourApiClient tourApiClient, String serviceKey, String contentTypeId) {
         this.tourApiClient = tourApiClient;
         this.serviceKey = serviceKey;
+        this.contentTypeId = contentTypeId;  // 추가
         this.batchUtils = new RestaurantBatchUtils(new ObjectMapper());
     }
 
@@ -52,16 +54,16 @@ public class RestaurantApiCaller {
         return safeCall(apiCall, null);
     }
 
-    public DetailIntro2RestaurantDto fetchDetailIntro(String contentId, String contentTypeId) {
+    public DetailIntro2RestaurantDto fetchDetailIntro(String contentId) {
         Map<String, Object> response = safeCall(() ->
-            tourApiClient.detailIntro2(serviceKey, "ETC", "swyp10", "json", contentId, contentTypeId));
+            tourApiClient.detailIntro2(serviceKey, "ETC", "swyp10", "json", contentId, contentTypeId));  // 변수 사용
 
         return response != null ? batchUtils.parseDetailIntroRestaurantDto(response) : new DetailIntro2RestaurantDto();
     }
 
-    public List<DetailInfo2RestaurantDto> fetchDetailInfo(String contentId, String contentTypeId) {
+    public List<DetailInfo2RestaurantDto> fetchDetailInfo(String contentId) {
         Map<String, Object> response = safeCall(() ->
-            tourApiClient.detailInfo2(serviceKey, "ETC", "swyp10", "json", contentId, contentTypeId));
+            tourApiClient.detailInfo2(serviceKey, "ETC", "swyp10", "json", contentId, contentTypeId));  // 변수 사용
 
         return response != null ? batchUtils.parseDetailInfoMenuList(response) : Collections.emptyList();
     }

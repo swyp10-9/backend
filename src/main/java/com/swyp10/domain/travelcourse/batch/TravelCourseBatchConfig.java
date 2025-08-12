@@ -50,33 +50,33 @@ public class TravelCourseBatchConfig {
     public Job travelCourseSyncJob(Step travelCourseSyncStep) {
         return new JobBuilder("travelCourseSyncJob", jobRepository)
             .incrementer(new RunIdIncrementer())
-            .flow(travelCourseSyncStep)
-            .end()
+            .start(travelCourseSyncStep)
             .build();
     }
 
     @Bean
     public Step travelCourseSyncStep() {
         return new StepBuilder("travelCourseSyncStep", jobRepository)
-            .tasklet(travelCourseSyncTasklet(), transactionManager)
+            .<Object, TravelCourseProcessedData>chunk(10, transactionManager)  // 10개씩 처리
+            .reader(travelCourseItemReader())
+            .processor(travelCourseItemProcessor())
+            .writer(travelCourseItemWriter())
             .build();
     }
 
+    // 메모리 최적화된 새로운 방식
     @Bean
-    public Tasklet travelCourseSyncTasklet() {
-        TravelCourseBatchProcessor processor = new TravelCourseBatchProcessor(
-            tourApiClient, travelCourseService, objectMapper, serviceKey
-        );
+    public TravelCourseItemReader travelCourseItemReader() {
+        return new TravelCourseItemReader(tourApiClient, serviceKey, contentTypeId, pageSize, maxTotalItems);
+    }
 
-        return (contribution, chunkContext) -> {
-            log.info("TravelCourse sync started - contentTypeId: {}, maxItems: {}", contentTypeId, maxTotalItems);
+    @Bean
+    public TravelCourseItemProcessor travelCourseItemProcessor() {
+        return new TravelCourseItemProcessor(tourApiClient, serviceKey, contentTypeId, objectMapper);  // contentTypeId 추가
+    }
 
-            BatchResult result = processor.processTravelCourseBatch(contentTypeId, pageSize, maxTotalItems);
-
-            log.info("TravelCourse sync completed - Success: {}, Skipped: {}, Errors: {}",
-                result.getSuccessCount(), result.getSkipCount(), result.getErrorCount());
-
-            return RepeatStatus.FINISHED;
-        };
+    @Bean
+    public TravelCourseItemWriter travelCourseItemWriter() {
+        return new TravelCourseItemWriter(travelCourseService);
     }
 }
