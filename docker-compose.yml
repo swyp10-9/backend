@@ -1,17 +1,24 @@
 version: '3.8'
 
+networks:
+  internal:
+    driver: bridge
+    internal: true  # 외부 네트워크 접근 차단
+  external:
+    driver: bridge
+
 services:
   mariadb:
     image: mariadb:10.11
     container_name: mariadb
     restart: unless-stopped
-    ports:
-      - "3306:3306"
+    networks:
+      - internal
     environment:
       # MariaDB 설정 - root 사용자로 통일
       MARIADB_ROOT_PASSWORD: ${DB_PASSWORD}
       MARIADB_DATABASE: ${DB_NAME}
-      MARIADB_ROOT_HOST: '%'
+      MARIADB_ROOT_HOST: '172.%'
     volumes:
       - ./mariadb-data:/var/lib/mysql
       - ./init-db:/docker-entrypoint-initdb.d:ro
@@ -41,6 +48,9 @@ services:
     restart: unless-stopped
     ports:
       - "8080:8080"
+    networks:
+      - internal  # MariaDB와 통신용
+      - external  # 외부 API 호출용
     environment:
       SPRING_PROFILES_ACTIVE: docker
 
