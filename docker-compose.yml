@@ -22,7 +22,7 @@ services:
     volumes:
       - ./mariadb-data:/var/lib/mysql
       - ./init-db:/docker-entrypoint-initdb.d:ro
-    command: >
+    command:
       --character-set-server=utf8mb4 
       --collation-server=utf8mb4_unicode_ci
       --bind-address=0.0.0.0
