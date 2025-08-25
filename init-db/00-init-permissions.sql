@@ -8,7 +8,7 @@ SELECT USER(), @@hostname;
 SELECT User, Host FROM mysql.user WHERE User = 'root';
 
 -- root 사용자에게 모든 권한 부여
-GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'172.%' WITH GRANT OPTION;
 
 -- swyp10 데이터베이스가 없으면 생성
 CREATE DATABASE IF NOT EXISTS swyp10 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
