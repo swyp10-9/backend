@@ -14,7 +14,7 @@ GRANT ALL PRIVILEGES ON *.* TO 'root'@'172.%' WITH GRANT OPTION;
 CREATE DATABASE IF NOT EXISTS swyp10 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- root 사용자가 swyp10 데이터베이스에 접근할 수 있도록 명시적 권한 부여
-GRANT ALL PRIVILEGES ON swyp10.* TO 'root'@'%';
+GRANT ALL PRIVILEGES ON swyp10.* TO 'root'@'172.%';
 
 -- 권한 적용
 FLUSH PRIVILEGES;
