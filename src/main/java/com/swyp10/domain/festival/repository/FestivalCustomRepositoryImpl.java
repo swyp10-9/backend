@@ -8,9 +8,11 @@ import com.swyp10.domain.festival.dto.request.FestivalMapRequest;
 import com.swyp10.domain.festival.dto.request.FestivalPersonalTestRequest;
 import com.swyp10.domain.festival.dto.request.FestivalSearchRequest;
 import com.swyp10.domain.festival.dto.response.FestivalDailyCountResponse;
+import com.swyp10.domain.festival.dto.response.FestivalMonthlyTopResponse;
 import com.swyp10.domain.festival.dto.response.FestivalSummaryResponse;
 import com.swyp10.domain.festival.entity.Festival;
 import com.swyp10.domain.festival.entity.QFestival;
+import com.swyp10.domain.festival.entity.QFestivalStatistics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -237,5 +239,32 @@ public class FestivalCustomRepositoryImpl implements FestivalCustomRepository {
             .collect(Collectors.toList());
 
         return new PageImpl<>(dtos, pageable, total);
+    }
+
+    @Override
+    public List<FestivalMonthlyTopResponse> findTop5ByViewCountInCurrentMonth(LocalDate startOfMonth, LocalDate endOfMonth) {
+        QFestival festival = QFestival.festival;
+        QFestivalStatistics statistics = QFestivalStatistics.festivalStatistics;
+
+        BooleanBuilder where = new BooleanBuilder();
+
+        // 현재 월에 진행되는 축제 조건 (기존 달력 필터 로직과 동일한 방식)
+        where.and(festival.basicInfo.eventstartdate.loe(endOfMonth)
+            .and(festival.basicInfo.eventenddate.goe(startOfMonth)));
+
+        List<Festival> content = queryFactory
+            .selectFrom(festival)
+            .leftJoin(statistics).on(festival.festivalId.eq(statistics.festivalId))
+            .where(where)
+            .orderBy(statistics.viewCount.coalesce(0).desc())
+            .limit(5)
+            .fetch();
+
+        // 엔티티 → FestivalMonthlyTopResponse DTO 변환 (overview 포함)
+        List<FestivalMonthlyTopResponse> dtos = content.stream()
+            .map(FestivalMonthlyTopResponse::from)
+            .collect(Collectors.toList());
+
+        return dtos;
     }
 }

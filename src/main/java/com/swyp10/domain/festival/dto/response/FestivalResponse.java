@@ -90,7 +90,6 @@ public class FestivalResponse {
                 .description(festival.getOverview())
                 .thumbnail(festival.getBasicInfo().getFirstimage())
                 .location(Map.of("mapX", festival.getBasicInfo().getMapx(), "mapY", festival.getBasicInfo().getMapy()))
-                .region(festival.getRegion() != null ? RegionResponse.from(festival.getRegion()) : null)
                 .createdAt(festival.getCreatedAt())
                 .updatedAt(festival.getUpdatedAt())
                 .build();

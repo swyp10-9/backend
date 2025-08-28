@@ -69,7 +69,7 @@ class UserBookmarkRepositoryTest {
         );
 
         Optional<UserBookmark> found = userBookmarkRepository
-            .findByUser_UserIdAndFestival_ContentIdAndDeletedAtIsNull(user.getUserId(), String.valueOf(festival.getContentId()));
+            .findByUser_UserIdAndFestival_FestivalIdAndDeletedAtIsNull(user.getUserId(), festival.getFestivalId());
 
         assertThat(found).isPresent();
         assertThat(found.get().getBookmarkId()).isEqualTo(ub.getBookmarkId());
@@ -81,11 +81,11 @@ class UserBookmarkRepositoryTest {
     void existsActiveBookmark() {
         User user = saveUser();
         Festival festival = saveFestival();
-        String contentId = String.valueOf(festival.getContentId());
+        Long festivalId = festival.getFestivalId();
 
         // 없을 때 false
         boolean before = userBookmarkRepository
-            .existsByUser_UserIdAndFestival_ContentIdAndDeletedAtIsNull(user.getUserId(), contentId);
+            .existsByUser_UserIdAndFestival_FestivalIdAndDeletedAtIsNull(user.getUserId(), festivalId);
         assertThat(before).isFalse();
 
         // 생성하면 true
@@ -93,7 +93,7 @@ class UserBookmarkRepositoryTest {
             UserBookmark.builder().user(user).festival(festival).build()
         );
         boolean after = userBookmarkRepository
-            .existsByUser_UserIdAndFestival_ContentIdAndDeletedAtIsNull(user.getUserId(), contentId);
+            .existsByUser_UserIdAndFestival_FestivalIdAndDeletedAtIsNull(user.getUserId(), festivalId);
         assertThat(after).isTrue();
     }
 
@@ -112,7 +112,7 @@ class UserBookmarkRepositoryTest {
         userBookmarkRepository.save(ub);
 
         Optional<UserBookmark> found = userBookmarkRepository
-            .findByUser_UserIdAndFestival_ContentIdAndDeletedAtIsNull(user.getUserId(), String.valueOf(festival.getContentId()));
+            .findByUser_UserIdAndFestival_FestivalId(user.getUserId(), festival.getFestivalId());
 
         assertThat(found).isEmpty();
 

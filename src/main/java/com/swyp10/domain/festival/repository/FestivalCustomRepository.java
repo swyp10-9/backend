@@ -5,6 +5,7 @@ import com.swyp10.domain.festival.dto.request.FestivalMapRequest;
 import com.swyp10.domain.festival.dto.request.FestivalPersonalTestRequest;
 import com.swyp10.domain.festival.dto.request.FestivalSearchRequest;
 import com.swyp10.domain.festival.dto.response.FestivalDailyCountResponse;
+import com.swyp10.domain.festival.dto.response.FestivalMonthlyTopResponse;
 import com.swyp10.domain.festival.dto.response.FestivalSummaryResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,4 +19,5 @@ public interface FestivalCustomRepository {
     List<FestivalDailyCountResponse.DailyCount> findDailyFestivalCounts(LocalDate startDate, LocalDate endDate);
     Page<FestivalSummaryResponse> findFestivalsForPersonalTest(FestivalPersonalTestRequest request, Pageable pageable);
     Page<FestivalSummaryResponse> searchFestivals(FestivalSearchRequest request, Pageable pageable);
+    List<FestivalMonthlyTopResponse> findTop5ByViewCountInCurrentMonth(LocalDate startOfMonth, LocalDate endOfMonth);
 }

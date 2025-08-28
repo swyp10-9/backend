@@ -21,9 +21,6 @@ public class FestivalStatistics {
     @JoinColumn(name = "festival_id")
     private Festival festival;
 
-    @Column(name = "region_code", nullable = false)
-    private int regionCode;
-
     @Column(name = "view_count", nullable = false)
     private int viewCount;
 
@@ -42,7 +39,6 @@ public class FestivalStatistics {
     public static FestivalStatistics createEmpty(Festival festival) {
         return FestivalStatistics.builder()
             .festival(festival)
-            .regionCode(festival.getRegion().getRegionCode())
             .viewCount(0)
             .bookmarkCount(0)
             .ratingAvg(BigDecimal.ZERO)
@@ -51,13 +47,17 @@ public class FestivalStatistics {
     }
 
     @Builder
-    public FestivalStatistics(Festival festival, int regionCode, int viewCount, int bookmarkCount, BigDecimal ratingAvg, int ratingCount) {
+    public FestivalStatistics(Festival festival, int viewCount, int bookmarkCount, BigDecimal ratingAvg, int ratingCount) {
         this.festival = festival;
-        this.regionCode = regionCode;
         this.viewCount = viewCount;
         this.bookmarkCount = bookmarkCount;
         this.ratingAvg = ratingAvg;
         this.ratingCount = ratingCount;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void incrementViewCount() {
+        this.viewCount++;
         this.updatedAt = LocalDateTime.now();
     }
 }

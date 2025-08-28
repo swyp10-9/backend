@@ -26,10 +26,4 @@ public class Region extends BaseTimeEntity {
 
     @Column(name = "parent_code", length = 50)
     private String parentCode;
-
-    @OneToMany(mappedBy = "region", fetch = FetchType.LAZY)
-    @Builder.Default
-    @JsonIgnore
-    private List<Festival> festivals = new ArrayList<>();
-
 }
