@@ -9,6 +9,7 @@ import com.swyp10.domain.bookmark.repository.UserBookmarkRepository;
 import com.swyp10.domain.festival.dto.request.*;
 import com.swyp10.domain.festival.dto.response.FestivalDailyCountResponse;
 import com.swyp10.domain.festival.dto.response.FestivalListResponse;
+import com.swyp10.domain.festival.dto.response.FestivalMonthlyTopListResponse;
 import com.swyp10.domain.festival.dto.response.FestivalSummaryResponse;
 import com.swyp10.domain.festival.dto.tourapi.DetailCommon2Dto;
 import com.swyp10.domain.festival.dto.tourapi.DetailImage2Dto;
@@ -114,8 +115,8 @@ class FestivalServiceTest {
         em.clear();
 
         // createdAt & deletedAt 직접 세팅
-        UserBookmark managed = userBookmarkRepository.findByUser_UserIdAndFestival_ContentId(
-            user.getUserId(), festival.getContentId()
+        UserBookmark managed = userBookmarkRepository.findByUser_UserIdAndFestival_FestivalId(
+            user.getUserId(), festival.getFestivalId()
         ).orElseThrow();
 
         // createdAt 강제 세팅
@@ -569,6 +570,207 @@ class FestivalServiceTest {
             // then
             assertThat(res.getContent()).isEmpty();
             assertThat(res.getTotalElements()).isZero();
+        }
+    }
+
+    @Nested
+    @DisplayName("이달의 축제 Service 테스트")
+    class MonthlyTopFestivals {
+
+        private Festival saveFestivalWithStatistics(String contentId, String title, int viewCount) {
+            FestivalBasicInfo basicInfo = FestivalBasicInfo.builder()
+                .title(title)
+                .eventstartdate(LocalDate.now().withDayOfMonth(1)) // 이번 달 시작일
+                .eventenddate(LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth())) // 이번 달 마지막일
+                .firstimage2("https://thumb.test/" + contentId + ".jpg")
+                .addr1("서울시 어딘가")
+                .mapx(127.0)
+                .mapy(37.5)
+                .build();
+
+            Festival festival = Festival.builder()
+                .contentId(contentId)
+                .basicInfo(basicInfo)
+                .status(FestivalStatus.ONGOING)
+                .build();
+
+            Festival savedFestival = festivalRepository.save(festival);
+
+            // Statistics 초기화 및 viewCount 설정
+            savedFestival.initializeStatistics();
+            for (int i = 0; i < viewCount; i++) {
+                savedFestival.getStatistics().incrementViewCount();
+            }
+
+            festivalRepository.save(savedFestival);
+            em.flush();
+            em.clear();
+
+            return savedFestival;
+        }
+
+        @Test
+        @DisplayName("이달의 축제 조회 - viewCount 순으로 상위 5개 성공")
+        void getMonthlyTopFestivals_success() {
+            // given
+            saveFestivalWithStatistics("1111", "가장 인기있는 축제", 100);
+            saveFestivalWithStatistics("2222", "두번째 인기 축제", 80);
+            saveFestivalWithStatistics("3333", "세번째 인기 축제", 60);
+            saveFestivalWithStatistics("4444", "네번째 인기 축제", 40);
+            saveFestivalWithStatistics("5555", "다섯번째 인기 축제", 20);
+            saveFestivalWithStatistics("6666", "여섯번째 인기 축제", 10); // 6개 생성하여 5개만 반환되는지 확인
+
+            // when
+            FestivalMonthlyTopListResponse result = festivalService.getMonthlyTopFestivals(null);
+
+            // then
+            assertThat(result.getContent()).hasSize(5);
+            assertThat(result.getContent().get(0).getTitle()).isEqualTo("가장 인기있는 축제");
+            assertThat(result.getContent().get(1).getTitle()).isEqualTo("두번째 인기 축제");
+            assertThat(result.getContent().get(2).getTitle()).isEqualTo("세번째 인기 축제");
+            assertThat(result.getContent().get(3).getTitle()).isEqualTo("네번째 인기 축제");
+            assertThat(result.getContent().get(4).getTitle()).isEqualTo("다섯번째 인기 축제");
+
+            // 페이징 정보 확인
+            assertThat(result.getPage()).isEqualTo(0);
+            assertThat(result.getSize()).isEqualTo(5);
+            assertThat(result.getTotalElements()).isEqualTo(5);
+            assertThat(result.getTotalPages()).isEqualTo(1);
+            assertThat(result.getFirst()).isTrue();
+            assertThat(result.getLast()).isTrue();
+
+            // 로그인하지 않은 사용자이므로 모든 북마크가 false
+            result.getContent().forEach(festival ->
+                assertThat(festival.getBookmarked()).isFalse());
+        }
+
+        @Test
+        @DisplayName("이달의 축제 조회 - 로그인한 사용자의 북마크 상태 확인")
+        void getMonthlyTopFestivals_with_bookmark_status() {
+            // given
+            User user = saveUser("user@test.com", "테스트유저");
+
+            Festival festival1 = saveFestivalWithStatistics("1111", "북마크한 축제", 100);
+            Festival festival2 = saveFestivalWithStatistics("2222", "북마크하지 않은 축제", 80);
+
+            // 첫 번째 축제만 북마크
+            saveBookmark(user, festival1, LocalDateTime.now(), false);
+
+            // when
+            FestivalMonthlyTopListResponse result = festivalService.getMonthlyTopFestivals(user.getUserId());
+
+            // then
+            assertThat(result.getContent()).hasSize(2);
+            assertThat(result.getContent().get(0).getBookmarked()).isTrue(); // 북마크한 축제
+            assertThat(result.getContent().get(1).getBookmarked()).isFalse(); // 북마크하지 않은 축제
+        }
+
+        @Test
+        @DisplayName("이달의 축제 조회 - 이번 달에 진행되지 않는 축제는 제외")
+        void getMonthlyTopFestivals_excludes_festivals_not_in_current_month() {
+            // given
+            LocalDate nextMonth = LocalDate.now().plusMonths(1);
+
+            // 이번 달 축제
+            saveFestivalWithStatistics("1111", "이번 달 축제", 100);
+
+            // 다음 달 축제 (제외되어야 함)
+            FestivalBasicInfo nextMonthBasicInfo = FestivalBasicInfo.builder()
+                .title("다음 달 축제")
+                .eventstartdate(nextMonth.withDayOfMonth(1))
+                .eventenddate(nextMonth.withDayOfMonth(nextMonth.lengthOfMonth()))
+                .firstimage2("https://thumb.test/next.jpg")
+                .addr1("서울시 어딘가")
+                .mapx(127.0)
+                .mapy(37.5)
+                .build();
+
+            Festival nextMonthFestival = Festival.builder()
+                .contentId("2222")
+                .basicInfo(nextMonthBasicInfo)
+                .status(FestivalStatus.ONGOING)
+                .build();
+
+            festivalRepository.save(nextMonthFestival);
+
+            // when
+            FestivalMonthlyTopListResponse result = festivalService.getMonthlyTopFestivals(null);
+
+            // then
+            assertThat(result.getContent()).hasSize(1);
+            assertThat(result.getContent().get(0).getTitle()).isEqualTo("이번 달 축제");
+        }
+
+        @Test
+        @DisplayName("이달의 축제 조회 - 통계가 없는 축제도 포함 (viewCount 0으로 처리)")
+        void getMonthlyTopFestivals_includes_festivals_without_statistics() {
+            // given
+            // 통계가 있는 축제
+            saveFestivalWithStatistics("1111", "통계 있는 축제", 50);
+
+            // 통계가 없는 축제
+            FestivalBasicInfo basicInfo = FestivalBasicInfo.builder()
+                .title("통계 없는 축제")
+                .eventstartdate(LocalDate.now().withDayOfMonth(1))
+                .eventenddate(LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth()))
+                .firstimage2("https://thumb.test/no-stats.jpg")
+                .addr1("서울시 어딘가")
+                .mapx(127.0)
+                .mapy(37.5)
+                .build();
+
+            Festival festivalWithoutStats = Festival.builder()
+                .contentId("2222")
+                .basicInfo(basicInfo)
+                .status(FestivalStatus.ONGOING)
+                .build();
+
+            festivalRepository.save(festivalWithoutStats);
+
+            // when
+            FestivalMonthlyTopListResponse result = festivalService.getMonthlyTopFestivals(null);
+
+            // then
+            assertThat(result.getContent()).hasSize(2);
+            assertThat(result.getContent().get(0).getTitle()).isEqualTo("통계 있는 축제"); // viewCount가 높으므로 먼저
+            assertThat(result.getContent().get(1).getTitle()).isEqualTo("통계 없는 축제"); // viewCount 0으로 나중
+        }
+
+        @Test
+        @DisplayName("이달의 축제 조회 - 결과 없음")
+        void getMonthlyTopFestivals_empty() {
+            // given
+            // 데이터 없이 테스트
+
+            // when
+            FestivalMonthlyTopListResponse result = festivalService.getMonthlyTopFestivals(null);
+
+            // then
+            assertThat(result.getContent()).isEmpty();
+            assertThat(result.getTotalElements()).isEqualTo(0);
+            assertThat(result.getTotalPages()).isEqualTo(1);
+            assertThat(result.getEmpty()).isTrue();
+            assertThat(result.getFirst()).isTrue();
+            assertThat(result.getLast()).isTrue();
+        }
+
+        @Test
+        @DisplayName("이달의 축제 조회 - 5개 미만일 때 정상 처리")
+        void getMonthlyTopFestivals_less_than_five() {
+            // given
+            saveFestivalWithStatistics("1111", "첫 번째 축제", 30);
+            saveFestivalWithStatistics("2222", "두 번째 축제", 20);
+            saveFestivalWithStatistics("3333", "세 번째 축제", 10);
+
+            // when
+            FestivalMonthlyTopListResponse result = festivalService.getMonthlyTopFestivals(null);
+
+            // then
+            assertThat(result.getContent()).hasSize(3);
+            assertThat(result.getContent().get(0).getTitle()).isEqualTo("첫 번째 축제");
+            assertThat(result.getContent().get(1).getTitle()).isEqualTo("두 번째 축제");
+            assertThat(result.getContent().get(2).getTitle()).isEqualTo("세 번째 축제");
+            assertThat(result.getTotalElements()).isEqualTo(3);
         }
     }
 }

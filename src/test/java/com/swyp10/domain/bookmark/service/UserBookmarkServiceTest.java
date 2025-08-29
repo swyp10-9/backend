@@ -47,7 +47,7 @@ class UserBookmarkServiceTest {
             // given
             when(festivalRepository.findByContentId(String.valueOf(festivalId))).thenReturn(Optional.of(festival()));
             when(userRepository.findById(userId)).thenReturn(Optional.of(user()));
-            when(bookmarkRepository.findByUser_UserIdAndFestival_ContentId(userId, String.valueOf(festivalId)))
+            when(bookmarkRepository.findByUser_UserIdAndFestival_FestivalId(userId, festivalId))
                 .thenReturn(Optional.empty());
             when(bookmarkRepository.save(any(UserBookmark.class)))
                 .thenAnswer(inv -> {
@@ -80,7 +80,7 @@ class UserBookmarkServiceTest {
                 .festival(festival())
                 .createdAt(LocalDateTime.now())
                 .build(); // deletedAt == null
-            when(bookmarkRepository.findByUser_UserIdAndFestival_ContentId(userId, String.valueOf(festivalId)))
+            when(bookmarkRepository.findByUser_UserIdAndFestival_FestivalId(userId, festivalId))
                 .thenReturn(Optional.of(existing));
 
             // expect
@@ -113,7 +113,7 @@ class UserBookmarkServiceTest {
             field.setAccessible(true);
             field.set(softDeleted, LocalDateTime.now().minusDays(1));
 
-            when(bookmarkRepository.findByUser_UserIdAndFestival_ContentId(userId, String.valueOf(festivalId)))
+            when(bookmarkRepository.findByUser_UserIdAndFestival_FestivalId(userId, festivalId))
                 .thenReturn(Optional.of(softDeleted));
 
             // when

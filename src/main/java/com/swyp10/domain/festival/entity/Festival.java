@@ -3,7 +3,6 @@ package com.swyp10.domain.festival.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.swyp10.common.BaseTimeEntity;
 import com.swyp10.domain.festival.enums.*;
-import com.swyp10.domain.region.entity.Region;
 import com.swyp10.domain.review.entity.UserReview;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -62,10 +61,6 @@ public class Festival extends BaseTimeEntity {
     @OneToOne(mappedBy = "festival", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private FestivalStatistics statistics;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "region_code", updatable = false)
-    private Region region;
-
     @OneToMany(mappedBy = "festival", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     @JsonIgnore
@@ -91,8 +86,10 @@ public class Festival extends BaseTimeEntity {
 
     // 연관 관계 메서드
     public void initializeStatistics() {
-        FestivalStatistics stats = FestivalStatistics.createEmpty(this);
-        this.statistics = stats;
+        if (this.statistics == null) {
+            FestivalStatistics stats = FestivalStatistics.createEmpty(this);
+            this.statistics = stats;
+        }
     }
 
     public void addDetailImage(FestivalImage image) {

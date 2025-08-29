@@ -2,9 +2,7 @@ package com.swyp10.domain.festival.service;
 
 import com.swyp10.domain.bookmark.repository.UserBookmarkRepository;
 import com.swyp10.domain.festival.dto.request.*;
-import com.swyp10.domain.festival.dto.response.FestivalDailyCountResponse;
-import com.swyp10.domain.festival.dto.response.FestivalListResponse;
-import com.swyp10.domain.festival.dto.response.FestivalSummaryResponse;
+import com.swyp10.domain.festival.dto.response.*;
 import com.swyp10.domain.festival.dto.tourapi.DetailCommon2Dto;
 import com.swyp10.domain.festival.dto.tourapi.DetailImage2Dto;
 import com.swyp10.domain.festival.dto.tourapi.DetailIntro2Dto;
@@ -54,11 +52,19 @@ public class FestivalService {
 
                 return existing;
             })
-            .orElseGet(() ->
-                festivalRepository.save(FestivalMapper.toEntity(
+            .orElseGet(() -> {
+                // 새로운 Festival 생성
+                Festival newFestival = FestivalMapper.toEntity(
                     searchFestival2Dto, detailCommon2Dto, detailIntro2Dto, detailImage2DtoList
-                ))
-            );
+                );
+
+                Festival savedFestival = festivalRepository.save(newFestival);
+
+                // Statistics 초기화
+                savedFestival.initializeStatistics();
+
+                return festivalRepository.save(savedFestival);
+            });
     }
 
     public Festival findByFestivalId(Long festivalId) {
@@ -110,6 +116,42 @@ public class FestivalService {
             .startDate(startDate)
             .endDate(endDate)
             .dailyCounts(dailyCounts)
+            .build();
+    }
+
+    public FestivalMonthlyTopListResponse getMonthlyTopFestivals(Long userId) {
+        LocalDate now = LocalDate.now();
+        LocalDate startOfMonth = now.withDayOfMonth(1);
+        LocalDate endOfMonth = now.withDayOfMonth(now.lengthOfMonth());
+
+        List<FestivalMonthlyTopResponse> topFestivals = festivalRepository.findTop5ByViewCountInCurrentMonth(startOfMonth, endOfMonth);
+
+        // 로그인한 사용자인 경우에만 북마크 상태 확인
+        if (userId != null && !topFestivals.isEmpty()) {
+            List<Long> festivalIds = topFestivals.stream()
+                .map(FestivalMonthlyTopResponse::getId)
+                .toList();
+
+            Set<Long> bookmarkedIds = userBookmarkRepository.findBookmarkedFestivalIds(userId, festivalIds);
+
+            topFestivals.forEach(festival -> {
+                boolean isBookmarked = bookmarkedIds.contains(festival.getId());
+                festival.setBookmarked(isBookmarked);
+            });
+        } else {
+            // 로그인하지 않은 사용자는 모든 북마크를 false로 설정
+            topFestivals.forEach(festival -> festival.setBookmarked(false));
+        }
+
+        return FestivalMonthlyTopListResponse.builder()
+            .content(topFestivals)
+            .page(0)
+            .size(5)
+            .totalElements((long) topFestivals.size())
+            .totalPages(1)
+            .first(true)
+            .last(true)
+            .empty(topFestivals.isEmpty())
             .build();
     }
 
@@ -170,4 +212,6 @@ public class FestivalService {
             .empty(page.isEmpty())
             .build();
     }
+
+
 }

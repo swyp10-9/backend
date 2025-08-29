@@ -11,6 +11,7 @@ import com.swyp10.exception.ApplicationException;
 import com.swyp10.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
@@ -34,7 +35,10 @@ public class FestivalDetailService {
         // festival_id(PK)로 축제 찾기
         Festival festival = festivalRepository.findById(festivalId)
             .orElseThrow(() -> new ApplicationException(ErrorCode.FESTIVAL_NOT_FOUND, "축제를 찾을 수 없습니다. id=" + festivalId));
-        
+
+        // 조회수 증가
+        incrementViewCountInNewTransaction(festivalId);
+
         // 북마크 상태 확인
         boolean isBookmarked = false;
         if (userId != null) {
@@ -124,5 +128,17 @@ public class FestivalDetailService {
 
     private String safeToString(Object o) {
         return o == null ? null : String.valueOf(o);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void incrementViewCountInNewTransaction(Long festivalId) {
+        int updatedRows = festivalRepository.incrementViewCount(festivalId);
+        if (updatedRows == 0) {
+            Festival festival = festivalRepository.findById(festivalId).orElse(null);
+            if (festival != null && festival.getStatistics() == null) {
+                festival.initializeStatistics();
+                festivalRepository.save(festival);
+            }
+        }
     }
 }

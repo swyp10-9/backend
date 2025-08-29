@@ -3,6 +3,8 @@ package com.swyp10.domain.festival.controller;
 import com.swyp10.config.security.OptionalUserId;
 import com.swyp10.domain.festival.dto.request.*;
 import com.swyp10.domain.festival.dto.response.FestivalListResponse;
+import com.swyp10.domain.festival.dto.response.FestivalMonthlyTopListResponse;
+import com.swyp10.domain.festival.dto.response.FestivalMonthlyTopResponse;
 import com.swyp10.domain.festival.service.FestivalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -56,6 +58,14 @@ public class FestivalController {
             @ModelAttribute @ParameterObject FestivalSearchRequest request
     ) {
         return festivalService.searchFestivals(userId, request);
+    }
+
+    @Operation(summary = "이달의 축제", description = "현재 월 기준으로 viewCount가 가장 높은 5개 축제 조회 (로그인 불필요)")
+    @GetMapping("/monthly-top")
+    public FestivalMonthlyTopListResponse getMonthlyTopFestivals(
+        @Parameter(hidden = true) @OptionalUserId Long userId  // 로그인 선택적, Swagger에서 숨김
+    ) {
+        return festivalService.getMonthlyTopFestivals(userId);
     }
 
     @Operation(

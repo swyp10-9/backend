@@ -45,7 +45,7 @@ class FestivalDetailServiceTest {
         Festival saved = festivalRepository.save(buildFestivalAggregate("상세축제"));
 
         // when
-        FestivalDetailResponse res = festivalDetailService.getFestivalDetail(Long.parseLong(saved.getContentId()));
+        FestivalDetailResponse res = festivalDetailService.getFestivalDetail(saved.getFestivalId(), null);
 
         // then
         assertThat(res.getId()).isEqualTo(Long.parseLong(saved.getContentId()));
@@ -70,7 +70,7 @@ class FestivalDetailServiceTest {
     @Test
     @DisplayName("축제 상세 조회 - 존재하지 않는 ID면 ApplicationException(NOT_FOUND 계열) 발생")
     void getFestivalDetail_notFound() {
-        assertThatThrownBy(() -> festivalDetailService.getFestivalDetail(999999L))
+        assertThatThrownBy(() -> festivalDetailService.getFestivalDetail(999999L, null))
             .isInstanceOf(ApplicationException.class)
             .extracting("errorCode")
             .isEqualTo(ErrorCode.FESTIVAL_NOT_FOUND);
