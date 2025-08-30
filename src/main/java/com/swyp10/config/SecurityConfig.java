@@ -42,7 +42,8 @@ public class SecurityConfig {
 
         configuration.setAllowedOriginPatterns(List.of(
                 "http://localhost:3000",
-                "https://chukjibeob-dev.netlify.app"
+                "https://chukjibeob-dev.netlify.app",
+                "https://chukjibeob.netlify.app"
         ));
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
