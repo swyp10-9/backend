@@ -50,7 +50,7 @@ public class FestivalMonthlyTopResponse {
     public static FestivalMonthlyTopResponse from(Festival festival) {
         return FestivalMonthlyTopResponse.builder()
             .id(festival.getFestivalId())
-            .thumbnail(festival.getBasicInfo() != null ? festival.getBasicInfo().getFirstimage2() : null)
+            .thumbnail(festival.getBasicInfo() != null ? festival.getBasicInfo().getFirstimage() : null)
             .theme(festival.getTheme() != null ? festival.getTheme().name() : null)
             .title(festival.getBasicInfo() != null ? festival.getBasicInfo().getTitle() : null)
             .overview(festival.getOverview()) // overview 포함
